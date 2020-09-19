@@ -10,10 +10,10 @@ let state = {
 };
 
 const mutations = {
-  setName(context,msg){
+  setName(state,msg){
     state.name = msg;
   },
-  setCategory(context,msg){
+  setCategory(state,msg){
     state.category = msg;
   }
 };

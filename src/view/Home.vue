@@ -6,8 +6,8 @@
     <Layout>
 
         <map-layout ref="mapLayout"></map-layout>
-
-        <Typhoon></Typhoon>
+        <router-view/>
+        <!--<Typhoon></Typhoon>-->
 
 
 
@@ -28,6 +28,8 @@
       },
       created:function(){
         if(this.$store.state.name==""){
+          debugger
+          console.log("state.name is null")
           this.$router.push({
             name: 'login'
           })

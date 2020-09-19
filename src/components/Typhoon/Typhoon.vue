@@ -401,6 +401,10 @@
   }
   .bg {
     background : #dcdee2;
-    position: absolute;bottom:0;top:61px;right:80%;left:0
+    position: absolute;
+    bottom:0;
+    top:61px;
+    right:80%;
+    left:0;
   }
 </style>

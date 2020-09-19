@@ -1,7 +1,7 @@
 <template>
 
   <el-container style="height:60px">
-    <el-aside width="500px">
+    <el-aside width="400px">
      <a href="#/home" >
        <img
          id="img_logo"

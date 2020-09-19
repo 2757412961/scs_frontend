@@ -4,13 +4,8 @@
       <HeadNav></HeadNav>
     </Header>
     <Layout>
-
       <map-layout ref="mapLayout"></map-layout>
-
       <router-view/>
-
-
-
     </Layout>
   </Layout>
 </template>

@@ -1,58 +1,91 @@
 <template>
-      <Sider width="300px" ref="side_r"  collapsible :collapsed-width="1" v-model="isCollapsed" class="bg" hide-trigger>
-        <router-view></router-view>
-        <Row>
-          <Col span="4">
-            <Icon @click.native="collapsedSider" :class="rotateIcon"  type="ios-arrow-dropleft-circle" size="28" style="color: rgb(200, 200, 200); " ></Icon>
-          </Col>
-        </Row>
+      <el-collapse class="tf_panel" v-model="activeName" accordion>
+        <el-collapse-item title="" name="1" style="height: 100%;border: 3px solid #5b84cc; border-radius: 2px;">
 
+          <!--<List border size="small" style="border-color: #cccccc ; left: 5%; right: 5%; width: 90%">
+            <ListItem>
+              <ListItemMeta description="台风预警"  />
+              <template slot="action">
+                <li>
+                  <a href="" style="color: gray">返回</a>
+                </li>
+              </template>
+            </ListItem>
+          </List>-->
 
-        <List border size="small" style="border-color: #cccccc ; left: 5%; right: 5%; width: 90%">
-          <ListItem>
-            <ListItemMeta description="台风预警"  />
-            <template slot="action">
-              <li>
-                <a href="" style="color: gray">返回</a>
-              </li>
+          <div style="height: 40px;margin-left: 1%; width: 98%; border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%" align="left">
+            <span style="margin-left: 5%; height: 26px;margin-top: 3px">台风预警</span>
+            <span style="margin-left: 5%; height: 26px;margin-top: 3px"><a href="" style="color: gray">返回</a></span>
+          </div>
+
+          <div style="height: 40px;margin-left: 1%; width: 98%; border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%" align="left">
+            <span style="margin-left: 5%">年份：</span>
+            <el-select v-model="selectedYear" placeholder="请选择" size="small" style="width: 30%;height: 26px;margin-top: 3px">
+              <el-option
+                v-for="item in yearList"
+                :key="item.value"
+                :label="item.value"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </div>
+
+          <!--<List border size="small" style="border-color: #cccccc;height: 20%; left: 5%; right: 5%; width: 90%; top: 1%">
+            <ListItem>
+              <ListItemMeta description="年份：" style="alignment: left" />
+              <template>
+                <Select v-model="selectedYear" style="width:60%; alignment: right; " size="small">
+                  <Option v-for="item in yearList" :value="item.value" :key="item.value">{{ item.value }}</Option>
+                </Select>
+              </template>
+            </ListItem>
+          </List>-->
+
+<!--          <Table border :columns="typhColumns" :data="typhList"
+                 :show-header="true" :border="false" style="height: 250px;"
+                 @on-row-click="chooseTyph"  highlight-row >
+            <template slot-scope="{ row }" slot="name">
+              <Scroll>
+              <strong>{{ row.name }}</strong>
+              </Scroll>
             </template>
-          </ListItem>
-        </List>
+          </Table>-->
+<!-- 台风号、台风名表格-->
+          <el-table
+            :data="typhList" height="250"  border  style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%;margin-left: 1%"
+            @row-click="chooseTyph">
+            <el-table-column
+              prop="typhNum"
+              label="台风号">
+            </el-table-column>
+            <el-table-column
+              prop="typhName"
+              label="台风名">
+            </el-table-column>
+          </el-table>
+          <!-- 时间、风速-->
+          <el-table
+            :data="routeList" height="250"  border  style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%;margin-left: 1%"
+            @row-click="chooseTyph">
+            <el-table-column
+              prop="time"
+              label="时间">
+            </el-table-column>
+            <el-table-column
+              prop="windSpeed"
+              label="风速">
+            </el-table-column>
+          </el-table>
 
-        <List border size="small" style="border-color: #cccccc; left: 5%; right: 5%; width: 90%; top: 1%">
-          <ListItem>
-            <ListItemMeta description="年份：" style="alignment: left" />
-            <template>
-              <Select v-model="selectedYear" style="width:60%; alignment: right; " size="small">
-                <Option v-for="item in yearList" :value="item.value" :key="item.value">{{ item.value }}</Option>
-              </Select>
+          <!--<Table border :columns="routeColumns" :data="routeList"
+                 :show-header="true" :border="false" height="250px"
+                 @on-row-click="chooseTyph"  highlight-row>
+            <template slot-scope="{ row }" slot="name">
+              <strong>{{ row.name }}</strong>
             </template>
-          </ListItem>
-        </List>
-
-
-        <!--         台风预警，返回按钮-->
-<!--        v-table-scroll="loading"-->
-        <Table border :columns="typhColumns" :data="typhList"
-               :show-header="true" :border="false" height="250px"
-               @on-row-click="chooseTyph"  highlight-row>
-          <template slot-scope="{ row }" slot="name">
-            <strong>{{ row.name }}</strong>
-          </template>
-        </Table>
-
-        <Table border :columns="routeColumns" :data="routeList"
-               :show-header="true" :border="false" height="300px"
-               @on-row-click="chooseTyph"  highlight-row>
-          <template slot-scope="{ row }" slot="name">
-            <strong>{{ row.name }}</strong>
-          </template>
-        </Table>
-
-        <Menu  width="auto" :class="menuitemClasses" accordion theme="dark">
-        </Menu>
-      </Sider>
-
+          </Table>-->
+        </el-collapse-item>
+      </el-collapse>
 </template>
 
 <script>
@@ -62,6 +95,7 @@
       name: "Typhoon",
       data () {
         return {
+          activeName: '1',
           isCollapsed: false,
 
           // 台风表
@@ -117,13 +151,8 @@
         typhoonList(year) {
           this.typhList = [];
           var api = `/api/SCSServices/typhoonList.action?year=${year}`;
-          console.log('TyphoonList1');
           this.$axios.get(api)
             .then((response) => {
-
-              console.log('TyphoonList2');//成功回调
-              console.log(response);
-
               if(response.data!=null){
 
                 for(var i=response.data.length-1; i>=0;i--){
@@ -157,9 +186,6 @@
           console.log('typhoonYear1');
           this.$axios.get(api)
             .then((response) => {
-
-              console.log('typhoonYear2');//成功回调
-
               if(response.data!=null){
                 // console.log(response);
                 // console.log(response.data[0].toString()+"***********");
@@ -170,10 +196,7 @@
                   var object0 = {"value": response.data[i].toString()};
                   this.yearList.push(object0);
                 }
-
                 this.selectedYear = response.data[0].toString();
-
-
               }else{
                 // 若不成功，则弹出警告框
                 this.$confirm('无法获取台风年份信息！', '提示', {
@@ -200,8 +223,6 @@
           this.$axios.get(api)
             .then((response) => {
 
-              console.log('typhoonOngoing2');//成功回调
-              console.log(response);
               // console.log('----'+response.data['modelNum']);
               if(response.data!=null){
 
@@ -298,10 +319,6 @@
           return 0;
         },
 
-        collapsedSider() {
-          this.$refs.side_r.toggleCollapse();
-        },
-
         // 把台风轨迹信息使用typhMonitor加载到轨迹表格中
         // 每加一条的同时修改typhMonitor，监听并在map中添加轨迹
         addToRouteTable() {
@@ -351,9 +368,9 @@
     }
 </script>
 
-<style scoped>
+<style>
 
-  .ivu-layout-header {
+/*  .ivu-layout-header {
     background: rgb(84, 92, 100);
     padding: 0 10px;
     height: 61px;
@@ -405,6 +422,18 @@
     bottom:0;
     top:61px;
     right:0;
-    /*left:80%;*/
+    !*left:80%;*!
+  }*/
+  .tf_panel {
+    position: relative;
+    /*height: 500px;*/
+    width: 20%;
+    left: 78%;
+    border: 0;
+  }
+
+  .el-collapse-item__header {
+    background-color: #b7cc7e;
+    height: 30px;
   }
 </style>

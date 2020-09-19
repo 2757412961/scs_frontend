@@ -23,7 +23,7 @@ export const moduleRouter = [
     meta:{
       title:'台风警报'
     },
-    // component:Typhoon,
+    component:Typhoon,
   },{
     path:'/seaArea',
     name:'seaArea',

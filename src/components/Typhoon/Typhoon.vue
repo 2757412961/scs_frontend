@@ -1,5 +1,5 @@
 <template>
-      <Sider ref="side_r"  collapsible :collapsed-width="1" v-model="isCollapsed" class="bg"  hide-trigger>
+      <Sider width="300px" ref="side_r"  collapsible :collapsed-width="1" v-model="isCollapsed" class="bg" hide-trigger>
         <router-view></router-view>
         <Row>
           <Col span="4">
@@ -401,6 +401,10 @@
   }
   .bg {
     background : #dcdee2;
-    position: absolute;bottom:0;top:61px;right:80%;left:0
+    position: absolute;
+    bottom:0;
+    top:61px;
+    right:0;
+    /*left:80%;*/
   }
 </style>

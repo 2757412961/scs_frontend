@@ -68,10 +68,9 @@
     <div>
       <el-collapse id="legendPanel" v-model="legendActive" class="legendPanel" accordion>
         <el-collapse-item title="台风图例" name="1" >
-          <el-image
-            style="width: 300px; height: 125px"
-            :src="legendUrl"
-            :fit="legendFit"></el-image>
+          <img
+            class="legendImg"
+            src="../../assets/legend/typhoon.png"></img>
         </el-collapse-item>
       </el-collapse>
     </div>
@@ -89,7 +88,7 @@
           activeName: '1',
           foreCheckActive: '1',
           legendActive: '1',
-          legendUrl: '../../assets/legend/typhoon.png',
+          legendUrl: '../../',
           legendFit: 'scale-down',
           isCollapsed: false,
 
@@ -423,9 +422,32 @@
 
   .legendPanel {
     position: fixed;
-    width: 40%;
-    left: 6.3%;
-    bottom: 10%;
+    /*width: 40%;*/
+    left: 1.3%;
+    bottom: 19%;
+  }
+
+  #legendPanel .legendImg{
+    width: 300px;
+    height: 125px;
+    margin: 6.4px 6.4px;
+    margin-bottom: 0;
+  }
+  #legendPanel .el-collapse-item__content{
+    padding: 0;
+  }
+
+  #legendPanel .el-collapse-item__header{
+    width: 5%;
+    position: fixed;
+    left: 1.3%;
+    bottom: 15%;
+    /*background-color: #6b8eb7;*/
+    height: 25px;
+    border: 0;
+  }
+  #forecastPanel .el-collapse-item__wrap{
+    border-bottom: 0;
   }
 
   .foreCheck {
@@ -446,15 +468,15 @@
     border: 0;
   }
 
-#forecastPanel .el-collapse-item__wrap{
-  border-bottom: 0;
-}
-#forecastPanel .el-collapse-item{
-  margin-bottom: 0;
-}
-#forecastPanel .el-collapse-item__wrap{
-  background-color: white;
-}
+  #forecastPanel .el-collapse-item__wrap{
+    border-bottom: 0;
+  }
+  #forecastPanel .el-collapse-item{
+    margin-bottom: 0;
+  }
+  #forecastPanel .el-collapse-item__wrap{
+    background-color: white;
+  }
 
   .tf_panel {
     position: relative;

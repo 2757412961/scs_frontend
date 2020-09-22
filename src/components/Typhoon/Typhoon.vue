@@ -1,18 +1,8 @@
 <template>
-      <el-collapse class="tf_panel" v-model="activeName" accordion>
-        <el-collapse-item title="" name="1" style="height: 100%;border: 3px solid #5b84cc; border-radius: 2px;">
-
-          <!--<List border size="small" style="border-color: #cccccc ; left: 5%; right: 5%; width: 90%">
-            <ListItem>
-              <ListItemMeta description="台风预警"  />
-              <template slot="action">
-                <li>
-                  <a href="" style="color: gray">返回</a>
-                </li>
-              </template>
-            </ListItem>
-          </List>-->
-
+  <div>
+    <div>
+      <el-collapse id="tablePanel" class="tf_panel" v-model="activeName" accordion>
+        <el-collapse-item title="" name="1" style="height: 100%;">
           <div style="height: 40px;margin-left: 1%; width: 98%; border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%" align="left">
             <span style="margin-left: 5%; height: 26px;margin-top: 3px">台风预警</span>
             <span style="margin-left: 5%; height: 26px;margin-top: 3px"><a href="" style="color: gray">返回</a></span>
@@ -29,63 +19,62 @@
               </el-option>
             </el-select>
           </div>
-
-          <!--<List border size="small" style="border-color: #cccccc;height: 20%; left: 5%; right: 5%; width: 90%; top: 1%">
-            <ListItem>
-              <ListItemMeta description="年份：" style="alignment: left" />
-              <template>
-                <Select v-model="selectedYear" style="width:60%; alignment: right; " size="small">
-                  <Option v-for="item in yearList" :value="item.value" :key="item.value">{{ item.value }}</Option>
-                </Select>
-              </template>
-            </ListItem>
-          </List>-->
-
-<!--          <Table border :columns="typhColumns" :data="typhList"
-                 :show-header="true" :border="false" style="height: 250px;"
-                 @on-row-click="chooseTyph"  highlight-row >
-            <template slot-scope="{ row }" slot="name">
-              <Scroll>
-              <strong>{{ row.name }}</strong>
-              </Scroll>
-            </template>
-          </Table>-->
 <!-- 台风号、台风名表格-->
           <el-table
             :data="typhList" height="250"  border  style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%;margin-left: 1%"
-            @row-click="chooseTyph">
+            @row-click="chooseTyph" :default-sort = "{prop: 'typhNum', order: 'descending'}">
             <el-table-column
               prop="typhNum"
-              label="台风号">
+              label="台风号"
+              sortable>
             </el-table-column>
             <el-table-column
               prop="typhName"
-              label="台风名">
+              label="台风名"
+              sortable>
             </el-table-column>
           </el-table>
           <!-- 时间、风速-->
           <el-table
             :data="routeList" height="250"  border  style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%;margin-left: 1%"
-            @row-click="chooseTyph">
+            @row-click="chooseTyph"  :default-sort = "{prop: 'time', order: 'descending'}">
             <el-table-column
               prop="time"
-              label="时间">
+              label="时间"
+              sortable>
             </el-table-column>
             <el-table-column
               prop="windSpeed"
-              label="风速">
+              label="风速"
+              sortable>
             </el-table-column>
           </el-table>
 
-          <!--<Table border :columns="routeColumns" :data="routeList"
-                 :show-header="true" :border="false" height="250px"
-                 @on-row-click="chooseTyph"  highlight-row>
-            <template slot-scope="{ row }" slot="name">
-              <strong>{{ row.name }}</strong>
-            </template>
-          </Table>-->
         </el-collapse-item>
       </el-collapse>
+    </div>
+    <div>
+      <el-collapse id="forecastPanel" v-model="foreCheckActive" class="foreCheck" accordion>
+        <el-collapse-item title="预报机构" name="1" >
+          <el-checkbox-group v-model="forecastCheckList" class="foreCheck">
+            <el-checkbox label="中央"></el-checkbox>
+            <el-checkbox label="美国"></el-checkbox>
+            <el-checkbox label="欧洲"></el-checkbox>
+            <el-checkbox label="TEPO"></el-checkbox>
+          </el-checkbox-group>
+        </el-collapse-item>
+      </el-collapse>
+    </div>
+    <div>
+      <el-collapse id="legendPanel" v-model="legendActive" class="legendPanel" accordion>
+        <el-collapse-item title="台风图例" name="1" >
+          <img
+            class="legendImg"
+            src="../../assets/legend/typhoon.png"></img>
+        </el-collapse-item>
+      </el-collapse>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -95,7 +84,12 @@
       name: "Typhoon",
       data () {
         return {
+          forecastCheckList: [],
           activeName: '1',
+          foreCheckActive: '1',
+          legendActive: '1',
+          legendUrl: '../../',
+          legendFit: 'scale-down',
           isCollapsed: false,
 
           // 台风表
@@ -124,6 +118,7 @@
           ],
           routeList: [],
 
+          selectedForecast:[],
           yearList: [],
           selectedYear:'',
           selectedTyph:'',
@@ -424,16 +419,105 @@
     right:0;
     !*left:80%;*!
   }*/
+
+  .legendPanel {
+    position: fixed;
+    /*width: 40%;*/
+    left: 1.3%;
+    bottom: 19%;
+  }
+
+  #legendPanel .legendImg{
+    width: 300px;
+    height: 125px;
+    margin: 6.4px 6.4px;
+    margin-bottom: 0;
+  }
+  #legendPanel .el-collapse-item__content{
+    padding: 0;
+  }
+
+  #legendPanel .el-collapse-item__header{
+    width: 5%;
+    position: fixed;
+    left: 1.3%;
+    bottom: 15%;
+    /*background-color: #6b8eb7;*/
+    height: 25px;
+    border: 0;
+  }
+  #forecastPanel .el-collapse-item__wrap{
+    border-bottom: 0;
+  }
+
+  .foreCheck {
+    position: fixed;
+    width: 40%;
+    left: 6.3%;
+    bottom: 10%;
+    /*background-color: #6b8fb8;*/
+  }
+
+  #forecastPanel .el-collapse-item__header{
+    width: 5%;
+    position: fixed;
+    left: 1.3%;
+    bottom: 10%;
+    /*background-color: #6b8eb7;*/
+    height: 25px;
+    border: 0;
+  }
+
+  #forecastPanel .el-collapse-item__wrap{
+    border-bottom: 0;
+  }
+  #forecastPanel .el-collapse-item{
+    margin-bottom: 0;
+  }
+  #forecastPanel .el-collapse-item__wrap{
+    background-color: white;
+  }
+
   .tf_panel {
     position: relative;
     /*height: 500px;*/
     width: 20%;
     left: 78%;
-    border: 0;
+    /*border: 3px solid #5b84cc;*/
+    border-radius: 2px;
   }
 
-  .el-collapse-item__header {
-    background-color: #b7cc7e;
-    height: 30px;
+  #tablePanel .el-collapse-item__header{
+    width: 30px;
+    position: fixed;
+    right: 40%;
+    background-color: #6b8eb7;
+    height: 20px;
+    border: 0;
+    /*opacity: 0.9;*/
+  }
+  #tablePanel .el-collapse-item__content{
+    padding-bottom: 5px;
+  }
+
+
+
+  .el-collapse{
+    border:0;
+  }
+
+  .el-table {
+    font-size: 12px;
+  }
+
+/* 滚动条的宽度*/
+/*  ::-webkit-scrollbar {*/
+/*    width: 10px;*/
+/*    height: 10px;*/
+/*  }*/
+/*滚动条的滑块*/
+  ::-webkit-scrollbar-thumb {
+    background-color: #a1a3a9;
+    border-radius: 3px;
   }
 </style>

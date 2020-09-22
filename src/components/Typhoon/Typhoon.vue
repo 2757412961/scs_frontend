@@ -192,6 +192,8 @@
                   this.yearList.push(object0);
                 }
                 this.selectedYear = response.data[0].toString();
+                  this.yearList.sort();
+                  this.yearList.reverse();
               }else{
                 // 若不成功，则弹出警告框
                 this.$confirm('无法获取台风年份信息！', '提示', {
@@ -276,8 +278,8 @@
 
         // 获取Ongoing或所选择的台风的行进路线
         typhoonRoute(typhNum) {
-          var api = `/api/SCSServices/typhoonRoute.action?typhNum=${typhNum}`;
-          // var api = `/api/SCSServices/typhoonRoute.action?typhNum=201306`;
+          // var api = `/api/SCSServices/typhoonRoute.action?typhNum=${typhNum}`;
+          var api = `/api/SCSServices/typhoonRoute.action?typhNum=201306`;
           console.log('typhoonRoute1');
           this.$axios.get(api)
             .then((response) => {
@@ -323,7 +325,7 @@
             this.typhMonitor = this.typhMonitorList[i];
             // console.log(this.typhMonitor);
             // 显示到轨迹表格
-            var object0 = {"time": this.typhMonitorList[i]['routeTime'],"windSpeed":this.typhMonitorList[i]['windSpeed']};
+            var object0 = {"time": this.typhMonitorList[i]['routeTime'], "windSpeed":this.typhMonitorList[i]['windSpeed']};
 
             // 添加到第一条，表格时间倒序，最近的在最上面
             this.routeList.unshift(object0);

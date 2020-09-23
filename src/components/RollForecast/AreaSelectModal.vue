@@ -181,8 +181,9 @@
       //打开预报面板
       openForecastModal(){
         if (this.loading == false) { //表格中数据已加载完成
-         // this.loading = true;  //将表格加载设置为true
-          //打开预报模态框
+          this.loading = true;  //将表格加载设置为true
+          // this.areaModal = true; //打开预测轮播，不关闭区域选择
+          // 打开预报模态框
           this.$refs.forecastModal.openForecastModal(this.tableData, this.forecastType );
         }else{
           this.$confirm('数据未加载完成！', '提示', {

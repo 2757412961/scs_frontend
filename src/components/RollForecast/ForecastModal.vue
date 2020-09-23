@@ -1,19 +1,29 @@
 <template>
   <modal width="90%" height="800px" :mask-closable="false"
-         v-model="areaModal" :fullscreen="isFullScreen" id="forecast_modal"
+         v-model="forecastModal" :fullscreen="false" id="forecast_modal"
          :title="title">
+<!--    <p slot="header" style="text-align: center">-->
+<!--      <el-button icon="el-icon-search" circle></el-button>-->
+<!--    </p>-->
     <div class="inner-container" id="aniDiv" :style="rollTime">
 
 <!--  近海海区DIV   -->
       <div v-for="table in this.tableData" v-show="!forecastType">
-        <div style="width: 100%;margin-bottom: 0;">
-          <span>==海区要素预报=={{transferTime(table.data[0].qbsj)}}=={{transferTime(table.data[table.data.length-1].qbsj)}}</span>
-          <span>xx</span>
+        <div class="offShoreDiv">
+          <div style="width: 100%;font-size: 20px; line-height: 2.6;font-weight: bold;color: black">
+            <div style="display: inline-block;width: 45%;margin-left: 5%;">
+              海区要素预报
+            </div>
+            <div style="margin-right: 5%; float: right;">
+              {{transferTime(table.data[0].qbsj + (table.data[0].ybtc-12)*60*60*1000)}} 至 {{transferTime(table.data[0].qbsj + table.data[0].ybtc*60*60*1000)}}
+            </div>
+          </div>
         </div>
         <el-table
           :data="table.data" border
-          style="width: 100%">
+          style="width: 100%;font-size: 18px;">
           <el-table-column
+            align="center"
             type="index"
             :index=1
             label="海区"
@@ -21,43 +31,115 @@
           </el-table-column>
 
           <el-table-column
+            align="center"
             prop="hqmc"
             label="海区名称">
           </el-table-column>
 
           <el-table-column
+            align="center"
             prop="tqqk"
             label="天气">
           </el-table-column>
 
           <el-table-column
+            align="center"
             prop="fx"
             label="风向">
           </el-table-column>
 
           <el-table-column
+            align="center"
             prop="fs"
             label="风力(级)">
           </el-table-column>
 
           <el-table-column
+            align="center"
             prop="scfw"
             label="视程(公里)">
           </el-table-column>
 
           <el-table-column
+            align="center"
             prop="fl"
             label="风浪(米)">
           </el-table-column>
 
           <el-table-column
+            align="center"
             prop="yl"
             label="涌浪(米)">
           </el-table-column>
 
         </el-table>
       </div>
+      <div v-for="table in this.tableData" v-show="!forecastType">
+        <div class="offShoreDiv">
+          <div style="width: 100%;font-size: 20px; line-height: 2.6;font-weight: bold;color: black">
+            <div style="display: inline-block;width: 45%;margin-left: 5%;">
+              海区要素预报
+            </div>
+            <div style="margin-right: 5%; float: right;">
+              {{transferTime(table.data[0].qbsj + (table.data[0].ybtc-12)*60*60*1000)}} 至 {{transferTime(table.data[0].qbsj + table.data[0].ybtc*60*60*1000)}}
+            </div>
+          </div>
+        </div>
+        <el-table
+          :data="table.data" border
+          style="width: 100%;font-size: 18px;">
+          <el-table-column
+            align="center"
+            type="index"
+            :index=1
+            label="海区"
+            width="80">
+          </el-table-column>
 
+          <el-table-column
+            align="center"
+            prop="hqmc"
+            label="海区名称">
+          </el-table-column>
+
+          <el-table-column
+            align="center"
+            prop="tqqk"
+            label="天气">
+          </el-table-column>
+
+          <el-table-column
+            align="center"
+            prop="fx"
+            label="风向">
+          </el-table-column>
+
+          <el-table-column
+            align="center"
+            prop="fs"
+            label="风力(级)">
+          </el-table-column>
+
+          <el-table-column
+            align="center"
+            prop="scfw"
+            label="视程(公里)">
+          </el-table-column>
+
+          <el-table-column
+            align="center"
+            prop="fl"
+            label="风浪(米)">
+          </el-table-column>
+
+          <el-table-column
+            align="center"
+            prop="yl"
+            label="涌浪(米)">
+          </el-table-column>
+
+        </el-table>
+      </div>
 <!--  执法海域DIV    -->
       <div v-for="table in this.tableData" v-show="forecastType">
         <el-table
@@ -102,7 +184,7 @@
     </div>
 
     <div slot="footer">
-      <Button type="error" size="large" long @click="cancelFullScreen">{{fullScreenText}}</Button>
+<!--      <Button type="error" size="large" long @click="cancelFullScreen">{{fullScreenText}}</Button>-->
     </div>
   </modal>
 </template>
@@ -121,17 +203,15 @@
         isFullScreen: true,
         fullScreenText: '关闭全屏',
         title: '',
-        areaModal: false,
-        centerDialogVisible: false,
+        forecastModal: false,
         tableData: [],   //用于轮播的数据
       }
     },
       methods: {
         openForecastModal(table, selectAreaType) {
-          this.areaModal = true;
+          this.forecastModal = true;
           this.forecastType = selectAreaType;
           this.title = "未来10天天气预报";
-            //this.centerDialogVisible = true;
           if (!selectAreaType){ //如果是近海海区，转换数据
               this.tableData = this.convertTableData(table);
               console.log(this.tableData)
@@ -139,7 +219,7 @@
             this.tableData = table;
           }
           //循环创建table
-            this.rollTime = {'animation-duration':this.tableData.length*this.tableData[0].data.length*1 + "s"};
+            this.rollTime = {'animation-duration':this.tableData.length*this.tableData[0].data.length*0.5 + "s"};
         },
         cancelFullScreen() {
           this.isFullScreen = !this.isFullScreen;
@@ -178,13 +258,10 @@
               "h+": this.getHours(),
               "m+": this.getMinutes(),
               "s+": this.getSeconds()
-
             };
-
             if (/(y+)/.test(format)) {
               format = format.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
             }
-
             for (var k in o) {
               if (new RegExp("(" + k + ")").test(format)) {
                 format = format.replace(RegExp.$1, o[k].toString().length == 2 ? o[k] : ("0" + o[k]).substr("" + o[k].length));
@@ -195,7 +272,7 @@
           var newDate = jsonDate.format("yyyy-MM-dd hh:mm:ss");
           return newDate;
         },
-        //////
+
       }
     }
 </script>
@@ -221,18 +298,41 @@
     }
   }
 
+  .offShoreDiv{
+    width: 100%;
+    margin-top: 1%;
+    margin-bottom: 0.5%;
+    border-radis:2px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(215, 218, 226);
+    display: flow;
+  }
 
 </style>
 
 <style>
   #forecast_modal .ivu-modal-body {
     overflow: hidden;
+    bottom: 0;
   }
-
+  #forecast_modal .ivu-modal-footer {
+    padding: 0;
+  }
   #forecast_modal .ivu-modal-wrap {
     overflow: hidden;
   }
+
+  #forecast_modal .ivu-modal-content{
+    margin-top: -2%;
+  }
+
   #aniDiv .el-table th.gutter {
     display: table-cell!important;
   }
+
+  /*#forecast_modal .ivu-modal-header{*/
+  /*  padding: 0;*/
+  /*}*/
+
 </style>

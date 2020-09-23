@@ -68,6 +68,7 @@
     },
     data() {
       return {
+        forecastType: false,
         loading: true,
         areaModal: false,
         title: '',
@@ -80,6 +81,7 @@
     methods: {
       openRollForecastModal(areaType) {
         this.areaModal = true;
+        this.forecastType = areaType;
         if (areaType) {
           this.title = "执法海域";
           var api = `/api/SCSServices/getLawEnforceArea.action`;
@@ -181,7 +183,7 @@
         if (this.loading == false) { //表格中数据已加载完成
          // this.loading = true;  //将表格加载设置为true
           //打开预报模态框
-          this.$refs.forecastModal.openForecastModal(this.tableData);
+          this.$refs.forecastModal.openForecastModal(this.tableData, this.forecastType );
         }else{
           this.$confirm('数据未加载完成！', '提示', {
             confirmButtonText: '确定',

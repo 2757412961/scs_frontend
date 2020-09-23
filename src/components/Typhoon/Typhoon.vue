@@ -204,7 +204,8 @@
                             }
                             this.selectedYear = response.data[0].toString();
                             this.yearList.sort();
-                            // this.yearList.reverse();
+                            this.yearList.reverse();
+                            this.yearList.reverse();
                         } else {
                             // 若不成功，则弹出警告框
                             this.$confirm('无法获取台风年份信息！', '提示', {
@@ -290,7 +291,7 @@
             // 获取Ongoing或所选择的台风的行进路线
             typhoonRoute(typhNum) {
                 // var api = `/api/SCSServices/typhoonRoute.action?typhNum=${typhNum}`;
-                // var api = `/api/SCSServices/typhoonRoute.action?typhNum=202001`;
+                var api = `/api/SCSServices/typhoonRoute.action?typhNum=202001`;
                 console.log('typhoonRoute1');
                 this.$axios.get(api)
                     .then((response) => {

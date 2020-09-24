@@ -82,6 +82,8 @@
       openRollForecastModal(areaType) {
         this.areaModal = true;
         this.forecastType = areaType;
+        this.unSelectedTable = undefined;
+        this.unSelectedTable = new Array();
         if (areaType) {
           this.title = "执法海域";
           var api = `/api/SCSServices/getLawEnforceArea.action`;

@@ -23,6 +23,8 @@
   import MousePosition from 'ol/control/MousePosition.js';
   import {createStringXY} from 'ol/coordinate.js';
   import {ScaleLine, defaults as defaultControls} from 'ol/control.js';
+  import ZoomSlider from 'ol/control/ZoomSlider'
+  import ZoomToExtent from 'ol/control/ZoomToExtent'
   import 'ol/ol.css';
   import Feature from 'ol/Feature';
   import Point from 'ol/geom/Point';
@@ -114,12 +116,18 @@
           target: document.getElementById('scale-position'),
         });
 
+        var ZoomSliderControl = new ZoomSlider();
+        var ZoomExtentControl = new ZoomToExtent({
+          extend: [13100000, 4290000,
+            13200000, 5210000
+          ]
+        });
         /** Map初始化*/
         this.map = new Map({
           target: "scsmap",
           layers: [map_layer],
           view: view,
-          controls:defaultControls().extend([mousePositionControl, ScaleControl]),
+          controls:defaultControls().extend([mousePositionControl, ScaleControl, ZoomSliderControl, ZoomExtentControl]),
         });
 
 
@@ -333,10 +341,48 @@
   }
 </script>
 
-<style scoped>
+<style>
   #scsmap {
-    height: 100%
+    height: 100%;
+    width: 100%;
+    position: absolute;
   }
+
+  #scsmap .ol-zoom .ol-zoom-out {
+    margin-top: 204px;
+  }
+
+  #scsmap .ol-zoomslider {
+    background-color: transparent;
+    top: 2.3em;
+  }
+
+  #scsmap .ol-touch .ol-zoom .ol-zoom-out {
+    margin-top: 212px;
+  }
+
+  #scsmap .ol-touch .ol-zoomslider {
+    top: 2.75em;
+  }
+
+  #scsmap .ol-zoom-in.ol-has-tooltip:hover [role=tooltip],
+  #scsmap .ol-zoom-in.ol-has-tooltip:focus [role=tooltip] {
+    top: 3px;
+  }
+
+  #scsmap .ol-zoom-out.ol-has-tooltip:hover [role=tooltip],
+  #scsmap .ol-zoom-out.ol-has-tooltip:focus [role=tooltip] {
+    top: 232px;
+  }
+
+
+  /*设置缩放控件ZoomToExtent的样式，将其放到导航条下方
+          */
+
+  #scsmap .ol-zoom-extent {
+    top: 265px;
+  }
+
   ol-viewport {
     /*完全透明*/
     background-color: rgba(0, 0, 0, 0);

@@ -18,7 +18,7 @@
     <div class="inner-container" id="aniDiv" :style="[rollTime,playOrNot]">
 
 <!--  近海海区DIV   -->
-      <div v-for="table in this.tableData" v-show="!forecastType">
+      <div v-for="table in this.tableData" v-if="!forecastType">
         <div class="offShoreDiv">
           <div style="width: 100%;font-size: 20px; line-height: 2.6;font-weight: bold;color: black">
             <div style="display: inline-block;width: 45%;margin-left: 5%;">
@@ -84,7 +84,7 @@
 
         </el-table>
       </div>
-      <div v-for="table in this.tableData" v-show="!forecastType">
+      <div v-for="table in this.tableData" v-show="playDiv" v-if="!forecastType">
         <div class="offShoreDiv">
           <div style="width: 100%;font-size: 20px; line-height: 2.6;font-weight: bold;color: black">
             <div style="display: inline-block;width: 45%;margin-left: 5%;">
@@ -151,7 +151,7 @@
         </el-table>
       </div>
 <!--  执法海域DIV    -->
-      <div v-for="table in this.tableData" v-show="forecastType">
+      <div v-for="table in this.tableData" v-if="forecastType">
         <div class="offShoreDiv">
           <div style="width: 100%;font-size: 20px; line-height: 2.6;font-weight: bold;color: black">
             <div style="display: inline-block;width: 45%;margin-left: 5%;">
@@ -163,7 +163,7 @@
           :data="table.data"
           border
           :stripe="true"
-          style="width: 100%;">
+          style="width: 100%;font-size: 18px;">
           <el-table-column
             align="center"
             prop="[ybrq,ybsc]"
@@ -199,7 +199,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <div v-for="table in this.tableData" v-show="forecastType">
+      <div v-for="table in this.tableData" v-show="playDiv" v-if="forecastType">
         <div class="offShoreDiv">
           <div style="width: 100%;font-size: 20px; line-height: 2.6;font-weight: bold;color: black">
             <div style="display: inline-block;width: 45%;margin-left: 5%;">
@@ -211,7 +211,7 @@
           :data="table.data"
           border
           :stripe="true"
-          style="width: 100%;">
+          style="width: 100%;font-size: 18px;">
           <el-table-column
             align="center"
             prop="[ybrq,ybsc]"
@@ -277,6 +277,7 @@
         title: '',
         forecastModal: false,
         tableData: [],   //用于轮播的数据
+        playDiv: false,  //如果没有开始播放，仅显示一个div
       }
     },
     methods: {
@@ -338,9 +339,11 @@
       // 暂停播放/继续播放
       playOrPause(){
         if (this.iconData == 'el-icon-caret-right'){ //开始播放
+          this.playDiv = true;
           this.iconData = 'el-icon-d-caret';
           this.playOrNot = {'animation-play-state':'running'};
         } else { //暂停播放
+          this.playDiv = false;
           this.playOrNot = {'animation-play-state':'paused'};
           this.iconData = 'el-icon-caret-right';
         }

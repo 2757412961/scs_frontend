@@ -47,6 +47,7 @@
     import MultiPoint from 'ol/geom/MultiPoint';
 
 
+    import mapLayout from "../util/mapLayout";
     import {globalBus} from '../components/globalBus';
 
     // .vue文件 单文件组件 component
@@ -61,10 +62,16 @@
                 pro_layers: [],//数值预报产品图层
 
                 //台风图层
-                typh_layer: null,
+                typh_layer: null, // 点图层
+                typh_route_layer: null, // 路线图层
+                typh_point_layer: null, // 移动点特征
 
                 //记录当前地图缩放层级
-                oldZoom: 0
+                oldZoom: 0,
+
+
+                // 静态资源导入 asserts
+                typh_img: require('../assets/typh.png'),
             }
         },
         created() {
@@ -93,9 +100,30 @@
                 });
                 this.typh_layer = new VectorLayer({
                     name: "typh_layer",
-                    chName: "台风图层",
+                    chName: "台风点图层",
                     source: typh_source
                 });
+
+                var typh_route_source = new Vector({
+                    features: null
+                });
+                this.typh_route_layer = new VectorLayer({
+                    name: "typh_route_layer",
+                    chName: "台风路径图层",
+                    source: typh_route_source
+                });
+
+                var typh_point_source = new Vector({
+                    features: null
+                });
+                this.typh_point_layer = new VectorLayer({
+                    name: "typh_point_layer",
+                    chName: "台风移动点特征",
+                    source: typh_point_source
+                });
+
+                /** xxx图层初始化 */
+
 
                 /** 视图初始化*/
                 var view = new View({
@@ -129,7 +157,7 @@
                 /** Map初始化*/
                 this.map = new Map({
                     target: "scsmap",
-                    layers: [map_layer, this.typh_layer],
+                    layers: [map_layer, this.typh_route_layer, this.typh_layer, this.typh_point_layer],
                     view: view,
                     controls: defaultControls().extend([mousePositionControl, ScaleControl]),
                 });
@@ -149,6 +177,18 @@
                 });
                 this.map.addInteraction(selectClick);
                 selectClick.on("select", this.singleClick);
+            },
+
+            /**
+             * 地图要素清空
+             */
+            clearLayer() {
+                //台风图层
+                this.typh_layer.getSource().clear();
+                this.typh_route_layer.getSource().clear();
+                this.typh_point_layer.getSource().clear();
+
+
             },
 
 
@@ -214,12 +254,17 @@
             },
 
             /**
-             * 设置地图中心
-             *
+             * 平滑移动至地图
+             * 缩放等级
              */
-            // setCenter(x, y, z = 4) {
-            //     map.setCenter(new OpenLayers.LonLat(x, y), z);
-            // },
+            moveViewTo(x, y, z = 7) {
+                this.oldZoom = z;
+                this.map.getView().animate({
+                    center: [x, y],
+                    zoom: z,
+                    duration: 1000,
+                })
+            },
 
             /**
              * 绘制台风路径
@@ -227,85 +272,50 @@
             typhRoute() {
                 var that = this;
                 globalBus.$on('addTyphMonitor', (val, oldVal) => {
-                    // 需要删除原有图层或已有要素！！
-                    // vectorLayer.getSource().removeFeature(pop[1]);
-                    this.typh_layer.getSource().clear();
-
-                    let typhColor = {
-                        "TD": {
-                            name: "热带低压",
-                            color: "#00F806"
-                        },
-                        "TS": {
-                            name: "热带风暴",
-                            color: "#0062FF"
-                        },
-                        "STS": {
-                            name: "强热带风暴",
-                            color: "#FFF500"
-                        },
-                        "TY": {
-                            name: "台风",
-                            color: "#F8AD09"
-                        },
-                        "STY": {
-                            name: "强台风",
-                            color: "#F56CF0"
-                        },
-                        "SUPERTY": {
-                            name: "超强台风",
-                            color: "#FA020b"
-                        },
-                    };
+                    console.log('I AM HERE!!!!');
+                    // 需要删除原有图层或已有要素
+                    this.clearLayer();
 
                     if (val.length <= 0) {
                         return;
                     }
 
-                    var newView = new View({
-                        center: fromLonLat([val[0]['lon'], val[0]['lat']]),
-                        zoom: 6,
-                    });
-                    this.oldZoom = 6;
-                    this.map.setView(newView);
-
-                    var coordinate = [];
-                    var coordinateDraw = [];
-
-                    for (var i = 0; i < val.length; i++) {
-                        coordinate.push(transform([val[i]['lon'], val[i]['lat']], 'EPSG:4326', 'EPSG:3857'));
+                    var that = this;
+                    let len = val.length;
+                    let lonlat = [];
+                    let coordinates = [];
+                    let strength = [];
+                    let centPres = [];
+                    let moveSpeed = [];
+                    for (let i = 0; i < val.length; i++) {
+                        lonlat[i] = [val[i]['lon'], val[i]['lat']];
+                        coordinates[i] = fromLonLat([val[i]['lon'], val[i]['lat']]);
+                        strength[i] = val[i]['strength'];
+                        centPres[i] = val[i]['centPres'];
+                        moveSpeed[i] = val[i]['moveSpeed'];
                     }
 
-                    coordinateDraw.push(coordinate[0]);
-                    var geometry = new LineString(coordinateDraw);
-                    var LineStringFeature = new Feature(geometry);
+                    var center = [(coordinates[0][0] + coordinates[len - 1][0]) / 2, (coordinates[0][1] + coordinates[len - 1][1]) / 2];
+                    var distance = Math.sqrt(Math.pow(lonlat[0][0] - lonlat[len - 1][0], 2) + Math.pow(lonlat[0][1] - lonlat[len - 1][1], 2));
+                    // this.moveViewTo(center[0], center[1], distance);
+                    this.moveViewTo(center[0], center[1]);
 
-                    //实例化一个矢量图层Vector作为绘制层
-                    var source = new Vector();
-                    //将线添加到Vector绘制层上
-                    source.addFeature(LineStringFeature);
-
-                    var vectorLayer = new VectorLayer({
-                        source: source,
-                        style: new Stystyle({
-                            stroke: new Stroke({
-                                color: '#f00',
-                                width: 2
-                            }),
-                            image: new CircleStyle({
-                                radius: 2,
-                                fill: new Fill({
-                                    color: '#f00'
-                                })
-                            })
-                        })
-                    });
-                    this.map.addLayer(vectorLayer);
-
-
-                    // 台风等级的渲染还没写
                     // 鼠标移到台风和点击的事件还没写
 
+                    // 初始点
+                    var iconStyle = new Style({
+                        image: new Icon({
+                            src: this.typh_img,
+                            color: '#FFFFFF',
+                            scale: 0.4,
+                            opacity: 0.9,
+                            // rotateWithView: true,
+                            rotation: 0,
+                        })
+                    });
+                    var moveFeature = new Feature(new Point(fromLonLat([val[0]['lon'], val[0]['lat']])));
+                    moveFeature.setStyle(iconStyle);
+                    this.typh_point_layer.getSource().addFeature(moveFeature);
 
                     var pointGeom = new Point(fromLonLat([val[0]['lon'], val[0]['lat']]));
                     var pointFeature = new Feature(pointGeom);
@@ -314,7 +324,7 @@
                         image: new CircleStyle({
                             radius: 5,
                             fill: new Fill({
-                                color: '#ff3df4'
+                                color: mapLayout.colorTyphStrength[pointFeature.get("strength")].color
                             })
                         })
                     }));
@@ -323,127 +333,78 @@
                     var sourcepoint = new VectorSource();
                     sourcepoint.addFeature(pointFeature);
 
-                    var pointLayer = new VectorLayer({
-                        source: sourcepoint,
-                        // style: function (feature, resolution) {
-                        //     var strength = feature.get("strength");
-                        //     var color = typhColor[strength].color;
-                        //
-                        //     return new Stystyle({
-                        //         image: new CircleStyle({
-                        //             radius: 5,
-                        //             fill: new Fill({
-                        //                 color: color
-                        //             })
-                        //         })
-                        //     })
-                        // },
-
-                        // style:
-                        //     new Stystyle({
-                        //         image: new CircleStyle({
-                        //             radius: 2,
-                        //             fill: new Fill({
-                        //                 color: 'rgba(14,11,133,0.9)'
-                        //             })
-                        //         })
-                        //     })
-                    });
-                    // this.map.addLayer(pointLayer);
-
                     // 最后一个标记点的坐标
-                    var that = this;
                     var index = 1;
-                    // var interval = setInterval(function () {
-                    //     var newPoint = [coordinate[index][0], coordinate[index][1]];
-                    //     coordinateDraw.push(newPoint);
-                    //     geometry.setCoordinates(coordinateDraw);
-                    //
-                    //
-                    //     var pointFeature1 = new Feature(
-                    //         new Point(fromLonLat([val[index]['lon'], val[index]['lat']]))
-                    //     );
-                    //     pointFeature1.set("strength", val[index]['strength']);
-                    //     pointFeature1.setStyle(new Stystyle({
-                    //         image: new CircleStyle({
-                    //             radius: 5,
-                    //             fill: new Fill({
-                    //                 color: typhColor[pointFeature1.get("strength")].color
-                    //             })
-                    //         })
-                    //     }));
-                    //     that.typh_layer.getSource().addFeature(pointFeature1);
-                    //
-                    //     index += 1;
-                    // }, 30);
-                    //
-                    // setTimeout(function () {
-                    //     clearInterval(interval);
-                    // }, 30 * coordinate.length);
-
                     var st;
+                    var angle = 0;
 
                     function drawTyph() {
                         if (index >= val.length) {
-                            clearInterval(t);
+                            setInterval(function () {
+                                angle += 1;
+                                that.typh_point_layer.getSource().getFeatures()[0].getStyle().getImage().setRotation(angle);
+                                that.typh_point_layer.getSource().changed();
+                            }, 100);
+                            clearInterval(st);
                             return;
                         }
 
-                        var newPoint = [coordinate[index][0], coordinate[index][1]];
-                        coordinateDraw.push(newPoint);
-                        geometry.setCoordinates(coordinateDraw);
-
+                        // 台风移动点绘制
+                        that.typh_point_layer.getSource().clear();
+                        var moveFeature = new Feature(new Point(fromLonLat([val[index]['lon'], val[index]['lat']])));
+                        moveFeature.setStyle(iconStyle);
+                        that.typh_point_layer.getSource().addFeature(moveFeature);
 
                         var pointFeature1 = new Feature(
                             new Point(fromLonLat([val[index]['lon'], val[index]['lat']]))
                         );
+
+                        // 台风等级的渲染
                         pointFeature1.set("strength", val[index]['strength']);
                         pointFeature1.setStyle(new Stystyle({
                             image: new CircleStyle({
                                 radius: 5,
                                 fill: new Fill({
-                                    color: typhColor[pointFeature1.get("strength")].color
+                                    color: mapLayout.colorTyphStrength[pointFeature1.get("strength")].color
                                 })
                             })
                         }));
                         that.typh_layer.getSource().addFeature(pointFeature1);
 
-                        index += 1;
+                        // 台风轨迹线的绘制
+                        var lineGeom = new LineString([
+                            fromLonLat([val[index - 1]['lon'], val[index - 1]['lat']]),
+                            fromLonLat([val[index]['lon'], val[index]['lat']]),
+                        ]);
+                        var lineFeature = new Feature(
+                            lineGeom
+                        );
+                        lineFeature.set("strength", val[index]['strength']);
+                        lineFeature.setStyle(new Stystyle({
+                                stroke: new Stroke({
+                                    color: mapLayout.colorTyphStrength[lineFeature.get("strength")].color,
+                                    width: 2
+                                }),
+                                // image: new CircleStyle({
+                                //     radius: 2,
+                                //     fill: new Fill({
+                                //         color: '#f00'
+                                //     })
+                                // })
+                            })
+                        );
+                        that.typh_route_layer.getSource().addFeature(lineFeature);
 
-                        st = setTimeout(drawTyph, 300);
+                        index += 1;
+                        st = setTimeout(drawTyph, 100);
                     }
 
                     drawTyph();
 
-                    // for (let i = 1; i < coordinate.length; i++) {
-                    //     setTimeout(
-                    //         function () {
-                    //             var newPoint = [coordinate[i][0], coordinate[i][1]];
-                    //             coordinateDraw.push(newPoint);
-                    //             geometry.setCoordinates(coordinateDraw);
-                    //             // pointGeom.setCoordinates(coordinateDraw);
-                    //
-                    //             // var pointFeature1 = new Feature(
-                    //             //     new Point(fromLonLat([val[i]['lon'], val[i]['lat']]))
-                    //             // );
-                    //             // pointFeature1.set("strength", val[i]['strength']);
-                    //             // pointFeature1.setStyle(new Stystyle({
-                    //             //     image: new CircleStyle({
-                    //             //         radius: 5,
-                    //             //         fill: new Fill({
-                    //             //             color: typhColor[val[i]['strength']].color
-                    //             //         })
-                    //             //     })
-                    //             // }));
-                    //             // that.typh_layer.getSource().addFeature(pointFeature1);
-                    //             // pointLayer.getSource().addFeature(pointFeature);
-                    //
-                    //         }, 1000);
-                    // }
-
 
                 });
             }
+
 
         },
 

@@ -290,8 +290,8 @@
 
             // 获取Ongoing或所选择的台风的行进路线
             typhoonRoute(typhNum) {
-                // var api = `/api/SCSServices/typhoonRoute.action?typhNum=${typhNum}`;
-                var api = `/api/SCSServices/typhoonRoute.action?typhNum=202001`;
+                var api = `/api/SCSServices/typhoonRoute.action?typhNum=${typhNum}`;
+                // var api = `/api/SCSServices/typhoonRoute.action?typhNum=202001`;
                 console.log('typhoonRoute1');
                 this.$axios.get(api)
                     .then((response) => {

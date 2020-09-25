@@ -56,6 +56,7 @@
     import MultiPoint from 'ol/geom/MultiPoint';
 
 
+    import util from "../util/util";
     import mapLayout from "../util/mapLayout";
     import {globalBus} from '../components/globalBus';
 
@@ -79,11 +80,14 @@
                 oldZoom: 0,
 
                 //popup三兄弟
-                container: "",
-                content: "",
                 overlay: "",
+                container: "",
                 popup_title: "",
+                content: "",
                 ol_popup_min_width: "300px",
+
+                //记录上一次光标指向的feature，用于方法缩小指定feature
+                lastPointerFeature: null,
 
 
                 // 静态资源导入 asserts
@@ -212,7 +216,6 @@
             },
 
 
-
             /**
              * 点击feature响应事件(只有在选中Feature时才会触发）
              * @param e
@@ -244,8 +247,38 @@
                     var features = this.map.getFeaturesAtPixel(pixel);
                     var feature = features[0];
 
+                    if (feature.get('name').search(/Point/) != -1) {
+                        if (feature != this.lastpointerFeature) {
+                            //移动前后是不同feature，将原来的feature图标大小回归正常
+                            if (this.lastpointerFeature != null) {
+                                var style = this.lastpointerFeature.getStyle();
+                                style.getImage().setScale(1);
+                                this.lastpointerFeature.setStyle(style);
+                                this.overlay.setPosition(undefined);
+                            }
+
+                            this.lastpointerFeature = feature; //记录本次feature
+                            var style = this.lastpointerFeature.getStyle();
+                            style.getImage().setScale(1.25); //图标放大
+                            this.lastpointerFeature.setStyle(style);
+
+                            if (features[0].get('name').search(/typhPointFeature/) != -1) {
+                                this.typhPointPopup(feature);
+                            } else if (features[0].get('name').search(/Site1/) != -1) {
+                                this.siteId = 1;
+                                this.sitePopShow(features[0]);
+                            }
+                        }
+                    }
+
                 } else {
+                    if (this.lastpointerFeature != null) {
+                        var style = this.lastpointerFeature.getStyle();
+                        style.getImage().setScale(1);
+                        this.lastpointerFeature.setStyle(style);
+                    }
                     this.overlay.setPosition(undefined);
+                    this.lastpointerFeature = null;//记录本次feature
                 }
 
             },
@@ -301,13 +334,55 @@
              * 平滑移动至地图
              * 缩放等级
              */
-            moveViewTo(x, y, z = 7) {
+            moveViewTo(x, y, z = 6) {
                 this.oldZoom = z;
                 this.map.getView().animate({
                     center: [x, y],
                     zoom: z,
                     duration: 1000,
                 })
+            },
+
+            /**
+             * 台风 点 popup
+             */
+            typhPointPopup(feature) {
+                var typhRouteInfo = feature.get('data');
+
+                //构建Popup_title文字内容
+                this.ol_popup_min_width = "270px";
+                this.popup_title = typhRouteInfo.typhNum + "号台风最新数据";
+
+                if (typhRouteInfo != null) {
+                    //组织弹出框内容
+                    // var html =
+                    //     "<table>" +
+                    //     // "<tr><th align='left'>" + "海浪" + "</th><th align='left'>" + `util`.formatDateTime(new Date(buoy4New.buoywvnew.dt)) + "</th></tr>" +
+                    //     "<tr><td align='left'>路径时间：</td><td align='left'>" + typhRouteInfo.routeTime + "</td></tr>" +
+                    //     "<tr><td align='left'>中心位置：</td><td align='left'>" + typhRouteInfo.lon + "</td></tr>" +
+                    //     "<tr><td align='left'>风速：</td><td align='left'>" + typhRouteInfo.windSpeed + " 米/秒" +"</td></tr>" +
+                    //     "<tr><td align='left'>七级风圈半径：</td><td align='left'>" + typhRouteInfo.radius7 + " 公里" +"</td></tr>" +
+                    //     "<tr><td align='left'>十级风圈半径：</td><td align='left'>" + typhRouteInfo.radius10 + " 公里" +"</td></tr>" +
+                    //     "<tr><td align='left'>十二级风圈半径：</td><td align='left'>" + typhRouteInfo.radius12 + " 公里" +"</td></tr>" +
+                    //     "<tr><td align='left'>中心压强：</td><td align='left'>" + typhRouteInfo.centPres +" hpa" + "</td></tr>" +
+                    //     "<tr><td align='left'>强度：</td><td align='left'>" +"("+ typhRouteInfo.strength +")"+ "</td></tr>" +
+                    //     "</table>";
+                    var strength_CNName = mapLayout.colorTyphStrength[typhRouteInfo.strength].CN_Name;
+                    var html = `
+                        <table>
+                          <tr><td align='left'>路径时间：</td><td align='left'>${typhRouteInfo.routeTime}</td></tr>
+                          <tr><td align='left'>中心位置：</td><td align='left'>${typhRouteInfo.lon}°E, ${typhRouteInfo.lat}°N</td></tr>
+                          <tr><td align='left'>风速：</td><td align='left'>${typhRouteInfo.windSpeed} 米/秒</td></tr>
+                          <tr><td align='left'>七级风圈半径：</td><td align='left'>${typhRouteInfo.radius7} 公里</td></tr>
+                          <tr><td align='left'>十级风圈半径：</td><td align='left'>${typhRouteInfo.radius10} 公里</td></tr>
+                          <tr><td align='left'>十二级风圈半径：</td><td align='left'>${typhRouteInfo.radius12} 公里</td></tr>
+                          <tr><td align='left'>中心压强：</td><td align='left'>${typhRouteInfo.centPres} hpa</td></tr>
+                          <tr><td align='left'>强度：</td><td align='left'>${strength_CNName}(${typhRouteInfo.strength})</td></tr>
+                        </table>
+                    `.trim();
+                    this.content.innerHTML = html;
+                    this.overlay.setPosition(feature.getGeometry().getCoordinates());
+                }
             },
 
 
@@ -329,15 +404,9 @@
                     let len = val.length;
                     let lonlat = [];
                     let coordinates = [];
-                    let strength = [];
-                    let centPres = [];
-                    let moveSpeed = [];
                     for (let i = 0; i < val.length; i++) {
                         lonlat[i] = [val[i]['lon'], val[i]['lat']];
                         coordinates[i] = fromLonLat([val[i]['lon'], val[i]['lat']]);
-                        strength[i] = val[i]['strength'];
-                        centPres[i] = val[i]['centPres'];
-                        moveSpeed[i] = val[i]['moveSpeed'];
                     }
 
                     var center = [(coordinates[0][0] + coordinates[len - 1][0]) / 2, (coordinates[0][1] + coordinates[len - 1][1]) / 2];
@@ -345,9 +414,7 @@
                     // this.moveViewTo(center[0], center[1], distance);
                     this.moveViewTo(center[0], center[1]);
 
-                    // 鼠标移到台风和点击的事件还没写
-
-                    // 初始点
+                    // 初始点-------------------------------------------------------------------------------------------
                     var iconStyle = new Style({
                         image: new Icon({
                             src: this.typh_img,
@@ -360,23 +427,24 @@
                     });
                     var moveFeature = new Feature(new Point(fromLonLat([val[0]['lon'], val[0]['lat']])));
                     moveFeature.setStyle(iconStyle);
+                    moveFeature.set('name', "typrMoveFeature");
                     this.typh_point_layer.getSource().addFeature(moveFeature);
 
+                    // 第一个点
                     var pointGeom = new Point(fromLonLat([val[0]['lon'], val[0]['lat']]));
                     var pointFeature = new Feature(pointGeom);
-                    pointFeature.set("strength", val[0]['strength']);
+                    pointFeature.set('name', "typhPointFeature");
+                    pointFeature.set('data', val[0]);
                     pointFeature.setStyle(new Stystyle({
                         image: new CircleStyle({
                             radius: 5,
                             fill: new Fill({
-                                color: mapLayout.colorTyphStrength[pointFeature.get("strength")].color
+                                color: mapLayout.colorTyphStrength[pointFeature.get('data')['strength']].color
                             })
                         })
                     }));
                     this.typh_layer.getSource().addFeature(pointFeature);
-
-                    var sourcepoint = new VectorSource();
-                    sourcepoint.addFeature(pointFeature);
+                    // 结束初始化，开始绘制 ------------------------------------------------------------------------------
 
                     // 最后一个标记点的坐标
                     var index = 1;
@@ -386,7 +454,9 @@
                     // let thisPointFeature = that.typh_point_layer.getSource().getFeatures()[0];
 
                     function drawTyph() {
+                        // 退出time计时器
                         if (index >= val.length) {
+                            // 自转绘制
                             setInterval(function () {
                                 angle += 1;
                                 that.typh_point_layer.getSource().getFeatures()[0].getStyle().getImage().setRotation(angle);
@@ -402,31 +472,31 @@
                         moveFeature.setStyle(iconStyle);
                         that.typh_point_layer.getSource().addFeature(moveFeature);
 
-                        var pointFeature1 = new Feature(
+                        // 台风点等级的渲染
+                        var pointFeature = new Feature(
                             new Point(fromLonLat([val[index]['lon'], val[index]['lat']]))
                         );
-
-                        // 台风等级的渲染
-                        pointFeature1.set("strength", val[index]['strength']);
-                        pointFeature1.setStyle(new Stystyle({
+                        pointFeature.set("name", "typhPointFeature");
+                        pointFeature.set("data", val[index]);
+                        pointFeature.setStyle(new Stystyle({
                             image: new CircleStyle({
                                 radius: 5,
                                 fill: new Fill({
-                                    color: mapLayout.colorTyphStrength[pointFeature1.get("strength")].color
+                                    color: mapLayout.colorTyphStrength[pointFeature.get('data')['strength']].color
                                 })
                             })
                         }));
-                        that.typh_layer.getSource().addFeature(pointFeature1);
+                        that.typh_layer.getSource().addFeature(pointFeature);
 
                         // 台风轨迹线的绘制
-                        var lineGeom = new LineString([
-                            fromLonLat([val[index - 1]['lon'], val[index - 1]['lat']]),
-                            fromLonLat([val[index]['lon'], val[index]['lat']]),
-                        ]);
                         var lineFeature = new Feature(
-                            lineGeom
+                            new LineString([
+                                fromLonLat([val[index - 1]['lon'], val[index - 1]['lat']]),
+                                fromLonLat([val[index]['lon'], val[index]['lat']]),
+                            ])
                         );
-                        lineFeature.set("strength", val[index]['strength']);
+                        lineFeature.set('name', "typhLineFeature");
+                        lineFeature.set('strength', val[index]['strength']);
                         lineFeature.setStyle(new Stystyle({
                                 stroke: new Stroke({
                                     color: mapLayout.colorTyphStrength[lineFeature.get("strength")].color,

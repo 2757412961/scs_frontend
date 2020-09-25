@@ -1,11 +1,19 @@
 <template>
   <div style="position: absolute;bottom:0;top:61px;right:0px;left:0px">
+
     <!--    right:60px-->
     <div id="scsmap" style="">
 
     </div>
     <div id="scale-position" style="position:absolute;left:10px;bottom:20px;"></div>
     <div id="mouse-position" style="position:absolute;left:19px;bottom:5px;"></div>
+
+    <!-- pop up -->
+    <div id="popup" class="ol-popup" :style={minWidth:ol_popup_min_width}>
+      <div id="popup-title" class="popup-title">{{popup_title}}</div>
+      <div id="popup-content"></div>
+    </div>
+
   </div>
 
 </template>
@@ -68,6 +76,13 @@
 
                 //记录当前地图缩放层级
                 oldZoom: 0,
+
+                //popup三兄弟
+                container: "",
+                content: "",
+                overlay: "",
+                popup_title: "",
+                ol_popup_min_width: "300px",
 
 
                 // 静态资源导入 asserts
@@ -162,6 +177,22 @@
                     controls: defaultControls().extend([mousePositionControl, ScaleControl]),
                 });
 
+                /**
+                 * Elements that make up the popup. 借鉴与深中项目
+                 */
+                this.container = document.getElementById('popup');
+                this.content = document.getElementById('popup-content');
+                this.overlay = new Overlay({
+                    element: this.container,
+                    autoPan: true,
+                    autoPanAnimation: {
+                        duration: 2500
+                    },
+                    offset: [10, -20],
+                    positioning: 'center-center',
+                });
+                this.map.addOverlay(this.overlay);
+
 
                 //鼠标移动事件绑定
                 this.map.on('pointermove', this.mouseMove);
@@ -179,17 +210,6 @@
                 selectClick.on("select", this.singleClick);
             },
 
-            /**
-             * 地图要素清空
-             */
-            clearLayer() {
-                //台风图层
-                this.typh_layer.getSource().clear();
-                this.typh_route_layer.getSource().clear();
-                this.typh_point_layer.getSource().clear();
-
-
-            },
 
 
             /**
@@ -198,7 +218,16 @@
              */
             singleClick(e) {
                 var features = e.target.getFeatures().getArray();
+                // if (features[0].get('name').search(/Platform/) != -1) {
+                //     //显示平台最近24小时数的时间序列数据
+                //     this.$refs.platformLast24Modal.openPlatformLast24Modal()
+                // }
+                // else if (features[0].get('name').search(/Site1/) != -1) {
+                //     //显示桂山牛头岛气象站最近24小时数的时间序列数据
+                //     this.$refs.site1Last24Modal.openSite1Last24Modal()
+                // }
 
+                return;
             },
 
             /**
@@ -254,6 +283,18 @@
             },
 
             /**
+             * 地图要素清空
+             */
+            clearLayer() {
+                //台风图层
+                this.typh_layer.getSource().clear();
+                this.typh_route_layer.getSource().clear();
+                this.typh_point_layer.getSource().clear();
+
+
+            },
+
+            /**
              * 平滑移动至地图
              * 缩放等级
              */
@@ -266,6 +307,7 @@
                 })
             },
 
+
             /**
              * 绘制台风路径
              */
@@ -276,7 +318,7 @@
                     // 需要删除原有图层或已有要素
                     this.clearLayer();
 
-                    if (val.length <= 0) {
+                    if (val == null || val.length <= 0) {
                         return;
                     }
 
@@ -336,7 +378,9 @@
                     // 最后一个标记点的坐标
                     var index = 1;
                     var st;
-                    var angle = 0;
+                    let angle = 0;
+
+                    // let thisPointFeature = that.typh_point_layer.getSource().getFeatures()[0];
 
                     function drawTyph() {
                         if (index >= val.length) {
@@ -504,4 +548,10 @@
   .ol-popup-closer:after {
     content: "✖";
   }
+
+  .popover {
+    max-width: 1000px;
+  }
+
+
 </style>

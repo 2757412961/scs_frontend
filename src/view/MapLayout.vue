@@ -32,6 +32,7 @@
     import {createStringXY} from 'ol/coordinate.js';
     import {ScaleLine, defaults as defaultControls} from 'ol/control.js';
     import 'ol/ol.css';
+    import Overlay from 'ol/Overlay';
     import Feature from 'ol/Feature';
     import Point from 'ol/geom/Point';
     import Polyline from 'ol/format/Polyline';
@@ -240,9 +241,11 @@
                 this.map.getTargetElement().style.cursor = hit ? 'pointer' : '';//变换鼠标指针的状态
                 //如果触到feature
                 if (hit) {
+                    var features = this.map.getFeaturesAtPixel(pixel);
+                    var feature = features[0];
 
                 } else {
-
+                    this.overlay.setPosition(undefined);
                 }
 
             },

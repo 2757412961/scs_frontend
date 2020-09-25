@@ -1,6 +1,6 @@
 <template>
   <div style="position: absolute;bottom:0;top:61px;right:0px;left:0px">
-<!--    right:60px-->
+    <!--    right:60px-->
     <div id="scsmap" style="">
 
     </div>
@@ -11,334 +11,408 @@
 </template>
 
 <script>
-  import Map from 'ol/Map'
-  import View from 'ol/View'
-  import XYZ from "ol/source/XYZ";
-  // import TileLayer from "ol/layer/Tile";
-  import 'ol/ol.css'
-  import {fromLonLat} from 'ol/proj';
-  import {toLonLat} from 'ol/proj.js';
-  import Select from 'ol/interaction/Select';
-  import {singleClick} from 'ol/events/condition';
-  import MousePosition from 'ol/control/MousePosition.js';
-  import {createStringXY} from 'ol/coordinate.js';
-  import {ScaleLine, defaults as defaultControls} from 'ol/control.js';
-  import ZoomSlider from 'ol/control/ZoomSlider'
-  import ZoomToExtent from 'ol/control/ZoomToExtent'
-  import 'ol/ol.css';
-  import Feature from 'ol/Feature';
-  import Point from 'ol/geom/Point';
-  import Polyline from 'ol/format/Polyline';
-  import VectorSource from 'ol/source/Vector';
-  import {
-    Circle as CircleStyle,
-    Fill,
-    Icon,
-    Stroke,
-    Style,
-  } from 'ol/style';
-  import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
-  import {getVectorContext} from 'ol/render';
-  import ImageLayer from 'ol/layer/Image';
-  import ImageStaticSource from 'ol/source/ImageStatic';
-  import LineString from 'ol/geom/LineString';
-  import Stystyle from 'ol/style/Style';
-  import Geometry from 'ol/geom/Geometry';
-  import {transform} from 'ol/proj';
-  import MultiPoint from 'ol/geom/MultiPoint';
+    import Map from 'ol/Map'
+    import View from 'ol/View'
+    import XYZ from "ol/source/XYZ";
+    // import TileLayer from "ol/layer/Tile";
+    import 'ol/ol.css'
+    import {fromLonLat} from 'ol/proj';
+    import {toLonLat} from 'ol/proj.js';
+    import Select from 'ol/interaction/Select';
+    import {singleClick} from 'ol/events/condition';
+    import MousePosition from 'ol/control/MousePosition.js';
+    import {createStringXY} from 'ol/coordinate.js';
+    import {ScaleLine, defaults as defaultControls} from 'ol/control.js';
+    import 'ol/ol.css';
+    import Feature from 'ol/Feature';
+    import Point from 'ol/geom/Point';
+    import Polyline from 'ol/format/Polyline';
+    import VectorSource from 'ol/source/Vector';
+    import {Vector} from 'ol/source'
+    import {
+        Circle as CircleStyle,
+        Fill,
+        Icon,
+        Stroke,
+        Style,
+    } from 'ol/style';
+    import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
+    import {getVectorContext} from 'ol/render';
+    import ImageLayer from 'ol/layer/Image';
+    import ImageStaticSource from 'ol/source/ImageStatic';
+    import LineString from 'ol/geom/LineString';
+    import Stystyle from 'ol/style/Style';
+    import Geometry from 'ol/geom/Geometry';
+    import {transform} from 'ol/proj';
+    import MultiPoint from 'ol/geom/MultiPoint';
 
 
-  import { globalBus } from '../components/globalBus';
+    import mapLayout from "../util/mapLayout";
+    import {globalBus} from '../components/globalBus';
 
-  // .vue文件 单文件组件 component
-  export default {
-    name: "map-layout",
-    components: {},
-    data() {
-      return {
-        map:null,//地图
-        typh_layer:null,//台风图层
-        sea_area_layer:null,//近海海区图层
-        zfhy_area_layer:null,//执法海域图层
-        pro_layers:[],//数值预报产品图层
+    // .vue文件 单文件组件 component
+    export default {
+        name: "map-layout",
+        components: {},
+        data() {
+            return {
+                map: null,//地图
+                sea_area_layer: null,//近海海区图层
+                zfhy_area_layer: null,//执法海域图层
+                pro_layers: [],//数值预报产品图层
 
+                //台风图层
+                typh_layer: null, // 点图层
+                typh_route_layer: null, // 路线图层
+                typh_point_layer: null, // 移动点特征
 
-        //记录当前地图缩放层级
-        oldZoom:0
-      }
-    },
-    created() {
-
-    },
-    methods: {
-
-      /**
-       * 地图初始化
-       */
-      mapInit() {
-
-        /** 地图图层初始化*/
-        //"http://"+this.$store.state.serverIP+"/tianditu/tdt/{z}/{y}/{x}.jpg"
-        //"http://"+this.$store.state.serverIP+"/FeatureWithLabelGZA/{z}/{x}/{y}.jpg"
-        var map_source = new XYZ({
-          url: "http://"+this.$store.state.serverIP+"/TerrainWithLabel/{z}/{x}/{y}.jpg"    //FeatureWithLabelGZA
-        });
-        var map_layer = new TileLayer({
-          source: map_source
-        });
-
-        /** 视图初始化*/
-        var view = new View({
-          center: fromLonLat([113.8, 22.45]),
-          zoom: 4,
-          minZoom: 2,
-          maxZoom: 9,
-        });
-        this.oldZoom=10;
-
-        //mousePosition初始化
-        var mousePositionControl = new MousePosition({
-          coordinateFormat: createStringXY(4),
-          projection: 'EPSG:4326',
-          // comment the following two lines to have the mouse position
-          // be placed within the map.
-          className: 'custom-mouse-position',
-          target: document.getElementById('mouse-position'),
-          undefinedHTML: '&nbsp;'
-        });
-
-        var ScaleControl = new ScaleLine({
-          units: "metric",
-          bar: true,
-          steps: 2,
-          text: false,
-          minWidth: 140,
-          target: document.getElementById('scale-position'),
-        });
-
-        var ZoomSliderControl = new ZoomSlider();
-        var ZoomExtentControl = new ZoomToExtent({
-          extend: [13100000, 4290000,
-            13200000, 5210000
-          ]
-        });
-        /** Map初始化*/
-        this.map = new Map({
-          target: "scsmap",
-          layers: [map_layer],
-          view: view,
-          controls:defaultControls().extend([mousePositionControl, ScaleControl, ZoomSliderControl, ZoomExtentControl]),
-        });
+                //记录当前地图缩放层级
+                oldZoom: 0,
 
 
-        //鼠标移动事件绑定
-        this.map.on('pointermove', this.mouseMove);
-        //鼠标点击地图响应事件绑定
-        this.map.on('singleclick',this.singleClickOnMap);
-        //地图范围变化事件绑定
-        this.map.on('moveend',this.zoomEvent)
+                // 静态资源导入 asserts
+                typh_img: require('../assets/typh.png'),
+            }
+        },
+        created() {
 
-        //鼠标点击feature事件绑定
-        var selectClick = new Select({
-            condition: singleClick,
-            multi: true,
-          });
-        this.map.addInteraction(selectClick);
-        selectClick.on("select", this.singleClick);
-      },
+        },
+        methods: {
+
+            /**
+             * 地图初始化
+             */
+            mapInit() {
+
+                /** 地图图层初始化 */
+                    //"http://"+this.$store.state.serverIP+"/tianditu/tdt/{z}/{y}/{x}.jpg"
+                    //"http://"+this.$store.state.serverIP+"/FeatureWithLabelGZA/{z}/{x}/{y}.jpg"
+                var map_source = new XYZ({
+                        url: "http://" + this.$store.state.serverIP + "/TerrainWithLabel/{z}/{x}/{y}.jpg"    //FeatureWithLabelGZA
+                    });
+                var map_layer = new TileLayer({
+                    source: map_source
+                });
+
+                /** 台风图层初始化 */
+                var typh_source = new Vector({
+                    features: null
+                });
+                this.typh_layer = new VectorLayer({
+                    name: "typh_layer",
+                    chName: "台风点图层",
+                    source: typh_source
+                });
+
+                var typh_route_source = new Vector({
+                    features: null
+                });
+                this.typh_route_layer = new VectorLayer({
+                    name: "typh_route_layer",
+                    chName: "台风路径图层",
+                    source: typh_route_source
+                });
+
+                var typh_point_source = new Vector({
+                    features: null
+                });
+                this.typh_point_layer = new VectorLayer({
+                    name: "typh_point_layer",
+                    chName: "台风移动点特征",
+                    source: typh_point_source
+                });
+
+                /** xxx图层初始化 */
 
 
-      /**
-       * 点击feature响应事件(只有在选中Feature时才会触发）
-       * @param e
-       */
-      singleClick(e) {
-        var features = e.target.getFeatures().getArray();
+                /** 视图初始化*/
+                var view = new View({
+                    center: fromLonLat([113.8, 22.45]),
+                    zoom: 4,
+                    minZoom: 2,
+                    maxZoom: 9,
+                });
+                this.oldZoom = 10;
 
-      },
+                //mousePosition初始化
+                var mousePositionControl = new MousePosition({
+                    coordinateFormat: createStringXY(4),
+                    projection: 'EPSG:4326',
+                    // comment the following two lines to have the mouse position
+                    // be placed within the map.
+                    className: 'custom-mouse-position',
+                    target: document.getElementById('mouse-position'),
+                    undefinedHTML: '&nbsp;'
+                });
 
-      /**
-       * 地图区域鼠标移动事件
-       * @param e
-       */
-      mouseMove(e) {
-        var pixel = e.pixel;//获取地图上坐标
-        var hit = this.map.hasFeatureAtPixel(pixel);//判断是否存在feature
-        this.map.getTargetElement().style.cursor = hit ? 'pointer' : '';//变换鼠标指针的状态
-        //如果触到feature
-        if(hit)
-        {
+                var ScaleControl = new ScaleLine({
+                    units: "metric",
+                    bar: true,
+                    steps: 2,
+                    text: false,
+                    minWidth: 140,
+                    target: document.getElementById('scale-position'),
+                });
 
-        }
-        else
-        {
+                /** Map初始化*/
+                this.map = new Map({
+                    target: "scsmap",
+                    layers: [map_layer, this.typh_route_layer, this.typh_layer, this.typh_point_layer],
+                    view: view,
+                    controls: defaultControls().extend([mousePositionControl, ScaleControl]),
+                });
 
-        }
 
-      },
+                //鼠标移动事件绑定
+                this.map.on('pointermove', this.mouseMove);
+                //鼠标点击地图响应事件绑定
+                this.map.on('singleclick', this.singleClickOnMap);
+                //地图范围变化事件绑定
+                this.map.on('moveend', this.zoomEvent);
 
-      /**
-       * 地图区域鼠标点击事件
-       * @param e
-       */
-      singleClickOnMap(e){
-        //如果点击处有feature则返回
-        var pixel = e.pixel;//获取地图上坐标
-        var lonlat = toLonLat(this.map.getCoordinateFromPixel(e.pixel));
-        var hit = this.map.hasFeatureAtPixel(pixel);//判断是否存在feature
-        if(hit){
-          return ;
-        }
-        else{
+                //鼠标点击feature事件绑定
+                var selectClick = new Select({
+                    condition: singleClick,
+                    multi: true,
+                });
+                this.map.addInteraction(selectClick);
+                selectClick.on("select", this.singleClick);
+            },
 
-        }
+            /**
+             * 地图要素清空
+             */
+            clearLayer() {
+                //台风图层
+                this.typh_layer.getSource().clear();
+                this.typh_route_layer.getSource().clear();
+                this.typh_point_layer.getSource().clear();
 
-      },
 
-      /**
-       * 判断地图是否缩放，
-       * 若缩放，则判断是否有数据产品图层
-       * 如果有，则更新数据产品层级
-       * @param e
-       */
-      zoomEvent(e){
-        //判断地图是否缩放,无缩放则返回
-        var zoom = this.map.getView().getZoom();  //获取当前地图的缩放级别
-        if(this.oldZoom==zoom)
-          return;
-        //若缩放，记录当前缩放层级
-        this.oldZoom=zoom;
+            },
 
-        //判断是否有数据产品图层，若无则返回
-        //若有数据产品图层，则更新数据产品层级
-      },
 
-      typhRoute() {
-        globalBus.$on('addTyphMonitor',(val, oldVal) => {
-          console.log('I AM HERE!!!!');
-          console.log(val);
+            /**
+             * 点击feature响应事件(只有在选中Feature时才会触发）
+             * @param e
+             */
+            singleClick(e) {
+                var features = e.target.getFeatures().getArray();
 
-          if(val[0]==null){
-            return;
-          }
+            },
 
-          var coordinate = [];
-          var coordinate1 = [];
-          // alert('重复标志');
+            /**
+             * 地图区域鼠标移动事件
+             * @param e
+             */
+            mouseMove(e) {
+                var pixel = e.pixel;//获取地图上坐标
+                var hit = this.map.hasFeatureAtPixel(pixel);//判断是否存在feature
+                this.map.getTargetElement().style.cursor = hit ? 'pointer' : '';//变换鼠标指针的状态
+                //如果触到feature
+                if (hit) {
 
-          for(var i =0; i<val.length;i++){
-            coordinate.push(transform([val[i]['lon'],val[i]['lat']],'EPSG:4326','EPSG:3857'));
-          }
+                } else {
 
-          coordinate1.push(transform([val[0]['lon'],val[0]['lat']],'EPSG:4326','EPSG:3857'));
-          var geometry = new LineString(coordinate1);
+                }
 
-          //实例化一个矢量图层Vector作为绘制层
-          var source = new VectorSource();
+            },
 
-          var LineStringFeature = new Feature(geometry);
+            /**
+             * 地图区域鼠标点击事件
+             * @param e
+             */
+            singleClickOnMap(e) {
+                //如果点击处有feature则返回
+                var pixel = e.pixel;//获取地图上坐标
+                var lonlat = toLonLat(this.map.getCoordinateFromPixel(e.pixel));
+                var hit = this.map.hasFeatureAtPixel(pixel);//判断是否存在feature
+                if (hit) {
+                    return;
+                } else {
 
-          //将线添加到Vector绘制层上
-          source.addFeature(LineStringFeature);
-          var vectorLayer = new VectorLayer({
-            source: source,
-            style: new Stystyle({
-              stroke: new Stroke({
-                color: '#f00',
-                width: 2
-              }),
-              image: new CircleStyle({
-                radius: 2,
-                fill: new Fill({
-                  color: '#f00'
+                }
+
+            },
+
+            /**
+             * 判断地图是否缩放，
+             * 若缩放，则判断是否有数据产品图层
+             * 如果有，则更新数据产品层级
+             * @param e
+             */
+            zoomEvent(e) {
+                //判断地图是否缩放,无缩放则返回
+                var zoom = this.map.getView().getZoom();  //获取当前地图的缩放级别
+                if (this.oldZoom == zoom)
+                    return;
+                //若缩放，记录当前缩放层级
+                this.oldZoom = zoom;
+
+                //判断是否有数据产品图层，若无则返回
+                //若有数据产品图层，则更新数据产品层级
+            },
+
+            /**
+             * 平滑移动至地图
+             * 缩放等级
+             */
+            moveViewTo(x, y, z = 7) {
+                this.oldZoom = z;
+                this.map.getView().animate({
+                    center: [x, y],
+                    zoom: z,
+                    duration: 1000,
                 })
-              })
-            })
-          });
+            },
+
+            /**
+             * 绘制台风路径
+             */
+            typhRoute() {
+                var that = this;
+                globalBus.$on('addTyphMonitor', (val, oldVal) => {
+                    console.log('I AM HERE!!!!');
+                    // 需要删除原有图层或已有要素
+                    this.clearLayer();
+
+                    if (val.length <= 0) {
+                        return;
+                    }
+
+                    var that = this;
+                    let len = val.length;
+                    let lonlat = [];
+                    let coordinates = [];
+                    let strength = [];
+                    let centPres = [];
+                    let moveSpeed = [];
+                    for (let i = 0; i < val.length; i++) {
+                        lonlat[i] = [val[i]['lon'], val[i]['lat']];
+                        coordinates[i] = fromLonLat([val[i]['lon'], val[i]['lat']]);
+                        strength[i] = val[i]['strength'];
+                        centPres[i] = val[i]['centPres'];
+                        moveSpeed[i] = val[i]['moveSpeed'];
+                    }
+
+                    var center = [(coordinates[0][0] + coordinates[len - 1][0]) / 2, (coordinates[0][1] + coordinates[len - 1][1]) / 2];
+                    var distance = Math.sqrt(Math.pow(lonlat[0][0] - lonlat[len - 1][0], 2) + Math.pow(lonlat[0][1] - lonlat[len - 1][1], 2));
+                    // this.moveViewTo(center[0], center[1], distance);
+                    this.moveViewTo(center[0], center[1]);
+
+                    // 鼠标移到台风和点击的事件还没写
+
+                    // 初始点
+                    var iconStyle = new Style({
+                        image: new Icon({
+                            src: this.typh_img,
+                            color: '#FFFFFF',
+                            scale: 0.4,
+                            opacity: 0.9,
+                            // rotateWithView: true,
+                            rotation: 0,
+                        })
+                    });
+                    var moveFeature = new Feature(new Point(fromLonLat([val[0]['lon'], val[0]['lat']])));
+                    moveFeature.setStyle(iconStyle);
+                    this.typh_point_layer.getSource().addFeature(moveFeature);
+
+                    var pointGeom = new Point(fromLonLat([val[0]['lon'], val[0]['lat']]));
+                    var pointFeature = new Feature(pointGeom);
+                    pointFeature.set("strength", val[0]['strength']);
+                    pointFeature.setStyle(new Stystyle({
+                        image: new CircleStyle({
+                            radius: 5,
+                            fill: new Fill({
+                                color: mapLayout.colorTyphStrength[pointFeature.get("strength")].color
+                            })
+                        })
+                    }));
+                    this.typh_layer.getSource().addFeature(pointFeature);
+
+                    var sourcepoint = new VectorSource();
+                    sourcepoint.addFeature(pointFeature);
+
+                    // 最后一个标记点的坐标
+                    var index = 1;
+                    var st;
+                    var angle = 0;
+
+                    function drawTyph() {
+                        if (index >= val.length) {
+                            setInterval(function () {
+                                angle += 1;
+                                that.typh_point_layer.getSource().getFeatures()[0].getStyle().getImage().setRotation(angle);
+                                that.typh_point_layer.getSource().changed();
+                            }, 100);
+                            clearInterval(st);
+                            return;
+                        }
+
+                        // 台风移动点绘制
+                        that.typh_point_layer.getSource().clear();
+                        var moveFeature = new Feature(new Point(fromLonLat([val[index]['lon'], val[index]['lat']])));
+                        moveFeature.setStyle(iconStyle);
+                        that.typh_point_layer.getSource().addFeature(moveFeature);
+
+                        var pointFeature1 = new Feature(
+                            new Point(fromLonLat([val[index]['lon'], val[index]['lat']]))
+                        );
+
+                        // 台风等级的渲染
+                        pointFeature1.set("strength", val[index]['strength']);
+                        pointFeature1.setStyle(new Stystyle({
+                            image: new CircleStyle({
+                                radius: 5,
+                                fill: new Fill({
+                                    color: mapLayout.colorTyphStrength[pointFeature1.get("strength")].color
+                                })
+                            })
+                        }));
+                        that.typh_layer.getSource().addFeature(pointFeature1);
+
+                        // 台风轨迹线的绘制
+                        var lineGeom = new LineString([
+                            fromLonLat([val[index - 1]['lon'], val[index - 1]['lat']]),
+                            fromLonLat([val[index]['lon'], val[index]['lat']]),
+                        ]);
+                        var lineFeature = new Feature(
+                            lineGeom
+                        );
+                        lineFeature.set("strength", val[index]['strength']);
+                        lineFeature.setStyle(new Stystyle({
+                                stroke: new Stroke({
+                                    color: mapLayout.colorTyphStrength[lineFeature.get("strength")].color,
+                                    width: 2
+                                }),
+                                // image: new CircleStyle({
+                                //     radius: 2,
+                                //     fill: new Fill({
+                                //         color: '#f00'
+                                //     })
+                                // })
+                            })
+                        );
+                        that.typh_route_layer.getSource().addFeature(lineFeature);
+
+                        index += 1;
+                        st = setTimeout(drawTyph, 100);
+                    }
+
+                    drawTyph();
 
 
-          // 需要删除原有图层或已有要素！！
-          // vectorLayer.getSource().removeFeature(pop[1]);
+                });
+            }
 
 
-          // 台风等级的渲染还没写
-          // 鼠标移到台风和点击的事件还没写
-          // 组件的收缩、下拉条有问题
+        },
 
-
-          this.map.addLayer(vectorLayer);
-
-          var pointGeom = new MultiPoint(coordinate1);
-          var sourcepoint = new VectorSource();
-          var pointFeature = new Feature(pointGeom);
-
-
-          sourcepoint.addFeature(pointFeature);
-          var pointLayer = new VectorLayer({
-            source: sourcepoint,
-            style:
-              // function (feature, resolution) {
-            //   var strength = feature.get("strength");
-            //   var style = null;
-            //   if (strength == " ") {
-            //     style = new ol.style.Style({
-            //       stroke: new ol.style.Stroke({
-            //         color: "red",
-            //         width: 3
-            //       })
-            //     });
-            //   }
-            //   else {
-            //     style = new ol.style.Style({
-            //       stroke: new ol.style.Stroke({
-            //         color: "blue",
-            //         width: 3
-            //       })
-            //     });
-            //   }
-            //   return [style]
-            // }
-
-
-              new Stystyle({
-              image: new CircleStyle({
-                radius: 2,
-                fill: new Fill({
-                  color: '#000'
-                })
-              })
-            })
-          });
-          this.map.addLayer(pointLayer);
-          // console.log(coordinate);
-
-          // 最后一个标记点的坐标
-          var index = 1;
-          var interval = setInterval(function(){
-
-            var newPoint = [coordinate[index][0], coordinate[index][1]];
-            coordinate1.push(newPoint);
-            geometry.setCoordinates(coordinate1);
-            pointGeom.setCoordinates(coordinate1);
-
-            index += 1;
-
-          }, 30);
-
-          setTimeout(function(){
-            clearInterval(interval);
-          }, 30*coordinate.length);
-
-        });
-      }
-
-    },
-
-    mounted: function () {
-      this.mapInit();
-      this.typhRoute();
+        mounted: function () {
+            this.mapInit();
+            this.typhRoute();
+        }
     }
-  }
 </script>
 
 <style>
@@ -363,24 +437,6 @@
 
   #scsmap .ol-touch .ol-zoomslider {
     top: 2.75em;
-  }
-
-  #scsmap .ol-zoom-in.ol-has-tooltip:hover [role=tooltip],
-  #scsmap .ol-zoom-in.ol-has-tooltip:focus [role=tooltip] {
-    top: 3px;
-  }
-
-  #scsmap .ol-zoom-out.ol-has-tooltip:hover [role=tooltip],
-  #scsmap .ol-zoom-out.ol-has-tooltip:focus [role=tooltip] {
-    top: 232px;
-  }
-
-
-  /*设置缩放控件ZoomToExtent的样式，将其放到导航条下方
-          */
-
-  #scsmap .ol-zoom-extent {
-    top: 265px;
   }
 
   ol-viewport {

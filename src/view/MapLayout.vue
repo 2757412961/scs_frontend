@@ -415,9 +415,28 @@
     }
 </script>
 
-<style scoped>
+<style>
   #scsmap {
-    height: 100%
+    height: 100%;
+    width: 100%;
+    position: absolute;
+  }
+
+  #scsmap .ol-zoom .ol-zoom-out {
+    margin-top: 204px;
+  }
+
+  #scsmap .ol-zoomslider {
+    background-color: transparent;
+    top: 2.3em;
+  }
+
+  #scsmap .ol-touch .ol-zoom .ol-zoom-out {
+    margin-top: 212px;
+  }
+
+  #scsmap .ol-touch .ol-zoomslider {
+    top: 2.75em;
   }
 
   ol-viewport {

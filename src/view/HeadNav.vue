@@ -49,6 +49,7 @@
         <!--<el-button type="text" style="padding: 5px;"><font-awesome-icon :icon="['far','question-circle']"/>帮助</el-button>-->
         <!--<el-button type="text" style="padding: 5px;" @click="signOutAlert"><font-awesome-icon :icon="['fas','sign-out-alt']" />退出</el-button>-->
       <user-modal ref="userModal"></user-modal>
+      <roll-modal ref="rollModal"></roll-modal>
       <!--</div>-->
     </el-main>
   </el-container>
@@ -56,9 +57,10 @@
 
 <script>
     import UserModal from "../components/User/UserModal";
+    import RollModal from "../components/RollForecast/AreaSelectModal"
     export default {
       name: "HeadNav",
-      components: {UserModal},
+      components: {UserModal ,RollModal},
       data(){
         return {
           active:'dataSearch'
@@ -85,9 +87,11 @@
               });
               break;
             //如果是弹出窗口，则打开对应Modal
-            case "fullScreenSesArea":
+            case "fullScreenSesArea":  //滚动预报-近海海区 false
+              this.$refs.rollModal.openRollForecastModal(false);
               break;
-            case "fullScreenLawArea":
+            case "fullScreenLawArea":   //滚动预报-执法海域 true
+              this.$refs.rollModal.openRollForecastModal(true);
               break;
             case "pnWeather":
               break;

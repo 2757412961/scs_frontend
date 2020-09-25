@@ -203,9 +203,9 @@
                                 this.yearList.push(object0);
                             }
                             this.selectedYear = response.data[0].toString();
-                            this.yearList.sort();
-                            this.yearList.reverse();
-                            this.yearList.reverse();
+                            // this.yearList.sort();
+                            // this.yearList.reverse();
+                            // this.yearList.reverse();
                         } else {
                             // 若不成功，则弹出警告框
                             this.$confirm('无法获取台风年份信息！', '提示', {

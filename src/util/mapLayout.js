@@ -30,7 +30,7 @@ export default {
     },
   },
   colorTyphSpeed: {
-    "7": {
+    "30KTS": {
       CN_Name: "7级",
       color: "#3CC239"
     },
@@ -38,11 +38,11 @@ export default {
       CN_Name: "8级",
       color: "#53D5CD"
     },
-    "10": {
+    "50KTS": {
       CN_Name: "10级",
       color: "#B89A20"
     },
-    "12": {
+    "64KTS": {
       CN_Name: "11级",
       color: "#F10600"
     },

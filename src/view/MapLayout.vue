@@ -75,6 +75,9 @@
                 typh_layer: null, // 点图层
                 typh_route_layer: null, // 路线图层
                 typh_point_layer: null, // 移动点特征
+                typh_Rotation_Interval: null, // 移动点自转 定时器
+                typh_Rotation_Angle: null, // 旋转角度
+                typh_move_setTime: null, // 台风路径移动 计时器
 
                 //记录当前地图缩放层级
                 oldZoom: 0,
@@ -259,7 +262,7 @@
 
                             this.lastpointerFeature = feature; //记录本次feature
                             var style = this.lastpointerFeature.getStyle();
-                            style.getImage().setScale(1.25); //图标放大
+                            style.getImage().setScale(1.5); //图标放大
                             this.lastpointerFeature.setStyle(style);
 
                             if (features[0].get('name').search(/typhPointFeature/) != -1) {
@@ -328,6 +331,10 @@
                 this.typh_point_layer.getSource().clear();
 
 
+                clearInterval(this.typh_move_setTime);
+                clearInterval(this.typh_Rotation_Interval);
+                this.typh_Rotation_Interval = null;
+                this.typh_Rotation_Angle = 0;
             },
 
             /**
@@ -394,6 +401,7 @@
                 globalBus.$on('addTyphMonitor', (val, oldVal) => {
                     console.log('I AM HERE!!!!');
                     // 需要删除原有图层或已有要素
+                    // 路由跳转时，自动删除
                     this.clearLayer();
 
                     if (val == null || val.length <= 0) {
@@ -448,21 +456,17 @@
 
                     // 最后一个标记点的坐标
                     var index = 1;
-                    var st;
-                    let angle = 0;
-
-                    // let thisPointFeature = that.typh_point_layer.getSource().getFeatures()[0];
 
                     function drawTyph() {
                         // 退出time计时器
                         if (index >= val.length) {
                             // 自转绘制
-                            setInterval(function () {
-                                angle += 1;
-                                that.typh_point_layer.getSource().getFeatures()[0].getStyle().getImage().setRotation(angle);
+                            that.typh_Rotation_Interval = setInterval(function () {
+                                that.typh_Rotation_Angle = that.typh_Rotation_Angle >= 360 ? 0 : that.typh_Rotation_Angle + 1;
+                                that.typh_point_layer.getSource().getFeatures()[0].getStyle().getImage().setRotation(that.typh_Rotation_Angle);
                                 that.typh_point_layer.getSource().changed();
                             }, 100);
-                            clearInterval(st);
+                            clearInterval(that.typh_move_setTime);
                             return;
                         }
 
@@ -513,7 +517,7 @@
                         that.typh_route_layer.getSource().addFeature(lineFeature);
 
                         index += 1;
-                        st = setTimeout(drawTyph, 100);
+                        that.typh_move_setTime = setTimeout(drawTyph, 100);
                     }
 
                     drawTyph();
@@ -528,6 +532,9 @@
         mounted: function () {
             this.mapInit();
             this.typhRoute();
+        },
+        destroyed() {
+            console.log("MapLayout is destroyed");
         }
     }
 </script>

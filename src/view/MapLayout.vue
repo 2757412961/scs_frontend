@@ -24,7 +24,7 @@
     import XYZ from "ol/source/XYZ";
     // import TileLayer from "ol/layer/Tile";
     import 'ol/ol.css'
-    import {fromLonLat} from 'ol/proj';
+    import {fromLonLat, getTransform} from 'ol/proj';
     import {toLonLat} from 'ol/proj.js';
     import Select from 'ol/interaction/Select';
     import {singleClick} from 'ol/events/condition';
@@ -34,7 +34,6 @@
     import 'ol/ol.css';
     import Overlay from 'ol/Overlay';
     import Feature from 'ol/Feature';
-    import Point from 'ol/geom/Point';
     import Polyline from 'ol/format/Polyline';
     import VectorSource from 'ol/source/Vector';
     import {Vector} from 'ol/source'
@@ -49,11 +48,15 @@
     import {getVectorContext} from 'ol/render';
     import ImageLayer from 'ol/layer/Image';
     import ImageStaticSource from 'ol/source/ImageStatic';
-    import LineString from 'ol/geom/LineString';
     import Stystyle from 'ol/style/Style';
-    import Geometry from 'ol/geom/Geometry';
     import {transform} from 'ol/proj';
+
+    import Geometry from 'ol/geom/Geometry';
+    import Point from 'ol/geom/Point';
     import MultiPoint from 'ol/geom/MultiPoint';
+    import LinearRing from 'ol/geom/LinearRing';
+    import LineString from 'ol/geom/LineString';
+    import Polygon from 'ol/geom/Polygon';
 
 
     import util from "../util/util";
@@ -74,7 +77,8 @@
                 //台风图层
                 typh_layer: null, // 点图层
                 typh_route_layer: null, // 路线图层
-                typh_point_layer: null, // 移动点特征
+                typh_point_layer: null, // 移动点图层
+                typh_wind_layer: null, // 风圈图层
                 typh_Rotation_Interval: null, // 移动点自转 定时器
                 typh_Rotation_Angle: null, // 旋转角度
                 typh_move_setTime: null, // 台风路径移动 计时器
@@ -141,8 +145,17 @@
                 });
                 this.typh_point_layer = new VectorLayer({
                     name: "typh_point_layer",
-                    chName: "台风移动点特征",
+                    chName: "台风移动点图层",
                     source: typh_point_source
+                });
+
+                var typh_wind_source = new Vector({
+                    features: null
+                });
+                this.typh_wind_layer = new VectorLayer({
+                    name: "typh_wind_layer",
+                    chName: "台风风圈图层",
+                    source: typh_wind_source
                 });
 
                 /** xxx图层初始化 */
@@ -153,7 +166,7 @@
                     center: fromLonLat([113.8, 22.45]),
                     zoom: 4,
                     minZoom: 2,
-                    maxZoom: 9,
+                    maxZoom: 8,
                 });
                 this.oldZoom = 10;
 
@@ -180,7 +193,7 @@
                 /** Map初始化*/
                 this.map = new Map({
                     target: "scsmap",
-                    layers: [map_layer, this.typh_route_layer, this.typh_layer, this.typh_point_layer],
+                    layers: [map_layer, this.typh_wind_layer, this.typh_route_layer, this.typh_layer, this.typh_point_layer],
                     view: view,
                     controls: defaultControls().extend([mousePositionControl, ScaleControl]),
                 });
@@ -225,14 +238,15 @@
              */
             singleClick(e) {
                 var features = e.target.getFeatures().getArray();
-                // if (features[0].get('name').search(/Platform/) != -1) {
-                //     //显示平台最近24小时数的时间序列数据
-                //     this.$refs.platformLast24Modal.openPlatformLast24Modal()
-                // }
-                // else if (features[0].get('name').search(/Site1/) != -1) {
-                //     //显示桂山牛头岛气象站最近24小时数的时间序列数据
-                //     this.$refs.site1Last24Modal.openSite1Last24Modal()
-                // }
+                var feature = features[0];
+                if (feature.get('name').search(/Platform/) != -1) {
+
+                } else if (feature.get('name').search(/typhPointFeature/) != -1) {
+                    let typhRouteInfo = feature.get('data');
+                    if (typhRouteInfo != null) {
+                        this.typhWindDraw(typhRouteInfo, 0.01);
+                    }
+                }
 
                 return;
             },
@@ -259,17 +273,17 @@
                                 this.lastpointerFeature.setStyle(style);
                                 this.overlay.setPosition(undefined);
                             }
-
                             this.lastpointerFeature = feature; //记录本次feature
                             var style = this.lastpointerFeature.getStyle();
                             style.getImage().setScale(1.5); //图标放大
                             this.lastpointerFeature.setStyle(style);
 
-                            if (features[0].get('name').search(/typhPointFeature/) != -1) {
-                                this.typhPointPopup(feature);
-                            } else if (features[0].get('name').search(/Site1/) != -1) {
+                            if (feature.get('name').search(/NOT/) != -1) {
                                 this.siteId = 1;
-                                this.sitePopShow(features[0]);
+                            } else if (feature.get('name').search(/typhPointFeature/) != -1) {
+                                this.typhPointPopup(feature);
+                            } else if (feature.get('name').search(/Site1/) != -1) {
+                                this.siteId = 1;
                             }
                         }
                     }
@@ -296,6 +310,8 @@
                 var lonlat = toLonLat(this.map.getCoordinateFromPixel(e.pixel));
                 var hit = this.map.hasFeatureAtPixel(pixel);//判断是否存在feature
                 if (hit) {
+
+
                     return;
                 } else {
 
@@ -329,8 +345,10 @@
                 this.typh_layer.getSource().clear();
                 this.typh_route_layer.getSource().clear();
                 this.typh_point_layer.getSource().clear();
+                this.typh_wind_layer.getSource().clear();
 
 
+                // 清除台风路线绘制和定时器
                 clearInterval(this.typh_move_setTime);
                 clearInterval(this.typh_Rotation_Interval);
                 this.typh_Rotation_Interval = null;
@@ -392,6 +410,105 @@
                 }
             },
 
+            /**
+             * 台风 风圈 绘制
+             */
+            typhWindDraw(typhRouteInfo, scale) {
+                this.typh_wind_layer.getSource().clear();
+
+                let colorTyphWind = mapLayout.colorTyphWind;
+                let cenX = typhRouteInfo.lon;
+                let cenY = typhRouteInfo.lat;
+                let radiusJSON = JSON.parse(typhRouteInfo.radiusJson);
+                let typhoonRadius = radiusJSON.TyphoonRadius;
+
+                for (let level in typhoonRadius) {
+                    let radius = typhoonRadius[level];
+                    let rs = [
+                        radius['NORTHEAST'] * scale,
+                        radius['SOUTHEAST'] * scale,
+                        radius['SOUTHWEST'] * scale,
+                        radius['NORTHWEST'] * scale
+                    ];
+                    let angles = [0, 90, 180, 270];
+                    let points = [];
+
+                    for (let ri = 0; ri < 4; ri++) {
+                        for (let quad = 0; quad <= 90; quad++) {
+                            let angle = angles[ri] + quad;
+                            let x = cenX + rs[ri] * Math.sin(angle / 180 * Math.PI);
+                            let y = cenY + rs[ri] * Math.cos(angle / 180 * Math.PI);
+
+                            points.push(fromLonLat([x, y]));
+                        }
+                    }
+                    points.push(fromLonLat([cenX + rs[0] * Math.sin(0), cenY + rs[0] * Math.cos(0)]));
+
+                    // var polygonWind = new Polygon([points]);
+                    // polygonWind.applyTransform(getTransform('EPSG:4326', 'EPSG:3857'));
+                    // var featureWind = new Feature(polygonWind);
+                    var featureWind = new Feature(new LineString(points));
+                    featureWind.set('name', 'typhWindLineFeature');
+                    featureWind.setStyle(new Style({
+                        stroke: new Stroke({
+                            lineDash: [1, 2, 3, 4, 5, 6],
+                            width: 2,
+                            color: colorTyphWind[level].color
+                        })
+                    }));
+                    this.typh_wind_layer.getSource().addFeature(featureWind);
+                }
+            },
+
+            /**
+             * 台风 预报路径和点 绘制
+             */
+            typhForcastDraw(typhRouteInfo, scale) {
+                this.typh_wind_layer.getSource().clear();
+
+                let colorTyphWind = mapLayout.colorTyphWind;
+                let cenX = typhRouteInfo.lon;
+                let cenY = typhRouteInfo.lat;
+                let radiusJSON = JSON.parse(typhRouteInfo.radiusJson);
+                let typhoonRadius = radiusJSON.TyphoonRadius;
+
+                for (let level in typhoonRadius) {
+                    let radius = typhoonRadius[level];
+                    let rs = [
+                        radius['NORTHEAST'] * scale,
+                        radius['SOUTHEAST'] * scale,
+                        radius['SOUTHWEST'] * scale,
+                        radius['NORTHWEST'] * scale
+                    ];
+                    let angles = [0, 90, 180, 270];
+                    let points = [];
+
+                    for (let ri = 0; ri < 4; ri++) {
+                        for (let quad = 0; quad <= 90; quad++) {
+                            let angle = angles[ri] + quad;
+                            let x = cenX + rs[ri] * Math.sin(angle / 180 * Math.PI);
+                            let y = cenY + rs[ri] * Math.cos(angle / 180 * Math.PI);
+
+                            points.push(fromLonLat([x, y]));
+                        }
+                    }
+                    points.push(fromLonLat([cenX + rs[0] * Math.sin(0), cenY + rs[0] * Math.cos(0)]));
+
+                    // var polygonWind = new Polygon([points]);
+                    // polygonWind.applyTransform(getTransform('EPSG:4326', 'EPSG:3857'));
+                    // var featureWind = new Feature(polygonWind);
+                    var featureWind = new Feature(new LineString(points));
+                    featureWind.set('name', 'typhWindLineFeature');
+                    featureWind.setStyle(new Style({
+                        stroke: new Stroke({
+                            lineDash: [1, 2, 3, 4, 5, 6],
+                            width: 2,
+                            color: colorTyphWind[level].color
+                        })
+                    }));
+                    this.typh_wind_layer.getSource().addFeature(featureWind);
+                }
+            },
 
             /**
              * 绘制台风路径
@@ -504,7 +621,7 @@
                         lineFeature.setStyle(new Stystyle({
                                 stroke: new Stroke({
                                     color: mapLayout.colorTyphStrength[lineFeature.get("strength")].color,
-                                    width: 2
+                                    width: 3
                                 }),
                                 // image: new CircleStyle({
                                 //     radius: 2,
@@ -517,7 +634,7 @@
                         that.typh_route_layer.getSource().addFeature(lineFeature);
 
                         index += 1;
-                        that.typh_move_setTime = setTimeout(drawTyph, 100);
+                        that.typh_move_setTime = setTimeout(drawTyph, 10);
                     }
 
                     drawTyph();

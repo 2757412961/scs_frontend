@@ -249,8 +249,8 @@
             singleClick(e) {
                 var features = e.target.getFeatures().getArray();
                 var feature = features[0];
-                if (feature.get('name').search(/Platform/) != -1) {
-
+                if (feature.get('name').search(/NOT/) != -1) {
+                    this.not = null;
                 } else if (feature.get('name').search(/typhPointFeature/) != -1) {
                     let typhRouteInfo = feature.get('data');
                     if (typhRouteInfo != null) {
@@ -293,8 +293,8 @@
                                 this.siteId = 1;
                             } else if (feature.get('name').search(/typhPointFeature/) != -1) {
                                 this.typhPointPopup(feature);
-                            } else if (feature.get('name').search(/Site1/) != -1) {
-                                this.siteId = 1;
+                            } else if (feature.get('name').search(/typhForecastFeature/) != -1) {
+
                             }
                         }
                     }
@@ -351,7 +351,7 @@
             /**
              * 地图要素清空
              */
-            clearLayer() {
+            clearLayerSource() {
                 //台风图层
                 this.typh_layer.getSource().clear();
                 this.typh_route_layer.getSource().clear();
@@ -481,45 +481,8 @@
                 let colorTyphForecast = mapLayout.colorTyphForecast;
                 let cenX = typhRouteInfo.lon;
                 let cenY = typhRouteInfo.lat;
-                let radiusJSON = JSON.parse(typhRouteInfo.radiusJson);
-                let typhoonRadius = radiusJSON.TyphoonRadius;
 
-                for (let level in typhoonRadius) {
-                    let radius = typhoonRadius[level];
-                    let rs = [
-                        radius['NORTHEAST'] * scale,
-                        radius['SOUTHEAST'] * scale,
-                        radius['SOUTHWEST'] * scale,
-                        radius['NORTHWEST'] * scale
-                    ];
-                    let angles = [0, 90, 180, 270];
-                    let points = [];
 
-                    for (let ri = 0; ri < 4; ri++) {
-                        for (let quad = 0; quad <= 90; quad++) {
-                            let angle = angles[ri] + quad;
-                            let x = cenX + rs[ri] * Math.sin(angle / 180 * Math.PI);
-                            let y = cenY + rs[ri] * Math.cos(angle / 180 * Math.PI);
-
-                            points.push(fromLonLat([x, y]));
-                        }
-                    }
-                    points.push(fromLonLat([cenX + rs[0] * Math.sin(0), cenY + rs[0] * Math.cos(0)]));
-
-                    // var polygonWind = new Polygon([points]);
-                    // polygonWind.applyTransform(getTransform('EPSG:4326', 'EPSG:3857'));
-                    // var featureWind = new Feature(polygonWind);
-                    var featureWind = new Feature(new LineString(points));
-                    featureWind.set('name', 'typhWindLineFeature');
-                    featureWind.setStyle(new Style({
-                        stroke: new Stroke({
-                            lineDash: [1, 2, 3, 4, 5, 6],
-                            width: 2,
-                            color: colorTyphWind[level].color
-                        })
-                    }));
-                    this.typh_wind_layer.getSource().addFeature(featureWind);
-                }
             },
 
             /**
@@ -531,7 +494,7 @@
                     console.log('I AM HERE!!!!');
                     // 需要删除原有图层或已有要素
                     // 路由跳转时，自动删除
-                    this.clearLayer();
+                    this.clearLayerSource();
 
                     if (val == null || val.length <= 0) {
                         return;

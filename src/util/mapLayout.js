@@ -29,10 +29,12 @@ export default {
       color: "#FA020b"
     },
   },
+
+  // 台风风圈颜色变量
   colorTyphWind: {
     "30KTS": {
       CN_Name: "7级",
-      color: "#0aFA0d"
+      color: "#20fa5a"
     },
     "8": {
       CN_Name: "8级",
@@ -40,37 +42,39 @@ export default {
     },
     "50KTS": {
       CN_Name: "10级",
-      color: "#eec828"
+      color: "#ffd82b"
     },
     "64KTS": {
       CN_Name: "11级",
       color: "#ff350e"
     },
   },
+
+  // 台风预报颜色变量
   colorTyphForecast: {
     "Core": {
       CN_Name: "中心",
-      color: "#0aFA0d"
+      color: "#C9172C"
     },
     "Center": {
       CN_Name: "中央",
-      color: "#53D5CD"
+      color: "#1B08A3"
     },
     "Japan": {
       CN_Name: "日本",
-      color: "#eec828"
+      color: "#050505"
     },
     "Europe": {
       CN_Name: "欧洲",
-      color: "#ff350e"
+      color: "#E7F350"
     },
     "USA": {
       CN_Name: "美国",
-      color: "#ff350e"
+      color: "#59CD4F"
     },
     "TEPO": {
       CN_Name: "TEPO",
-      color: "#ff350e"
+      color: "#BA2DA9"
     },
   },
 

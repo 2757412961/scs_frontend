@@ -26,7 +26,7 @@
       },
         methods: {
           clearMap(val){
-              this.$refs.mapLayout.clearLayer();
+              this.$refs.mapLayout.clearLayerSource();
           }
         },
       created:function(){

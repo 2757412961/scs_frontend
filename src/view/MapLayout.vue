@@ -77,8 +77,9 @@
                 //台风图层
                 typh_layer: null, // 点图层
                 typh_route_layer: null, // 路线图层
-                typh_point_layer: null, // 移动点图层
+                typh_move_layer: null, // 移动点图层
                 typh_wind_layer: null, // 风圈图层
+                typh_forecast_layer: null, // 预报 图层
                 typh_Rotation_Interval: null, // 移动点自转 定时器
                 typh_Rotation_Angle: null, // 旋转角度
                 typh_move_setTime: null, // 台风路径移动 计时器
@@ -143,8 +144,8 @@
                 var typh_point_source = new Vector({
                     features: null
                 });
-                this.typh_point_layer = new VectorLayer({
-                    name: "typh_point_layer",
+                this.typh_move_layer = new VectorLayer({
+                    name: "typh_move_layer",
                     chName: "台风移动点图层",
                     source: typh_point_source
                 });
@@ -156,6 +157,15 @@
                     name: "typh_wind_layer",
                     chName: "台风风圈图层",
                     source: typh_wind_source
+                });
+
+                var typh_forcast_source = new Vector({
+                    features: null
+                });
+                this.typh_forecast_layer = new VectorLayer({
+                    name: "typh_forecast_layer",
+                    chName: "台风风圈图层",
+                    source: typh_forcast_source
                 });
 
                 /** xxx图层初始化 */
@@ -193,7 +203,7 @@
                 /** Map初始化*/
                 this.map = new Map({
                     target: "scsmap",
-                    layers: [map_layer, this.typh_wind_layer, this.typh_route_layer, this.typh_layer, this.typh_point_layer],
+                    layers: [map_layer, this.typh_wind_layer, this.typh_forecast_layer, this.typh_route_layer, this.typh_layer, this.typh_move_layer],
                     view: view,
                     controls: defaultControls().extend([mousePositionControl, ScaleControl]),
                 });
@@ -245,6 +255,7 @@
                     let typhRouteInfo = feature.get('data');
                     if (typhRouteInfo != null) {
                         this.typhWindDraw(typhRouteInfo, 0.01);
+                        this.typhForecastDraw(typhRouteInfo);
                     }
                 }
 
@@ -344,8 +355,9 @@
                 //台风图层
                 this.typh_layer.getSource().clear();
                 this.typh_route_layer.getSource().clear();
-                this.typh_point_layer.getSource().clear();
+                this.typh_move_layer.getSource().clear();
                 this.typh_wind_layer.getSource().clear();
+                this.typh_forecast_layer.getSource().clear();
 
 
                 // 清除台风路线绘制和定时器
@@ -463,10 +475,10 @@
             /**
              * 台风 预报路径和点 绘制
              */
-            typhForcastDraw(typhRouteInfo, scale) {
-                this.typh_wind_layer.getSource().clear();
+            typhForecastDraw(typhRouteInfo) {
+                this.typh_forecast_layer.getSource().clear();
 
-                let colorTyphWind = mapLayout.colorTyphWind;
+                let colorTyphForecast = mapLayout.colorTyphForecast;
                 let cenX = typhRouteInfo.lon;
                 let cenY = typhRouteInfo.lat;
                 let radiusJSON = JSON.parse(typhRouteInfo.radiusJson);
@@ -553,7 +565,7 @@
                     var moveFeature = new Feature(new Point(fromLonLat([val[0]['lon'], val[0]['lat']])));
                     moveFeature.setStyle(iconStyle);
                     moveFeature.set('name', "typrMoveFeature");
-                    this.typh_point_layer.getSource().addFeature(moveFeature);
+                    this.typh_move_layer.getSource().addFeature(moveFeature);
 
                     // 第一个点
                     var pointGeom = new Point(fromLonLat([val[0]['lon'], val[0]['lat']]));
@@ -580,18 +592,19 @@
                             // 自转绘制
                             that.typh_Rotation_Interval = setInterval(function () {
                                 that.typh_Rotation_Angle = that.typh_Rotation_Angle >= 360 ? 0 : that.typh_Rotation_Angle + 1;
-                                that.typh_point_layer.getSource().getFeatures()[0].getStyle().getImage().setRotation(that.typh_Rotation_Angle);
-                                that.typh_point_layer.getSource().changed();
+                                that.typh_move_layer.getSource().getFeatures()[0].getStyle().getImage().setRotation(that.typh_Rotation_Angle);
+                                that.typh_move_layer.getSource().changed();
                             }, 100);
                             clearInterval(that.typh_move_setTime);
                             return;
                         }
 
                         // 台风移动点绘制
-                        that.typh_point_layer.getSource().clear();
+                        that.typh_move_layer.getSource().clear();
                         var moveFeature = new Feature(new Point(fromLonLat([val[index]['lon'], val[index]['lat']])));
+                        moveFeature.set('name', 'typhMoveFeature');
                         moveFeature.setStyle(iconStyle);
-                        that.typh_point_layer.getSource().addFeature(moveFeature);
+                        that.typh_move_layer.getSource().addFeature(moveFeature);
 
                         // 台风点等级的渲染
                         var pointFeature = new Feature(

@@ -47,6 +47,32 @@ export default {
       color: "#ff350e"
     },
   },
+  colorTyphForecast: {
+    "Core": {
+      CN_Name: "中心",
+      color: "#0aFA0d"
+    },
+    "Center": {
+      CN_Name: "中央",
+      color: "#53D5CD"
+    },
+    "Japan": {
+      CN_Name: "日本",
+      color: "#eec828"
+    },
+    "Europe": {
+      CN_Name: "欧洲",
+      color: "#ff350e"
+    },
+    "USA": {
+      CN_Name: "美国",
+      color: "#ff350e"
+    },
+    "TEPO": {
+      CN_Name: "TEPO",
+      color: "#ff350e"
+    },
+  },
 
   // 台风绘图
   drawTyph(data,) {

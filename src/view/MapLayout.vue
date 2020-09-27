@@ -24,6 +24,7 @@
     import XYZ from "ol/source/XYZ";
     // import TileLayer from "ol/layer/Tile";
     import 'ol/ol.css'
+    import {transform} from 'ol/proj';
     import {fromLonLat, getTransform} from 'ol/proj';
     import {toLonLat} from 'ol/proj.js';
     import Select from 'ol/interaction/Select';
@@ -37,19 +38,20 @@
     import Polyline from 'ol/format/Polyline';
     import VectorSource from 'ol/source/Vector';
     import {Vector} from 'ol/source'
+    import ImageStaticSource from 'ol/source/ImageStatic';
+    import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
+    import ImageLayer from 'ol/layer/Image';
+    import {getVectorContext} from 'ol/render';
+
     import {
         Circle as CircleStyle,
         Fill,
         Icon,
         Stroke,
         Style,
+        Text,
     } from 'ol/style';
-    import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
-    import {getVectorContext} from 'ol/render';
-    import ImageLayer from 'ol/layer/Image';
-    import ImageStaticSource from 'ol/source/ImageStatic';
     import Stystyle from 'ol/style/Style';
-    import {transform} from 'ol/proj';
 
     import Geometry from 'ol/geom/Geometry';
     import Point from 'ol/geom/Point';
@@ -297,30 +299,29 @@
 
                             }
                         }
-                    }
-                    else if(feature.get('name').search(/seaArea/) != -1){
-                      //如果移动到新的feature，修改feature样式
-                      if (this.lastPointerFeature !== feature){ //鼠标移动到了新的feature
-                        let featureStyle = feature.getStyle();  //记录本次feature的样式
-                        if (this.lastPointerFeature != null){  //如果上次feature不为空，将值设置为上一feature的样式
-                          this.lastPointerFeature.setStyle(featureStyle);
+                    } else if (feature.get('name').search(/seaArea/) != -1) {
+                        //如果移动到新的feature，修改feature样式
+                        if (this.lastPointerFeature !== feature) { //鼠标移动到了新的feature
+                            let featureStyle = feature.getStyle();  //记录本次feature的样式
+                            if (this.lastPointerFeature != null) {  //如果上次feature不为空，将值设置为上一feature的样式
+                                this.lastPointerFeature.setStyle(featureStyle);
+                            }
+                            let highlightStyle = new Style({  //鼠标覆盖，创建新的feature样式
+                                stroke: new Stroke({
+                                    color: '#3681AA',
+                                    width: 2
+                                }),
+                                fill: new Fill({
+                                    color: 'rgba(54, 129, 170,1)'
+                                }),
+                            });
+                            feature.setStyle(highlightStyle);
                         }
-                        let highlightStyle = new Style({  //鼠标覆盖，创建新的feature样式
-                          stroke: new Stroke({
-                            color: '#3681AA',
-                            width: 2
-                          }),
-                          fill: new Fill({
-                            color: 'rgba(54, 129, 170,1)'
-                          }),
-                        });
-                        feature.setStyle(highlightStyle);
-                      }
-                      //显示feature信息
-                      let id_feature = feature.get('feature_id');
-                      let forecastData = feature.get('feature_data');
+                        //显示feature信息
+                        let id_feature = feature.get('feature_id');
+                        let forecastData = feature.get('feature_data');
 
-                      this.lastPointerFeature = feature; //记录本次feature
+                        this.lastPointerFeature = feature; //记录本次feature
                     }
                 } else {
                     if (this.lastpointerFeature != null) {
@@ -408,10 +409,12 @@
              */
             typhPointPopup(feature) {
                 var typhRouteInfo = feature.get('data');
+                let typhNum = typhRouteInfo.typhNum;
+                let typhName = feature.get('typhName');
 
                 //构建Popup_title文字内容
                 this.ol_popup_min_width = "270px";
-                this.popup_title = typhRouteInfo.typhNum + "号台风最新数据";
+                this.popup_title = `${typhNum}号 ${typhName}台风最新数据`;
 
                 if (typhRouteInfo != null) {
                     //组织弹出框内容
@@ -501,18 +504,50 @@
             typhForecastDraw(typhRouteInfo) {
                 this.typh_forecast_layer.getSource().clear();
 
-                let colorTyphForecast = mapLayout.colorTyphForecast;
+                let typhNum = typhRouteInfo.typhNum;
+                let typhTime = typhRouteInfo.routeTime;
                 let cenX = typhRouteInfo.lon;
                 let cenY = typhRouteInfo.lat;
 
+                let colorTyphForecast = mapLayout.colorTyphForecast;
 
+                function drawChinaJapan() {
+                    let api = `/api/SCSServices/typhoonYear.action`;
+                    // this.$axios
+                    //     .get(api, {
+                    //         params: {}
+                    //     })
+                    //     .then((res) => {
+                    //
+                    //     })
+                    //     .catch((res) => {
+                    //         this.$confirm('服务器失联List！', '提示', {
+                    //             confirmButtonText: '确定',
+                    //             type: 'warning'
+                    //         })
+                    //     })
+                    //     .finally((res) => {
+                    //
+                    //     })
+                }
+
+                function drawUSAEurope() {
+
+                }
+
+                function drawTEPO() {
+
+                }
+
+                drawChinaJapan();
+                drawUSAEurope();
+                drawTEPO();
             },
 
             /**
              * 绘制台风路径
              */
             typhRoute() {
-                var that = this;
                 globalBus.$on('addTyphMonitor', (val, oldVal) => {
                     console.log('I AM HERE!!!!');
                     // 需要删除原有图层或已有要素
@@ -532,32 +567,116 @@
                         coordinates[i] = fromLonLat([val[i]['lon'], val[i]['lat']]);
                     }
 
+                    // 视野移动
                     var center = [(coordinates[0][0] + coordinates[len - 1][0]) / 2, (coordinates[0][1] + coordinates[len - 1][1]) / 2];
                     var distance = Math.sqrt(Math.pow(lonlat[0][0] - lonlat[len - 1][0], 2) + Math.pow(lonlat[0][1] - lonlat[len - 1][1], 2));
                     // this.moveViewTo(center[0], center[1], distance);
                     this.moveViewTo(center[0], center[1]);
 
-                    // 初始点-------------------------------------------------------------------------------------------
-                    var iconStyle = new Style({
-                        image: new Icon({
-                            src: this.typh_img,
-                            color: '#FFFFFF',
-                            scale: 0.4,
-                            opacity: 0.9,
-                            // rotateWithView: true,
-                            rotation: 0,
+                    // 获得model编号和台风名称
+                    let typhNum = val[0]['typhNum'];
+                    let typhModelNum = null;
+                    let typhName = null;
+                    this.$axios
+                        .get(`/api/SCSServices/queryTyphoonInfoNum.action?typhNum=${typhNum}`, {
+                            params: {}
                         })
-                    });
-                    var moveFeature = new Feature(new Point(fromLonLat([val[0]['lon'], val[0]['lat']])));
-                    moveFeature.setStyle(iconStyle);
-                    moveFeature.set('name', "typrMoveFeature");
-                    this.typh_move_layer.getSource().addFeature(moveFeature);
+                        .then((res) => {
+                            if (res.data != null) {
+                                typhModelNum = res.data['modelNum'];
+                                typhName = res.data['enName'];
+                                this.typhRouteDraw(that, val, typhModelNum, typhName);
+                            }
+                        })
+                        .catch((res) => {
+                            this.$confirm('服务器失联List！', '提示', {
+                                confirmButtonText: '确定',
+                                type: 'warning'
+                            })
+                        });
 
-                    // 第一个点
-                    var pointGeom = new Point(fromLonLat([val[0]['lon'], val[0]['lat']]));
-                    var pointFeature = new Feature(pointGeom);
-                    pointFeature.set('name', "typhPointFeature");
-                    pointFeature.set('data', val[0]);
+                });
+            },
+            typhRouteDraw(that, val, typhModelNum, typhName) {
+                // 初始点-------------------------------------------------------------------------------------------
+                var iconStyle = new Style({
+                    image: new Icon({
+                        src: this.typh_img,
+                        color: '#FFFFFF',
+                        scale: 0.4,
+                        opacity: 0.9,
+                        rotation: 0,
+                    })
+                });
+                var moveFeature = new Feature(new Point(fromLonLat([val[0]['lon'], val[0]['lat']])));
+                moveFeature.setStyle(iconStyle);
+                moveFeature.set('name', "typrMoveFeature");
+                that.typh_move_layer.getSource().addFeature(moveFeature);
+
+                // 第一个点
+                var pointGeom = new Point(fromLonLat([val[0]['lon'], val[0]['lat']]));
+                var pointFeature = new Feature(pointGeom);
+                pointFeature.set('name', "typhPointFeature");
+                pointFeature.set('data', val[0]);
+                pointFeature.set('typhName', typhName);
+                pointFeature.set('typhModelNum', typhModelNum);
+                pointFeature.setStyle(new Stystyle({
+                    image: new CircleStyle({
+                        radius: 5,
+                        fill: new Fill({
+                            color: mapLayout.colorTyphStrength[pointFeature.get('data')['strength']].color
+                        }),
+                        // text: new Text({
+                        //     //位置
+                        //     textAlign: 'center',
+                        //     //基准线
+                        //     textBaseline: 'middle',
+                        //     //文字样式
+                        //     font: '15px Microsoft YaHei',
+                        //     //文本内容
+                        //     text: 'pointFeature.get()',
+                        //     //文本填充样式（即文字颜色）
+                        //     fill: new Fill({color: '#000000'}),
+                        //     stroke: new Stroke({
+                        //         color: '#ffcc33', width: 12
+                        //     })
+                        // })
+                    })
+                }));
+                that.typh_layer.getSource().addFeature(pointFeature);
+                // 结束初始化，开始绘制 ------------------------------------------------------------------------------
+
+                // 最后一个标记点的坐标
+                var index = 1;
+
+                function drawTyph() {
+                    // 退出time计时器
+                    if (index >= val.length) {
+                        // 自转绘制
+                        that.typh_Rotation_Interval = setInterval(function () {
+                            that.typh_Rotation_Angle = that.typh_Rotation_Angle >= 360 ? 0 : that.typh_Rotation_Angle + 1;
+                            that.typh_move_layer.getSource().getFeatures()[0].getStyle().getImage().setRotation(that.typh_Rotation_Angle);
+                            that.typh_move_layer.getSource().changed();
+                        }, 100);
+                        clearInterval(that.typh_move_setTime);
+                        return;
+                    }
+
+                    // 台风移动点绘制
+                    that.typh_move_layer.getSource().clear();
+                    var moveFeature = new Feature(new Point(fromLonLat([val[index]['lon'], val[index]['lat']])));
+                    moveFeature.set('name', 'typhMoveFeature');
+                    moveFeature.setStyle(iconStyle);
+                    that.typh_move_layer.getSource().addFeature(moveFeature);
+
+                    // 台风点等级的渲染
+                    var pointFeature = new Feature(
+                        new Point(fromLonLat([val[index]['lon'], val[index]['lat']]))
+                    );
+                    pointFeature.set("name", "typhPointFeature");
+                    pointFeature.set("data", val[index]);
+                    pointFeature.set('typhName', typhName);
+                    pointFeature.set('typhModelNum', typhModelNum);
                     pointFeature.setStyle(new Stystyle({
                         image: new CircleStyle({
                             radius: 5,
@@ -566,144 +685,97 @@
                             })
                         })
                     }));
-                    this.typh_layer.getSource().addFeature(pointFeature);
-                    // 结束初始化，开始绘制 ------------------------------------------------------------------------------
+                    that.typh_layer.getSource().addFeature(pointFeature);
 
-                    // 最后一个标记点的坐标
-                    var index = 1;
+                    // 台风轨迹线的绘制
+                    var lineFeature = new Feature(
+                        new LineString([
+                            fromLonLat([val[index - 1]['lon'], val[index - 1]['lat']]),
+                            fromLonLat([val[index]['lon'], val[index]['lat']]),
+                        ])
+                    );
+                    lineFeature.set('name', "typhLineFeature");
+                    lineFeature.set('strength', val[index]['strength']);
+                    lineFeature.setStyle(new Stystyle({
+                            stroke: new Stroke({
+                                color: mapLayout.colorTyphStrength[lineFeature.get("strength")].color,
+                                width: 3
+                            }),
+                        })
+                    );
+                    that.typh_route_layer.getSource().addFeature(lineFeature);
 
-                    function drawTyph() {
-                        // 退出time计时器
-                        if (index >= val.length) {
-                            // 自转绘制
-                            that.typh_Rotation_Interval = setInterval(function () {
-                                that.typh_Rotation_Angle = that.typh_Rotation_Angle >= 360 ? 0 : that.typh_Rotation_Angle + 1;
-                                that.typh_move_layer.getSource().getFeatures()[0].getStyle().getImage().setRotation(that.typh_Rotation_Angle);
-                                that.typh_move_layer.getSource().changed();
-                            }, 100);
-                            clearInterval(that.typh_move_setTime);
-                            return;
+                    index += 1;
+                    that.typh_move_setTime = setTimeout(drawTyph, 10);
+                }
+
+                drawTyph();
+            }
+            ,
+
+
+            //  *****************************seaArea 近海预报  start******************************************
+            seaAreaList2Polygon(ptArr) {
+                let areaPolygonPts = new Array();
+                let areaPolygon = new Array();
+                for (let i = 0; i < ptArr.length; i++) {
+                    let temp = [ptArr[i].x, ptArr[i].y];
+                    areaPolygon.push(temp);
+                }
+                areaPolygonPts.push(areaPolygon);
+                return areaPolygonPts;
+            },
+            seaAreaCreatePolygonFeature: function (points, name, id, forecastData) {
+                var polygonFeature = new Feature({
+                    geometry: new Polygon(points),
+                    name: 'seaArea',
+                })
+                polygonFeature.set('feature_id', id)
+                polygonFeature.set('feature_data', forecastData)
+                return polygonFeature
+            },
+            seaAreaCreateVectorLayer: function (vectorSource_seaArea) {
+                this.vectorLayer = new VectorLayer({ // 这里定义的是图层类型(Image/Title/Vector)
+                    source: vectorSource_seaArea,
+                    style: new Style({
+                        stroke: new Stroke({
+                            color: '#3681AA',
+                            width: 2
+                        }),
+                        fill: new Fill({
+                            color: 'rgba(54,129,170,0.1)'
+                        })
+                    })
+                })
+                return this.vectorLayer
+            },
+            seaAreaDrawPolygon() {
+                globalBus.$on('drawSeaArea', (areaList, areaForecastData) => {
+                    let vectorSource_seaArea = new VectorSource();
+                    // 海区列表 和 预报数据 是对应的
+                    for (let i = 0; i < areaList.length; i++) {
+                        // 转换polygon
+                        let polygons = this.seaAreaList2Polygon(areaList[i].pt);
+                        // 创建feature，加入要显示的预报数据(第一个数据)
+                        if (areaList[i].area == areaForecastData[i].data[0].hqbh) { //判断海区是否一致，根据编号
+                            vectorSource_seaArea.addFeature(this.seaAreaCreatePolygonFeature(polygons, areaList[i].alias, areaList[i].area, areaForecastData[i].data[0]));
+                        } else { //如果位置不对应，遍历 areaForecastData，寻找对应预报数据
+                            for (let j = 0; j < areaForecastData.length; j++) {
+                                if (areaForecastData[j].data[0].hqbh == areaList[i].area) {
+                                    vectorSource_seaArea.addFeature(this.seaAreaCreatePolygonFeature(polygons, areaList[i].alias, areaList[i].area, areaForecastData[i].data[0]));
+                                }
+                            }
                         }
-
-                        // 台风移动点绘制
-                        that.typh_move_layer.getSource().clear();
-                        var moveFeature = new Feature(new Point(fromLonLat([val[index]['lon'], val[index]['lat']])));
-                        moveFeature.set('name', 'typhMoveFeature');
-                        moveFeature.setStyle(iconStyle);
-                        that.typh_move_layer.getSource().addFeature(moveFeature);
-
-                        // 台风点等级的渲染
-                        var pointFeature = new Feature(
-                            new Point(fromLonLat([val[index]['lon'], val[index]['lat']]))
-                        );
-                        pointFeature.set("name", "typhPointFeature");
-                        pointFeature.set("data", val[index]);
-                        pointFeature.setStyle(new Stystyle({
-                            image: new CircleStyle({
-                                radius: 5,
-                                fill: new Fill({
-                                    color: mapLayout.colorTyphStrength[pointFeature.get('data')['strength']].color
-                                })
-                            })
-                        }));
-                        that.typh_layer.getSource().addFeature(pointFeature);
-
-                        // 台风轨迹线的绘制
-                        var lineFeature = new Feature(
-                            new LineString([
-                                fromLonLat([val[index - 1]['lon'], val[index - 1]['lat']]),
-                                fromLonLat([val[index]['lon'], val[index]['lat']]),
-                            ])
-                        );
-                        lineFeature.set('name', "typhLineFeature");
-                        lineFeature.set('strength', val[index]['strength']);
-                        lineFeature.setStyle(new Stystyle({
-                                stroke: new Stroke({
-                                    color: mapLayout.colorTyphStrength[lineFeature.get("strength")].color,
-                                    width: 3
-                                }),
-                                // image: new CircleStyle({
-                                //     radius: 2,
-                                //     fill: new Fill({
-                                //         color: '#f00'
-                                //     })
-                                // })
-                            })
-                        );
-                        that.typh_route_layer.getSource().addFeature(lineFeature);
-
-                        index += 1;
-                        that.typh_move_setTime = setTimeout(drawTyph, 10);
                     }
+                    let seaAreVectorLayer = this.seaAreaCreateVectorLayer(vectorSource_seaArea);
+                    this.map.addLayer(seaAreVectorLayer);
+                })
+            },
+            seaAreaForecastPopShow(feature) {
 
-                    drawTyph();
-
-
-                });
             },
 
-          //  *****************************seaArea 近海预报  start******************************************
-          seaAreaList2Polygon(ptArr){
-            let areaPolygonPts = new Array();
-            let areaPolygon = new Array();
-            for (let i=0; i<ptArr.length; i++){
-              let temp = [ptArr[i].x, ptArr[i].y];
-              areaPolygon.push(temp);
-            }
-            areaPolygonPts.push(areaPolygon);
-            return areaPolygonPts;
-          },
-          seaAreaCreatePolygonFeature: function(points, name, id, forecastData) {
-            var polygonFeature = new Feature({
-              geometry: new Polygon(points),
-              name:'seaArea',
-            })
-            polygonFeature.set('feature_id', id)
-            polygonFeature.set('feature_data', forecastData)
-            return polygonFeature
-          },
-          seaAreaCreateVectorLayer: function( vectorSource_seaArea) {
-            this.vectorLayer = new VectorLayer({ // 这里定义的是图层类型(Image/Title/Vector)
-              source: vectorSource_seaArea,
-              style: new Style({
-                stroke: new Stroke({
-                  color: '#3681AA',
-                  width: 2
-                }),
-                fill: new Fill({
-                  color: 'rgba(54,129,170,0.1)'
-                })
-              })
-            })
-            return this.vectorLayer
-          },
-          seaAreaDrawPolygon(){
-            globalBus.$on('drawSeaArea',(areaList, areaForecastData) => {
-              let vectorSource_seaArea = new VectorSource();
-              // 海区列表 和 预报数据 是对应的
-              for (let i=0; i<areaList.length; i++){
-                // 转换polygon
-                let polygons = this.seaAreaList2Polygon(areaList[i].pt);
-                // 创建feature，加入要显示的预报数据(第一个数据)
-                if(areaList[i].area == areaForecastData[i].data[0].hqbh){ //判断海区是否一致，根据编号
-                  vectorSource_seaArea.addFeature(this.seaAreaCreatePolygonFeature(polygons, areaList[i].alias, areaList[i].area, areaForecastData[i].data[0]));
-                } else { //如果位置不对应，遍历 areaForecastData，寻找对应预报数据
-                  for (let j=0; j<areaForecastData.length; j++){
-                    if (areaForecastData[j].data[0].hqbh == areaList[i].area){
-                      vectorSource_seaArea.addFeature(this.seaAreaCreatePolygonFeature(polygons, areaList[i].alias, areaList[i].area, areaForecastData[i].data[0]));
-                    }
-                  }
-                }
-              }
-              let seaAreVectorLayer = this.seaAreaCreateVectorLayer(vectorSource_seaArea);
-              this.map.addLayer(seaAreVectorLayer);
-            })
-          },
-          seaAreaForecastPopShow(feature){
-
-          },
-
-          //  *****************************seaArea 近海预报   end******************************************
+            //  *****************************seaArea 近海预报   end******************************************
 
 
         },

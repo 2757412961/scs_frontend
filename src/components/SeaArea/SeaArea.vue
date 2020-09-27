@@ -19,10 +19,10 @@ zzhe
             近海预报
         </div>
         <div class="seaAreaBarTitle">
-          第{{this.tableDataIndex + 1}}海区：{{this.forecastData[this.tableDataIndex].data[0].hqmc}}
+          第{{this.tableDataIndex}}海区：{{this.forecastData[parseInt(this.tableDataIndex)-1].data[0].hqmc}}
         </div>
         <div id="forecastTableDiv" class="seaAreaTableDiv">
-          <div v-for="data in this.forecastData[this.tableDataIndex].data">
+          <div v-for="data in this.forecastData[parseInt(this.tableDataIndex)-1].data">
             <table id="seaAreaTable_id" border="1px" cellspacing="0" class="seaAreaTable">
               <tr>
                 <td colspan="2">
@@ -116,7 +116,7 @@ zzhe
                   "hqmc": "渤海"
                 }]
             }], //预报数据
-            tableDataIndex: 0, //用于展示表格的数据index，默认为0(第一个数据)
+            tableDataIndex: 1, //用于展示表格的数据index，默认为0(第一个数据)
             activeNames:['rightSide'],
             rightIsHide: false,
             windHighSpeed: false,
@@ -131,6 +131,7 @@ zzhe
       },
       mounted() {
           // this.getOffShoreForecast();
+        this.updateTableDataIndex();
       },
       watch: {
         forecastData: function (val) {
@@ -223,6 +224,12 @@ zzhe
           return windSpeed;
         },
 
+        //更新tableDataIndex的值
+        updateTableDataIndex(){
+          globalBus.$on('updateSeaAreaDataIndex',(newVal) => {
+            this.tableDataIndex = newVal;
+          })
+        },
 
       }
     }

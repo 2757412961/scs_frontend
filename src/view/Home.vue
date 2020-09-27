@@ -1,7 +1,7 @@
 <template>
   <Layout style="height:100%;">
     <Header>
-      <HeadNav></HeadNav>
+      <HeadNav @clearMap="clearMap"></HeadNav>
     </Header>
     <Layout>
       <map-layout ref="mapLayout"></map-layout>
@@ -15,12 +15,20 @@
     import MapLayout from "./MapLayout";
     import HeadNav from "./HeadNav";
     import Typhoon from "../components/Typhoon/Typhoon";
+
+    import {globalBus} from "../components/globalBus";
+
     export default {
       name: "home",
       components: {Typhoon, HeadNav, MapLayout},
       computed: {
 
       },
+        methods: {
+          clearMap(val){
+              this.$refs.mapLayout.clearLayerSource();
+          }
+        },
       created:function(){
         // 在页面加载时读取sessionStorage里的状态信息
         if (sessionStorage.getItem('store')) {
@@ -55,9 +63,6 @@
         },
         deep: true // 开启深度监听
       },
-      methods:{
-
-      }
     }
 </script>
 

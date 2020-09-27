@@ -319,7 +319,7 @@
                       //显示feature信息
                       let id_feature = feature.get('feature_id');
                       let forecastData = feature.get('feature_data');
-
+                      this.seaAreaForecastPopup(feature, pixel); //显示弹框
                       this.lastPointerFeature = feature; //记录本次feature
                     }
                 } else {
@@ -344,8 +344,15 @@
                 var lonlat = toLonLat(this.map.getCoordinateFromPixel(e.pixel));
                 var hit = this.map.hasFeatureAtPixel(pixel);//判断是否存在feature
                 if (hit) {
-
-
+                  var features = this.map.getFeaturesAtPixel(pixel);
+                  var feature = features[0];
+                  // 如果点击了seaArea的feature
+                  if(feature.get('name').search(/seaArea/) != -1){
+                    // 获取feature Id
+                    let id_feature = feature.get('feature_id');
+                    // 调用seaArea方法，传递id
+                    globalBus.$emit('updateSeaAreaDataIndex', id_feature);
+                  }
                     return;
                 } else {
 
@@ -699,9 +706,30 @@
               this.map.addLayer(seaAreVectorLayer);
             })
           },
-          seaAreaForecastPopShow(feature){
+          seaAreaForecastPopup(feature,pixel){
+            var seaAreInfo = feature.get('feature_data');
 
+            //构建Popup_title文字内容
+            this.ol_popup_min_width = "270px";
+            this.popup_title = seaAreInfo.hqbh + ":" + seaAreInfo.hqmc;
+
+            if (seaAreInfo != null) {
+              //组织弹出框内容
+              var html = `
+                        <table>
+                          <tr><td align='left'>天气情况：</td><td align='left'>${seaAreInfo.tqqk}</td></tr>
+                          <tr><td align='left'>风向：</td><td align='left'>${seaAreInfo.fx}</td></tr>
+                          <tr><td align='left'>风速(级)：</td><td align='left'>${seaAreInfo.fs} </td></tr>
+                          <tr><td align='left'>视程范围(公里)：</td><td align='left'>${seaAreInfo.scfw}</td></tr>
+                          <tr><td align='left'>风浪(米)：</td><td align='left'>${seaAreInfo.fl} </td></tr>
+                          <tr><td align='left'>涌浪(米)：</td><td align='left'>${seaAreInfo.yl} </td></tr>
+                        </table>
+                    `.trim();
+              this.content.innerHTML = html;
+              this.overlay.setPosition(this.map.getCoordinateFromPixel(pixel));
+            }
           },
+
 
           //  *****************************seaArea 近海预报   end******************************************
 

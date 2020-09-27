@@ -580,7 +580,7 @@
           let typhModelNum = null;
           let typhName = null;
           this.$axios
-            .get(`/api/SCSServices/queryTyphoonInfoNum.action?typhNum=${typhNum}`, {
+            .get(`/api/SCSServices/queryTyphoonInfo.action?typhNum=${typhNum}`, {
               params: {}
             })
             .then((res) => {

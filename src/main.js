@@ -73,15 +73,15 @@ function guardRoute (route, redirect, next) {
   }
 }
 
-router.beforeEach((route, redirect, next) => {
-  route.meta.title = store.state.title
-  window.document.title = route.meta.title
-  if (route.matched.some(m => m.meta.needGuard)) {
-    guardRoute(route, redirect, next)
-  } else {
-    next()
-  }
-})
+// router.beforeEach((route, redirect, next) => {
+//   route.meta.title = store.state.title
+//   window.document.title = route.meta.title
+//   if (route.matched.some(m => m.meta.needGuard)) {
+//     guardRoute(route, redirect, next)
+//   } else {
+//     next()
+//   }
+// })
 
 router.afterEach((to, from, next) => {
   window.scrollTo(0, 0)

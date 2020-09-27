@@ -28,6 +28,7 @@
   import 'ol/ol.css';
   import Feature from 'ol/Feature';
   import Point from 'ol/geom/Point';
+  import Polygon from 'ol/geom/Polygon'
   import Polyline from 'ol/format/Polyline';
   import VectorSource from 'ol/source/Vector';
   import {
@@ -61,7 +62,7 @@
         sea_area_layer:null,//近海海区图层
         zfhy_area_layer:null,//执法海域图层
         pro_layers:[],//数值预报产品图层
-
+        lastPointerFeature: null,//记录上一次光标指向的feature
 
         //记录当前地图缩放层级
         oldZoom:0
@@ -168,7 +169,36 @@
         //如果触到feature
         if(hit)
         {
+          //获取当前的feature
+          var features = this.map.getFeaturesAtPixel(pixel);
+          // 获取feature的name（唯一标识）
+          let featureName = features[0].get('name');
+          switch (featureName) {
+            case 'seaArea':      //近海预报 feature鼠标覆盖事件
+              //如果移动到新的feature，修改feature样式
+              if (this.lastPointerFeature !== features[0]){ //鼠标移动到了新的feature
+                let featureStyle = features[0].getStyle();  //记录本次feature的样式
+                if (this.lastPointerFeature != null){  //如果上次feature不为空，将值设置为上一feature的样式
+                  this.lastPointerFeature.setStyle(featureStyle);
+                }
+                let highlightStyle = new Style({  //鼠标覆盖，创建新的feature样式
+                  stroke: new Stroke({
+                    color: '#3681AA',
+                    width: 2
+                  }),
+                  fill: new Fill({
+                    color: 'rgba(54, 129, 170,1)'
+                  }),
+                });
+                features[0].setStyle(highlightStyle);
+              }
+              //显示feature信息
+              let id_feature = features[0].get('feature_id');
+              let forecastData = features[0].get('feature_data');
 
+              this.lastPointerFeature = features[0]; //记录本次feature
+              break;
+          }
         }
         else
         {
@@ -330,13 +360,78 @@
           }, 30*coordinate.length);
 
         });
-      }
+      },
+
+
+      //  *****************************seaArea 近海预报  start******************************************
+      seaAreaList2Polygon(ptArr){
+        let areaPolygonPts = new Array();
+        let areaPolygon = new Array();
+        for (let i=0; i<ptArr.length; i++){
+          let temp = [ptArr[i].x, ptArr[i].y];
+          areaPolygon.push(temp);
+        }
+        areaPolygonPts.push(areaPolygon);
+        return areaPolygonPts;
+      },
+      seaAreaCreatePolygonFeature: function(points, name, id, forecastData) {
+        var polygonFeature = new Feature({
+          geometry: new Polygon(points),
+          name:'seaArea',
+        })
+        polygonFeature.set('feature_id', id)
+        polygonFeature.set('feature_data', forecastData)
+        return polygonFeature
+      },
+      seaAreaCreateVectorLayer: function( vectorSource_seaArea) {
+        this.vectorLayer = new VectorLayer({ // 这里定义的是图层类型(Image/Title/Vector)
+          source: vectorSource_seaArea,
+          style: new Style({
+            stroke: new Stroke({
+              color: '#3681AA',
+              width: 2
+            }),
+            fill: new Fill({
+              color: 'rgba(54,129,170,0.1)'
+            })
+          })
+        })
+        return this.vectorLayer
+      },
+      seaAreaDrawPolygon(){
+        globalBus.$on('drawSeaArea',(areaList, areaForecastData) => {
+          let vectorSource_seaArea = new VectorSource();
+          // 海区列表 和 预报数据 是对应的
+          for (let i=0; i<areaList.length; i++){
+            // 转换polygon
+            let polygons = this.seaAreaList2Polygon(areaList[i].pt);
+            // 创建feature，加入要显示的预报数据(第一个数据)
+            if(areaList[i].area == areaForecastData[i].data[0].hqbh){ //判断海区是否一致，根据编号
+              vectorSource_seaArea.addFeature(this.seaAreaCreatePolygonFeature(polygons, areaList[i].alias, areaList[i].area, areaForecastData[i].data[0]));
+            } else { //如果位置不对应，遍历 areaForecastData，寻找对应预报数据
+              for (let j=0; j<areaForecastData.length; j++){
+                if (areaForecastData[j].data[0].hqbh == areaList[i].area){
+                  vectorSource_seaArea.addFeature(this.seaAreaCreatePolygonFeature(polygons, areaList[i].alias, areaList[i].area, areaForecastData[i].data[0]));
+                }
+              }
+            }
+          }
+          let seaAreVectorLayer = this.seaAreaCreateVectorLayer(vectorSource_seaArea);
+          this.map.addLayer(seaAreVectorLayer);
+        })
+      },
+      seaAreaForecastPopShow(feature){
+
+      },
+
+      //  *****************************seaArea 近海预报   end******************************************
 
     },
 
     mounted: function () {
       this.mapInit();
       this.typhRoute();
+      this.seaAreaDrawPolygon();
     }
   }
 </script>

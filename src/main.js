@@ -19,6 +19,11 @@ import {routers} from './router'
 import store from './store'
 import axios from 'axios';
 
+// 解决ElementUI导航栏中的vue-router在3.0版本以上重复点菜单报错问题
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 
 Vue.use(Vuex)
 Vue.use(VueRouter)
@@ -43,8 +48,9 @@ Vue.component('font-awesome-layers-text', FontAwesomeLayersText)
 
 //公共方法类
 import util from "./util/util.js"
+import x2js from 'x2js'
 Vue.prototype.util = util;
-
+Vue.prototype.$x2js = new x2js(); //创建x2js对象，挂到vue原型上
 
 /*main.js下*/
 import promise from 'es6-promise'

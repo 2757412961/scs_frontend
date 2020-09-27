@@ -182,6 +182,13 @@
       },
       //打开预报面板
       openForecastModal(){
+        if (this.tableData.length < 1){
+          this.$confirm('请选择数据！', '提示', {
+            confirmButtonText: '确定',
+            type: 'warning'
+          })
+          return;
+        }
         if (this.loading == false) { //表格中数据已加载完成
           this.loading = true;  //将表格加载设置为true
           // this.areaModal = true; //打开预测轮播，不关闭区域选择

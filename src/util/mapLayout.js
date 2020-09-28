@@ -52,12 +52,12 @@ export default {
 
   // 台风预报颜色变量
   colorTyphForecast: {
-    "Core": {
+    "Center": {
       CN_Name: "中心",
       color: "#C9172C"
     },
-    "Center": {
-      CN_Name: "中央",
+    "China": {
+      CN_Name: "中国",
       color: "#1B08A3"
     },
     "Japan": {

@@ -189,13 +189,9 @@
             // 获取现有台风的所有年份
             typhoonYear() {
                 var api = '/api/SCSServices/typhoonYear.action';
-                console.log('typhoonYear1');
                 this.$axios.get(api)
                     .then((response) => {
                         if (response.data != null) {
-                            // console.log(response);
-                            // console.log(response.data[0].toString()+"***********");
-
                             for (var i = 0; i < response.data.length; i++) {
 
                                 // iview的select复选框只支持对象数组
@@ -228,15 +224,12 @@
             // 获取正在进行的台风
             typhoonOngoing() {
                 var api = '/api/SCSServices/typhoonOngoing.action';
-                console.log('typhoonOngoing1');
                 this.$axios.get(api)
                     .then((response) => {
 
-                        // console.log('----'+response.data['modelNum']);
                         if (response.data != null) {
 
                             this.selectedTyph = response.data['modelNum'];
-                            console.log('OK');
 
                         } else {
                             // 若不成功，则弹出警告框
@@ -292,10 +285,8 @@
             typhoonRoute(typhNum) {
                 var api = `/api/SCSServices/typhoonRoute.action?typhNum=${typhNum}`;
                 // var api = `/api/SCSServices/typhoonRoute.action?typhNum=202001`;
-                console.log('typhoonRoute1');
                 this.$axios.get(api)
                     .then((response) => {
-                        console.log('typhoonRoute2');//成功回调
                         console.log(response);
 
                         if (response.data != null) {
@@ -304,8 +295,6 @@
                             }
 
                             this.typhMonitorList = response.data;
-                            // console.log('++++++++++++++');
-                            // console.log(this.typhMonitorList);
 
                         } else {
                             // 若不成功，则弹出警告框
@@ -331,9 +320,7 @@
             addToRouteTable() {
 
                 for (var i = 0; i < this.typhMonitorList.length; i++) {
-                    // console.log('+++++++++++++');
                     this.typhMonitor = this.typhMonitorList[i];
-                    // console.log(this.typhMonitor);
                     // 显示到轨迹表格
                     var object0 = {
                         "time": this.typhMonitorList[i]['routeTime'],
@@ -366,11 +353,9 @@
             },
             typhMonitorList: function (val, oldVal) {
                 this.addToRouteTable();
-                console.log('where');
                 globalBus.$emit('addTyphMonitor', val, oldVal);
             },
             typhMonitor: function (val, oldVal) {
-                // console.log('where');
                 // globalBus.$emit('addTyphMonitor', val, oldVal);
 
             }

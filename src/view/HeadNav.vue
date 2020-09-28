@@ -28,7 +28,7 @@
           <el-menu-item index="fullScreenLawArea">执法海域</el-menu-item>
         </el-submenu>
         <el-menu-item index="seaArea">近海预报</el-menu-item>
-        <el-menu-item index="observation">观测实况</el-menu-item>
+        <!--<el-menu-item index="observation">观测实况</el-menu-item>-->
         <el-menu-item index="lawArea">执法海域</el-menu-item>
         <el-menu-item index="predictionPaper">预报单</el-menu-item>
         <el-submenu index="numericalPrediction">
@@ -38,9 +38,9 @@
           <el-menu-item index="pnWeather">天气现象-西北太</el-menu-item>
           <el-menu-item index="gzaWeather">天气现象-南海中北部</el-menu-item>
         </el-submenu>
-        <el-menu-item index="sateliteImg">卫星产品</el-menu-item>
+        <!--<el-menu-item index="sateliteImg">卫星产品</el-menu-item>
         <el-menu-item index="weatherAnalys">天气分析</el-menu-item>
-        <el-menu-item index="productImg">数值产品</el-menu-item>
+        <el-menu-item index="productImg">数值产品</el-menu-item>-->
         <el-menu-item index="userManager">管理员功能</el-menu-item>
       </el-menu>
 

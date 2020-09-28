@@ -340,7 +340,7 @@
         seaAreaSelectedYear: '',
         seaAreaSelectedMonth: '',
         seaAreaSelectedDay: '',
-        seaAreaPaperFileName: '', //预报单名称
+        seaAreaPaperFileName: {}, //预报单名称
         // 执法预报单下拉栏
         lawAreaYear: {},
         lawAreaMonth: {},
@@ -350,7 +350,7 @@
         lawAreaSelectedMonth: '',
         lawAreaSelectedDay: '',
         lawAreaSelectedHour: '',
-        lawAreaPaperFileName: '',
+        lawAreaPaperFileName: {},
         // 台风预报单下拉栏
         typhoonNum: {},
         typhoonReleaseNum: {},
@@ -367,7 +367,7 @@
         tropicsSelectedNum: '',
         tropicsSelectedReleaseNum: '',
         tropicsSelectedReleaseDate: '',
-        tropicsPaperFileName: '',
+        tropicsPaperFileName: {},
 
         // 未来十天预报单下拉栏
         nextTenDaysYear: {},
@@ -376,7 +376,7 @@
         nextTenDaysSelectedYear: '',
         nextTenDaysSelectedMonth: '',
         nextTenDaysSelectedDay: '',
-        nextTenDaysPaperFileName: '', //预报单名称
+        nextTenDaysPaperFileName: {}, //预报单名称
 
         // 海冰预报单下拉栏
         seaIceYear: {},
@@ -385,7 +385,7 @@
         seaIceSelectedYear: '',
         seaIceSelectedNum: '',
         seaIceSelectedCycle: '',
-        seaIcePaperFileName: '', //预报单名称
+        seaIcePaperFileName: {}, //预报单名称
       }
 
     },
@@ -400,34 +400,35 @@
     watch: {
       // 监听近海海区预报pdf
       seaAreaPaperFileName(val){
-        window.open("http://" + this.$store.state.serverIP + "/hqybd/" + val,'_blank');
+        window.open("http://" + this.$store.state.serverIP + "/hqybd/" + val.fileName,'_blank');
       },
 
       // 监听执法海区预报pdf
       lawAreaPaperFileName(val){
-        window.open("http://" + this.$store.state.serverIP + "/zfybd/" + val,'_blank');
+        window.open("http://" + this.$store.state.serverIP + "/zfybd/" + val.fileName,'_blank');
       },
 
       // 台风预报pdf
       typhoonPaperFileName(val){
-        window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val,'_blank');
+        window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName,'_blank');
       },
       // 热带低压预报pdf
       tropicsPaperFileName(val){
-        window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val,'_blank');
+        window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName,'_blank');
       },
       // 未来十天预报pdf
       nextTenDaysPaperFileName(val){
-        window.open("http://" + this.$store.state.serverIP + "/wlstybd/" + val,'_blank');
+        window.open("http://" + this.$store.state.serverIP + "/wlstybd/" + val.fileName,'_blank');
       },
 
       // 海冰预报pdf
       seaIcePaperFileName(val){
-        window.open("http://" + this.$store.state.serverIP + "/hbybd/" + val,'_blank');
+          window.open("http://" + this.$store.state.serverIP + "/hbybd/" + val.fileName,'_blank');
       },
 
     },
     methods: {
+
       /**  海冰预报单  **/
       seaIceCycleName(val){
         if (val === 'x')
@@ -438,7 +439,7 @@
           return '周预报'
       },
       seaIceLoadFile(){
-        this.getSeaIceForecastConditon(this.seaIceSelectedYear,this.seaIceSelectedNum,this.seaIceSelectedCycle);
+        this.getSeaIceForecastConditon(this.seaIceSelectedYear, this.seaIceSelectedNum, this.seaIceSelectedCycle);
       },
       seaIceYearChange(val){
         this.getSeaIceForecastConditon(val,"","");
@@ -463,7 +464,7 @@
             this.seaIceSelectedCycle = this.seaIceCycle[this.seaIceCycle.length-1];
           }
           if (seaIceSelectData.hasOwnProperty("fileName")){
-            this.seaIcePaperFileName = seaIceSelectData.fileName[0];
+            this.seaIcePaperFileName = {'fileName': seaIceSelectData.fileName[0],'id': new Date() };
           }
         })
           .catch((response) => {
@@ -505,7 +506,7 @@
             this.nextTenDaysSelectedDay = this.nextTenDaysDay[this.nextTenDaysDay.length-1];
           }
           if (nextTenDaysSelectData.hasOwnProperty("fileName")){
-            this.nextTenDaysPaperFileName = nextTenDaysSelectData.fileName[0];
+            this.nextTenDaysPaperFileName = {'fileName': nextTenDaysSelectData.fileName[0],'id': new Date() };
           }
         })
           .catch((response) => {
@@ -547,7 +548,7 @@
             this.tropicsSelectedReleaseDate = this.tropicsReleaseDate[this.tropicsReleaseDate.length-1];
           }
           if (tropicsSelectData.hasOwnProperty("fileName")){
-            this.tropicsPaperFileName = tropicsSelectData.fileName[0];
+            this.tropicsPaperFileName = {'fileName': tropicsSelectData.fileName[0],'id': new Date() };
           }
         })
           .catch((response) => {
@@ -589,7 +590,7 @@
             this.typhoonSelectedReleaseDate = this.typhoonReleaseDate[this.typhoonReleaseDate.length-1];
           }
           if (typhoonSelectData.hasOwnProperty("fileName")){
-            this.typhoonPaperFileName = typhoonSelectData.fileName[0];
+            this.typhoonPaperFileName = {'fileName': typhoonSelectData.fileName[0],'id': new Date() };
           }
         })
           .catch((response) => {
@@ -637,7 +638,7 @@
             this.lawAreaSelectedHour = this.lawAreaHour[this.lawAreaHour.length-1];
           }
           if (lawAreaSelectData.hasOwnProperty("fileName")){
-            this.lawAreaPaperFileName = lawAreaSelectData.fileName[0];
+            this.lawAreaPaperFileName = {'fileName': lawAreaSelectData.fileName[0],'id': new Date() };
           }
         })
           .catch((response) => {
@@ -677,7 +678,7 @@
             this.seaAreaSelectedDay = this.seaAreaDay[this.seaAreaDay.length-1];
           }
           if (seaAreaSelectData.hasOwnProperty("fileName")){
-            this.seaAreaPaperFileName = seaAreaSelectData.fileName[0];
+            this.seaAreaPaperFileName = {'fileName': seaAreaSelectData.fileName[0],'id': new Date() };
           }
 
         })

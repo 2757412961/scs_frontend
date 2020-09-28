@@ -32,9 +32,9 @@
         <el-menu-item index="lawArea">执法海域</el-menu-item>
         <el-menu-item index="predictionPaper">预报单</el-menu-item>
         <el-submenu index="numericalPrediction">
-          <template slot="title">格点预报</template>
-          <el-menu-item index="regionNumerical">区域模式</el-menu-item>
-          <el-menu-item index="globalNumerical">全球模式</el-menu-item>
+          <template slot="title">智能网格预报</template>
+          <!--<el-menu-item index="regionNumerical">区域模式</el-menu-item>-->
+          <el-menu-item index="globalNumerical">海面风浪-全球模式</el-menu-item>
           <el-menu-item index="pnWeather">天气现象-西北太</el-menu-item>
           <el-menu-item index="gzaWeather">天气现象-南海中北部</el-menu-item>
         </el-submenu>

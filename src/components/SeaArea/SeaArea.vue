@@ -52,7 +52,7 @@ zzhe
                   风速(级)
                 </td>
                 <td>
-                  <p :style="[colorStyle]"> {{data.fs}}</p>
+                  <p :style="windSpeedJudge(data.fs)"> {{data.fs}}</p>
                 </td>
               </tr>
               <tr>
@@ -119,10 +119,6 @@ zzhe
             tableDataIndex: 1, //用于展示表格的数据index，默认为0(第一个数据)
             activeNames:['rightSide'],
             rightIsHide: false,
-            windHighSpeed: false,
-            colorStyle: {
-              color: 'red'
-            },
           }
       },
       created() {
@@ -204,24 +200,22 @@ zzhe
             let numArr = windSpeed.split('-');
             for (let i=0; i<numArr.length; i++){
               if(numArr[i] > 5){  //如果大于5，修改为红色
-                this.colorStyle = {
+                return {
                   color: 'red'
-                }
-                return windSpeed;
+                };
               }
             }
           } else {
             if (windSpeed > 5){
-              this.colorStyle = {
+              return {
                 color: 'red'
-              }
-              return windSpeed;
+              };
             }
           }
-          this.colorStyle = {
+          return {
             color: ''
-          }
-          return windSpeed;
+          };
+
         },
 
         //更新tableDataIndex的值

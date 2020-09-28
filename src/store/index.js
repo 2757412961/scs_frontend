@@ -6,7 +6,7 @@ let state = {
   title:"海警执法海洋环境预报综合信息服务平台",
   name:"",
   category:"",//管理员1普通用户0
-  serverIP:"202.108.199.57",//产品及数据发布IP
+  serverIP:"202.108.199.48",//产品及数据发布IP
 };
 
 const mutations = {

@@ -516,13 +516,13 @@
             typhForecastDraw(typhRouteInfo, ModelNum) {
                 this.typh_forecast_layer.getSource().clear();
 
-                let that = this;
                 let typhNum = typhRouteInfo.typhNum;
                 let typhModelNum = ModelNum;
                 let typhTime = typhRouteInfo.routeTime;
                 let cenX = typhRouteInfo.lon;
                 let cenY = typhRouteInfo.lat;
 
+                let minCountPoints = 20;
                 let colorTyphStrength = mapLayout.colorTyphStrength;
                 let colorTyphForecast = mapLayout.colorTyphForecast;
 
@@ -539,41 +539,12 @@
                         let data = res.data;
                         let lastPoint = fromLonLat([cenX, cenY]);
 
-                        for (let i = 0; i < data.length; i++) {
+                        for (let i = 0; i < Math.min(data.length, minCountPoints); i++) {
                             let type = 'China';
                             if (data[i]['tm'] === "日本") type = 'Japan';
                             let nowPoint = fromLonLat([data[i]['lon'], data[i]['lat']]);
 
-                            // 绘制点
-                            let pointFeature = new Feature(new Point(nowPoint));
-                            pointFeature.set('name', 'typhForecastPointFeature');
-                            pointFeature.set('data', data[i]);
-                            pointFeature.set('type', type);
-                            pointFeature.setStyle(new Style({
-                                image: new CircleStyle({
-                                    radius: 5,
-                                    fill: new Fill({
-                                        color: colorTyphStrength[data[i]['strength']].color
-                                    })
-                                })
-                            }));
-
-                            // 预报轨迹线的绘制
-                            var lineFeature = new Feature(
-                                new LineString([lastPoint, nowPoint,])
-                            );
-                            lineFeature.set('name', "typhLineFeature");
-                            lineFeature.setStyle(new Stystyle({
-                                    stroke: new Stroke({
-                                        lineDash: [1, 2, 3, 4, 5, 6],
-                                        width: 2,
-                                        color: colorTyphForecast[type].color,
-                                    }),
-                                })
-                            );
-
-                            that.typh_forecast_layer.getSource().addFeature(lineFeature);
-                            that.typh_forecast_layer.getSource().addFeature(pointFeature);
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, colorTyphStrength[data[i]['strength']].color);
                             lastPoint = nowPoint;
                         }
                     })
@@ -601,41 +572,11 @@
                         let data = res.data;
                         let lastPoint = fromLonLat([cenX, cenY]);
 
-                        for (let i = 0; i < data.length; i++) {
+                        for (let i = 0; i < Math.min(data.length, minCountPoints); i++) {
                             let type = 'USA';
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
 
-                            // 绘制点
-                            let pointFeature = new Feature(new Point(nowPoint));
-                            pointFeature.set('name', 'typhForecastPointFeature');
-                            pointFeature.set('data', data[i]);
-                            pointFeature.set('type', type);
-                            pointFeature.setStyle(new Style({
-                                image: new CircleStyle({
-                                    radius: 5,
-                                    fill: new Fill({
-                                        // color: colorTyphStrength[data[i]['strength']].color
-                                        color: '#FFFFFF'
-                                    })
-                                })
-                            }));
-
-                            // 预报轨迹线的绘制
-                            var lineFeature = new Feature(
-                                new LineString([lastPoint, nowPoint,])
-                            );
-                            lineFeature.set('name', "typhLineFeature");
-                            lineFeature.setStyle(new Stystyle({
-                                    stroke: new Stroke({
-                                        lineDash: [1, 2, 3, 4, 5, 6],
-                                        width: 2,
-                                        color: colorTyphForecast[type].color,
-                                    }),
-                                })
-                            );
-
-                            that.typh_forecast_layer.getSource().addFeature(lineFeature);
-                            that.typh_forecast_layer.getSource().addFeature(pointFeature);
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, '#FFFFFF');
                             lastPoint = nowPoint;
                         }
                     })
@@ -663,41 +604,11 @@
                         let data = res.data;
                         let lastPoint = fromLonLat([cenX, cenY]);
 
-                        for (let i = 0; i < data.length; i++) {
+                        for (let i = 0; i < Math.min(data.length, minCountPoints); i++) {
                             let type = 'Europe';
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
 
-                            // 绘制点
-                            let pointFeature = new Feature(new Point(nowPoint));
-                            pointFeature.set('name', 'typhForecastPointFeature');
-                            pointFeature.set('data', data[i]);
-                            pointFeature.set('type', type);
-                            pointFeature.setStyle(new Style({
-                                image: new CircleStyle({
-                                    radius: 5,
-                                    fill: new Fill({
-                                        // color: colorTyphStrength[data[i]['strength']].color
-                                        color: '#FFFFFF'
-                                    })
-                                })
-                            }));
-
-                            // 预报轨迹线的绘制
-                            var lineFeature = new Feature(
-                                new LineString([lastPoint, nowPoint,])
-                            );
-                            lineFeature.set('name', "typhLineFeature");
-                            lineFeature.setStyle(new Stystyle({
-                                    stroke: new Stroke({
-                                        lineDash: [1, 2, 3, 4, 5, 6],
-                                        width: 2,
-                                        color: colorTyphForecast[type].color,
-                                    }),
-                                })
-                            );
-
-                            that.typh_forecast_layer.getSource().addFeature(lineFeature);
-                            that.typh_forecast_layer.getSource().addFeature(pointFeature);
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, '#FFFFFF');
                             lastPoint = nowPoint;
                         }
                     })
@@ -724,41 +635,11 @@
                         let data = res.data;
                         let lastPoint = fromLonLat([cenX, cenY]);
 
-                        for (let i = 0; i < data.length; i++) {
+                        for (let i = 0; i < Math.min(data.length, minCountPoints); i++) {
                             let type = 'TEPO';
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
 
-                            // 绘制点
-                            let pointFeature = new Feature(new Point(nowPoint));
-                            pointFeature.set('name', 'typhForecastPointFeature');
-                            pointFeature.set('data', data[i]);
-                            pointFeature.set('type', type);
-                            pointFeature.setStyle(new Style({
-                                image: new CircleStyle({
-                                    radius: 5,
-                                    fill: new Fill({
-                                        // color: colorTyphStrength[data[i]['strength']].color
-                                        color: '#FFFFFF'
-                                    })
-                                })
-                            }));
-
-                            // 预报轨迹线的绘制
-                            var lineFeature = new Feature(
-                                new LineString([lastPoint, nowPoint,])
-                            );
-                            lineFeature.set('name', "typhLineFeature");
-                            lineFeature.setStyle(new Stystyle({
-                                    stroke: new Stroke({
-                                        lineDash: [1, 2, 3, 4, 5, 6],
-                                        width: 2,
-                                        color: colorTyphForecast[type].color,
-                                    }),
-                                })
-                            );
-
-                            that.typh_forecast_layer.getSource().addFeature(lineFeature);
-                            that.typh_forecast_layer.getSource().addFeature(pointFeature);
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, '#FFFFFF');
                             lastPoint = nowPoint;
                         }
                     })
@@ -772,6 +653,40 @@
 
                     })
 
+            },
+            drawTyphForecastFeature(dataVal, type, lastPoint, nowPoint, pointColor) {
+                let colorTyphForecast = mapLayout.colorTyphForecast;
+
+                // 绘制点
+                let pointFeature = new Feature(new Point(nowPoint));
+                pointFeature.set('name', 'typhForecastPointFeature');
+                pointFeature.set('data', dataVal);
+                pointFeature.set('type', type);
+                pointFeature.setStyle(new Style({
+                    image: new CircleStyle({
+                        radius: 5,
+                        fill: new Fill({
+                            color: pointColor
+                        })
+                    })
+                }));
+
+                // 预报轨迹线的绘制
+                var lineFeature = new Feature(
+                    new LineString([lastPoint, nowPoint,])
+                );
+                lineFeature.set('name', "typhLineFeature");
+                lineFeature.setStyle(new Stystyle({
+                        stroke: new Stroke({
+                            lineDash: [1, 2, 3, 4, 5, 6],
+                            width: 2,
+                            color: colorTyphForecast[type].color,
+                        }),
+                    })
+                );
+
+                this.typh_forecast_layer.getSource().addFeature(lineFeature);
+                this.typh_forecast_layer.getSource().addFeature(pointFeature);
             },
 
             /**
@@ -981,6 +896,8 @@
             },
             seaAreaDrawPolygon() {
                 globalBus.$on('drawSeaArea', (areaList, areaForecastData) => {
+                    this.moveViewTo(fromLonLat([120, 23])[0], fromLonLat([120, 23])[1], 4.5);
+
                     let vectorSource_seaArea = new VectorSource();
                     // 海区列表 和 预报数据 是对应的
                     for (let i = 0; i < areaList.length; i++) {

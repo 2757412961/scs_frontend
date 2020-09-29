@@ -70,7 +70,7 @@ export default {
     },
     "USA": {
       CN_Name: "美国",
-      color: "#59CD4F"
+      color: "#15cd53"
     },
     "TEPO": {
       CN_Name: "TEPO",

@@ -298,7 +298,7 @@
                             this.siteId = 1;
                         } else if (feature.get('name').search(/typhPointFeature/) != -1) {
                             this.typhPointPopup(feature);
-                        } else if (feature.get('name').search(/typhForecastFeature/) != -1) {
+                        } else if (feature.get('name').search(/typhForecastPointFeature/) != -1) {
                             this.typhForecastPointPopup(feature);
                         }
                     } else if (feature.get('name').search(/seaArea/) != -1) {
@@ -457,7 +457,53 @@
              * 台风 预报点 popip
              */
             typhForecastPointPopup(feature) {
+                let typhForecastInfo = feature.get('data');
+                let typhForecastType = feature.get('type');
+                let typhForecastStre = feature.get('strength');
 
+                let colorTyphStrength = mapLayout.colorTyphStrength;
+                let colorTyphForecast = mapLayout.colorTyphForecast;
+
+                //构建Popup_title文字内容
+                this.ol_popup_min_width = "270px";
+
+                if (typhForecastInfo != null) {
+                    if (typhForecastType == 'China') {
+                        //组织弹出框内容
+                        this.popup_title = `${typhForecastInfo.typhNum}号台风预测数据`;
+                        var strength_CNName = colorTyphStrength[typhForecastStre].CN_Name;
+                        var html = `
+                        <table>
+                          <tr><td align='left'>起报时间：</td><td align='left'>${util.formatDateTime(new Date(typhForecastInfo.qbsj))}</td></tr>
+                          <tr><td align='left'>预报时间：</td><td align='left'>${util.formatDateTime(new Date(typhForecastInfo.ybsj))}</td></tr>
+                          <tr><td align='left'>中心位置：</td><td align='left'>${typhForecastInfo.lon}°E, ${typhForecastInfo.lat}°N</td></tr>
+                          <tr><td align='left'>七级风圈半径：</td><td align='left'>${typhForecastInfo.radius_7} 公里</td></tr>
+                          <tr><td align='left'>十级风圈半径：</td><td align='left'>${typhForecastInfo.radius_10} 公里</td></tr>
+                          <tr><td align='left'>中心压强：</td><td align='left'>${typhForecastInfo.centPres} hpa</td></tr>
+                          <tr><td align='left'>强度：</td><td align='left'>${strength_CNName}(${typhForecastStre})</td></tr>
+                          <tr><td align='left'>预报单位：</td><td align='left'>${colorTyphForecast[typhForecastType].CN_Name}</td></tr>
+                        </table>
+                    `.trim();
+                    } else if (typhForecastType == 'Europe' || typhForecastType == 'USA' || typhForecastType == 'TEPO') {
+                        //组织弹出框内容
+                        this.popup_title = `${typhForecastInfo.idx}号台风预测数据`;
+                        var strength_CNName = colorTyphStrength[typhForecastStre].CN_Name;
+                        var html = `
+                        <table>
+                          <tr><td align='left'>起报时间：</td><td align='left'>${typhForecastInfo.stTime}</td></tr>
+                          <tr><td align='left'>预报时间：</td><td align='left'>${typhForecastInfo.location}</td></tr>
+                          <tr><td align='left'>中心位置：</td><td align='left'>${typhForecastInfo.lng}°E, ${typhForecastInfo.lat}°N</td></tr>
+                          <tr><td align='left'>风速：</td><td align='left'>${typhForecastInfo.speed} hpa</td></tr>
+                          <tr><td align='left'>中心压强：</td><td align='left'>${typhForecastInfo.presure} hpa</td></tr>
+                          <tr><td align='left'>强度：</td><td align='left'>${strength_CNName}(${typhForecastStre})</td></tr>
+                          <tr><td align='left'>预报单位：</td><td align='left'>${colorTyphForecast[typhForecastType].CN_Name}</td></tr>
+                        </table>
+                    `.trim();
+                    }
+
+                    this.content.innerHTML = html;
+                    this.overlay.setPosition(feature.getGeometry().getCoordinates());
+                }
             },
 
             /**
@@ -523,8 +569,6 @@
                 let cenY = typhRouteInfo.lat;
 
                 let minCountPoints = 20;
-                let colorTyphStrength = mapLayout.colorTyphStrength;
-                let colorTyphForecast = mapLayout.colorTyphForecast;
 
                 // function drawChinaJapan()
                 this.$axios
@@ -544,7 +588,7 @@
                             if (data[i]['tm'] === "日本") type = 'Japan';
                             let nowPoint = fromLonLat([data[i]['lon'], data[i]['lat']]);
 
-                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, colorTyphStrength[data[i]['strength']].color);
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, data[i]['strength']);
                             lastPoint = nowPoint;
                         }
                     })
@@ -574,9 +618,10 @@
 
                         for (let i = 0; i < Math.min(data.length, minCountPoints); i++) {
                             let type = 'USA';
+                            let strength = this.calStrengthBySpeed(data[i]['speed']);
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
 
-                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, '#FFFFFF');
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength);
                             lastPoint = nowPoint;
                         }
                     })
@@ -606,9 +651,10 @@
 
                         for (let i = 0; i < Math.min(data.length, minCountPoints); i++) {
                             let type = 'Europe';
+                            let strength = this.calStrengthBySpeed(data[i]['speed']);
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
 
-                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, '#FFFFFF');
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength);
                             lastPoint = nowPoint;
                         }
                     })
@@ -637,9 +683,10 @@
 
                         for (let i = 0; i < Math.min(data.length, minCountPoints); i++) {
                             let type = 'TEPO';
+                            let strength = this.calStrengthBySpeed(data[i]['speed']);
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
 
-                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, '#FFFFFF');
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength);
                             lastPoint = nowPoint;
                         }
                     })
@@ -654,7 +701,8 @@
                     })
 
             },
-            drawTyphForecastFeature(dataVal, type, lastPoint, nowPoint, pointColor) {
+            drawTyphForecastFeature(dataVal, type, lastPoint, nowPoint, strength) {
+                let colorTyphStrength = mapLayout.colorTyphStrength;
                 let colorTyphForecast = mapLayout.colorTyphForecast;
 
                 // 绘制点
@@ -662,11 +710,12 @@
                 pointFeature.set('name', 'typhForecastPointFeature');
                 pointFeature.set('data', dataVal);
                 pointFeature.set('type', type);
+                pointFeature.set('strength', strength);
                 pointFeature.setStyle(new Style({
                     image: new CircleStyle({
                         radius: 5,
                         fill: new Fill({
-                            color: pointColor
+                            color: colorTyphStrength[strength].color
                         })
                     })
                 }));
@@ -687,6 +736,29 @@
 
                 this.typh_forecast_layer.getSource().addFeature(lineFeature);
                 this.typh_forecast_layer.getSource().addFeature(pointFeature);
+            },
+            calStrengthBySpeed(speed) {
+                // 风速 强度 对应表
+                // 热带气旋底层中心附近最大平均风速
+                // 达到10.8m/s~17.1m/s（风力6~7级）为 热带低压，
+                // 达到17.2 m/s ~24.4 m/s（风力8~9级）为 热带风暴，
+                // 达到24.5 m/s ~32.6 m/s（风力10~11级）为 强热带风暴，
+                // 达到32.7 m/s ~41.4 m/s（风力12~13级）为 台风，
+                // 达到41.5 m/s ~50.9 m/s（风力14~15级）为 强台风，
+                // 达到或大于51.0 m/s（风力16级或以上）为 超强台风。
+                if (speed <= 17.1) {
+                    return 'TD';
+                } else if (speed <= 24.4) {
+                    return 'TS';
+                } else if (speed <= 32.6) {
+                    return 'STS';
+                } else if (speed <= 41.4) {
+                    return 'TY';
+                } else if (speed <= 50.9) {
+                    return 'STY';
+                } else {
+                    return 'SUPERTY';
+                }
             },
 
             /**

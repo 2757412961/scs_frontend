@@ -24,7 +24,7 @@
   import XYZ from "ol/source/XYZ";
   // import TileLayer from "ol/layer/Tile";
   import 'ol/ol.css'
-  import {transform} from 'ol/proj';
+  import {transform, Projection} from 'ol/proj';
   import {fromLonLat, getTransform} from 'ol/proj';
   import {toLonLat} from 'ol/proj.js';
   import Select from 'ol/interaction/Select';
@@ -65,6 +65,8 @@
   import mapLayout from "../util/mapLayout";
   import {globalBus} from '../components/globalBus';
 
+  import {getCenter} from 'ol/extent'
+
   // .vue文件 单文件组件 component
   export default {
     name: "map-layout",
@@ -75,6 +77,7 @@
         sea_area_layer: null,//近海海区图层
         zfhy_area_layer: null,//执法海域图层
         pro_layers: [],//数值预报产品图层
+        globalNum_imgLayer: null,
 
         //台风图层
         typh_layer: null, // 点图层
@@ -816,12 +819,41 @@
       },
       //  *****************************seaArea 近海预报   end******************************************
 
+      //  *****************************GlobalNumerical 全球区域   start******************************************
+      globalNumericalAddImage(){
+        globalBus.$on('addPngImageGlobalNum', (pngUrl) => {
+          var extent = [0, 0, 11530, 5447];
+          var projection = new Projection({
+            code: 'EPSG:4326',
+            extent: extent
+          });
+          //var imageExtent = [12981061.897802796-500, 4876961.53119492-500, 12981061.897802796+500, 4876961.53119492+500];
+          this.globalNum_imgLayer = new ImageLayer({
+            source: new ImageStaticSource({
+              url: pngUrl,
+              projection: projection,
+              imageExtent: extent
+            })
+          });
+          console.log(this.globalNum_imgLayer)
+          var imgView = new View({
+            projection: projection,
+            center: getCenter(extent),
+            zoom: 2
+          })
+          this.map.setView(imgView)
+          this.map.addLayer(this.globalNum_imgLayer);
+        })
+      },
+      //  *****************************GlobalNumerical 全球区域   end******************************************
+
     },
 
     mounted: function () {
       this.mapInit();
       this.typhRoute();
       this.seaAreaDrawPolygon();
+      this.globalNumericalAddImage();
     },
     destroyed() {
       console.log("MapLayout is destroyed");

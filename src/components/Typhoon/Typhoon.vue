@@ -178,7 +178,7 @@
                     })
                     .catch((response) => {
                         //失败回调
-                        this.$confirm('服务器失联List！', '提示', {
+                        this.$confirm('服务器失联！typhoonList ', '提示', {
                             confirmButtonText: '确定',
                             type: 'warning'
                         })
@@ -213,7 +213,7 @@
                     })
                     .catch((response) => {
                         //失败回调
-                        this.$confirm('服务器失联Year！', '提示', {
+                        this.$confirm('服务器失联！typhoonYear ', '提示', {
                             confirmButtonText: '确定',
                             type: 'warning'
                         })
@@ -242,7 +242,7 @@
                     })
                     .catch((response) => {
                         //失败回调
-                        this.$confirm('服务器失联Ongoing！', '提示', {
+                        this.$confirm('服务器失联！typhoonOngoing ', '提示', {
                             confirmButtonText: '确定',
                             type: 'warning'
                         })
@@ -306,7 +306,7 @@
                     })
                     .catch((response) => {
                         //失败回调
-                        this.$confirm('服务器失联Route！', '提示', {
+                        this.$confirm('服务器失联！typhoonRoute ', '提示', {
                             confirmButtonText: '确定',
                             type: 'warning'
                         })

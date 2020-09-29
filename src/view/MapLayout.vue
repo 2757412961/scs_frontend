@@ -120,6 +120,9 @@
                 var map_source = new XYZ({
                         url: "http://" + this.$store.state.serverIP + "/TerrainWithLabel/{z}/{x}/{y}.jpg"    //FeatureWithLabelGZA
                     });
+                // var map_source = new XYZ({
+                //     url: "http://" + this.$store.state.serverIP + "/sztd_map/tdt_lxt/{z}/{x}/{y}.jpg"    //FeatureWithLabelGZA
+                // });
                 var map_layer = new TileLayer({
                     source: map_source
                 });
@@ -515,31 +518,13 @@
 
                 let that = this;
                 let typhNum = typhRouteInfo.typhNum;
-                let typhTime = typhRouteInfo.routeTime;
                 let typhModelNum = ModelNum;
-                let typhModelTime = null;
+                let typhTime = typhRouteInfo.routeTime;
                 let cenX = typhRouteInfo.lon;
                 let cenY = typhRouteInfo.lat;
 
+                let colorTyphStrength = mapLayout.colorTyphStrength;
                 let colorTyphForecast = mapLayout.colorTyphForecast;
-
-                var styleForecastPoint = new Style({
-                    image: new CircleStyle({
-                        radius: 5,
-                        fill: new Fill({
-                            color: '#FFFFFF'
-                        })
-                    })
-                });
-
-                var styleForecastLine = new Style({
-                    stroke: new Stroke({
-                        lineDash: [1, 2, 3, 4, 5, 6],
-                        width: 2,
-                        color: '#FFFFFF'
-                    })
-                });
-
 
                 // function drawChinaJapan()
                 this.$axios
@@ -559,19 +544,41 @@
                             if (data[i]['tm'] === "日本") type = 'Japan';
                             let nowPoint = fromLonLat([data[i]['lon'], data[i]['lat']]);
 
+                            // 绘制点
                             let pointFeature = new Feature(new Point(nowPoint));
                             pointFeature.set('name', 'typhForecastPointFeature');
                             pointFeature.set('data', data[i]);
                             pointFeature.set('type', type);
-                            // styleForecastPoint.getStroke().setColor(colorTyphForecast[type].color);
-                            pointFeature.setStyle(styleForecastPoint);
+                            pointFeature.setStyle(new Style({
+                                image: new CircleStyle({
+                                    radius: 5,
+                                    fill: new Fill({
+                                        color: colorTyphStrength[data[i]['strength']].color
+                                    })
+                                })
+                            }));
 
+                            // 预报轨迹线的绘制
+                            var lineFeature = new Feature(
+                                new LineString([lastPoint, nowPoint,])
+                            );
+                            lineFeature.set('name', "typhLineFeature");
+                            lineFeature.setStyle(new Stystyle({
+                                    stroke: new Stroke({
+                                        lineDash: [1, 2, 3, 4, 5, 6],
+                                        width: 2,
+                                        color: colorTyphForecast[type].color,
+                                    }),
+                                })
+                            );
+
+                            that.typh_forecast_layer.getSource().addFeature(lineFeature);
                             that.typh_forecast_layer.getSource().addFeature(pointFeature);
                             lastPoint = nowPoint;
                         }
                     })
                     .catch((res) => {
-                        this.$confirm('服务器失联List！', '提示', {
+                        this.$confirm('服务器失联！typhForecastDraw drawChinaJapan ', '提示', {
                             confirmButtonText: '确定',
                             type: 'warning'
                         })
@@ -580,9 +587,190 @@
 
                     })
 
-                // function drawUSAEurope()
+                // function drawUSAEurope() USA
+                this.$axios
+                    .get(`/api/SCSServices/getTyphForecastUSAEurope.action`, {
+                        params: {
+                            typhNum: typhModelNum,
+                            staTime: typhTime,
+                            modelType: 'ENS'
+                        }
+                    })
+                    .then((res) => {
+                        console.log(res);
+                        let data = res.data;
+                        let lastPoint = fromLonLat([cenX, cenY]);
+
+                        for (let i = 0; i < data.length; i++) {
+                            let type = 'USA';
+                            let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
+
+                            // 绘制点
+                            let pointFeature = new Feature(new Point(nowPoint));
+                            pointFeature.set('name', 'typhForecastPointFeature');
+                            pointFeature.set('data', data[i]);
+                            pointFeature.set('type', type);
+                            pointFeature.setStyle(new Style({
+                                image: new CircleStyle({
+                                    radius: 5,
+                                    fill: new Fill({
+                                        // color: colorTyphStrength[data[i]['strength']].color
+                                        color: '#FFFFFF'
+                                    })
+                                })
+                            }));
+
+                            // 预报轨迹线的绘制
+                            var lineFeature = new Feature(
+                                new LineString([lastPoint, nowPoint,])
+                            );
+                            lineFeature.set('name', "typhLineFeature");
+                            lineFeature.setStyle(new Stystyle({
+                                    stroke: new Stroke({
+                                        lineDash: [1, 2, 3, 4, 5, 6],
+                                        width: 2,
+                                        color: colorTyphForecast[type].color,
+                                    }),
+                                })
+                            );
+
+                            that.typh_forecast_layer.getSource().addFeature(lineFeature);
+                            that.typh_forecast_layer.getSource().addFeature(pointFeature);
+                            lastPoint = nowPoint;
+                        }
+                    })
+                    .catch((res) => {
+                        this.$confirm('服务器失联！typhForecastDraw drawUSAEurope USA ', '提示', {
+                            confirmButtonText: '确定',
+                            type: 'warning'
+                        })
+                    })
+                    .finally((res) => {
+
+                    })
+
+                // function drawUSAEurope() Europe
+                this.$axios
+                    .get(`/api/SCSServices/getTyphForecastUSAEurope.action`, {
+                        params: {
+                            typhNum: typhModelNum,
+                            staTime: typhTime,
+                            modelType: 'EENS'
+                        }
+                    })
+                    .then((res) => {
+                        console.log(res);
+                        let data = res.data;
+                        let lastPoint = fromLonLat([cenX, cenY]);
+
+                        for (let i = 0; i < data.length; i++) {
+                            let type = 'Europe';
+                            let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
+
+                            // 绘制点
+                            let pointFeature = new Feature(new Point(nowPoint));
+                            pointFeature.set('name', 'typhForecastPointFeature');
+                            pointFeature.set('data', data[i]);
+                            pointFeature.set('type', type);
+                            pointFeature.setStyle(new Style({
+                                image: new CircleStyle({
+                                    radius: 5,
+                                    fill: new Fill({
+                                        // color: colorTyphStrength[data[i]['strength']].color
+                                        color: '#FFFFFF'
+                                    })
+                                })
+                            }));
+
+                            // 预报轨迹线的绘制
+                            var lineFeature = new Feature(
+                                new LineString([lastPoint, nowPoint,])
+                            );
+                            lineFeature.set('name', "typhLineFeature");
+                            lineFeature.setStyle(new Stystyle({
+                                    stroke: new Stroke({
+                                        lineDash: [1, 2, 3, 4, 5, 6],
+                                        width: 2,
+                                        color: colorTyphForecast[type].color,
+                                    }),
+                                })
+                            );
+
+                            that.typh_forecast_layer.getSource().addFeature(lineFeature);
+                            that.typh_forecast_layer.getSource().addFeature(pointFeature);
+                            lastPoint = nowPoint;
+                        }
+                    })
+                    .catch((res) => {
+                        this.$confirm('服务器失联！typhForecastDraw drawUSAEurope Europe ', '提示', {
+                            confirmButtonText: '确定',
+                            type: 'warning'
+                        })
+                    })
+                    .finally((res) => {
+
+                    })
 
                 // function drawTEPO()
+                this.$axios
+                    .get(`/api/SCSServices/getTyphForecastTEPO.action`, {
+                        params: {
+                            typhNum: typhModelNum,
+                            staTime: typhTime
+                        }
+                    })
+                    .then((res) => {
+                        console.log(res);
+                        let data = res.data;
+                        let lastPoint = fromLonLat([cenX, cenY]);
+
+                        for (let i = 0; i < data.length; i++) {
+                            let type = 'TEPO';
+                            let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
+
+                            // 绘制点
+                            let pointFeature = new Feature(new Point(nowPoint));
+                            pointFeature.set('name', 'typhForecastPointFeature');
+                            pointFeature.set('data', data[i]);
+                            pointFeature.set('type', type);
+                            pointFeature.setStyle(new Style({
+                                image: new CircleStyle({
+                                    radius: 5,
+                                    fill: new Fill({
+                                        // color: colorTyphStrength[data[i]['strength']].color
+                                        color: '#FFFFFF'
+                                    })
+                                })
+                            }));
+
+                            // 预报轨迹线的绘制
+                            var lineFeature = new Feature(
+                                new LineString([lastPoint, nowPoint,])
+                            );
+                            lineFeature.set('name', "typhLineFeature");
+                            lineFeature.setStyle(new Stystyle({
+                                    stroke: new Stroke({
+                                        lineDash: [1, 2, 3, 4, 5, 6],
+                                        width: 2,
+                                        color: colorTyphForecast[type].color,
+                                    }),
+                                })
+                            );
+
+                            that.typh_forecast_layer.getSource().addFeature(lineFeature);
+                            that.typh_forecast_layer.getSource().addFeature(pointFeature);
+                            lastPoint = nowPoint;
+                        }
+                    })
+                    .catch((res) => {
+                        this.$confirm('服务器失联！typhForecastDraw drawUSAEurope TEPO ', '提示', {
+                            confirmButtonText: '确定',
+                            type: 'warning'
+                        })
+                    })
+                    .finally((res) => {
+
+                    })
 
             },
 
@@ -631,7 +819,7 @@
                             }
                         })
                         .catch((res) => {
-                            this.$confirm('服务器失联List！', '提示', {
+                            this.$confirm('服务器失联！typhRoute ', '提示', {
                                 confirmButtonText: '确定',
                                 type: 'warning'
                             })

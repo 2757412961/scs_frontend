@@ -53,7 +53,7 @@
           <div class="globalNumPanelBody_div"
                style="font-size: 14px; font-weight: normal;text-align: left;padding: 2%;padding-left: 6%">
             <div style="margin-bottom: 2%">气象起报时间：{{windForecastStart}}
-              <el-select v-model="windTimeSelectedTime" placeholder="请选择" size="mini" style="width: 30%">
+              <el-select v-model="windTimeSelectedTime" placeholder="请选择" size="mini" style="width: 30%" @change="addPngChangeHandler">
                 <el-option
                   v-for="item in windForecastTimeSel"
                   :key="item.value"
@@ -63,7 +63,7 @@
               </el-select>
             </div>
             <div style="margin-bottom: 2%">海浪起报时间：{{waveForecastStart}}
-              <el-select v-model="waveTimeSelectedTime" placeholder="请选择" size="mini" style="width: 30%">
+              <el-select v-model="waveTimeSelectedTime" placeholder="请选择" size="mini" style="width: 30%" @change="addPngChangeHandler">
                 <el-option
                   v-for="item in waveForecastTimeSel"
                   :key="item.value"
@@ -73,7 +73,7 @@
               </el-select>
             </div>
             <div style="margin-bottom: 2%">预报时次：
-              <el-select v-model="forecastSelectedTime" placeholder="请选择" size="mini" style="width: 30%">
+              <el-select v-model="forecastSelectedTime" placeholder="请选择" size="mini" style="width: 30%" @change="addPngChangeHandler">
                 <el-option
                   v-for="(item, index) in forecastTimeSel"
                   :key="index"
@@ -88,15 +88,19 @@
             中国近海风浪预报查询
           </div>
           <div class="globalNumPanelBody_div">
-            <div>10m风场</div>
-            <div>海浪</div>
+            <div style="margin: 2%">
+              <el-radio v-model="globalNumRadio" label="1" border @change="addPngChangeHandler">10米风场</el-radio>
+              <el-radio v-model="globalNumRadio" label="2" border @change="addPngChangeHandler">海浪</el-radio>
+            </div>
           </div>
           <div class="predictPaper_title">
             中国近海风浪格点预报查询
           </div>
           <div class="globalNumPanelBody_div">
-            <div>10m风场(级)</div>
-            <div>波高(米)</div>
+            <div style="margin: 2%">
+              <el-radio v-model="globalNumRadio" label="3" border @change="addPngChangeHandler">10m风场(级)</el-radio>
+              <el-radio v-model="globalNumRadio" label="4" border @change="addPngChangeHandler">波高(米)</el-radio>
+            </div>
           </div>
 
         </div>
@@ -115,8 +119,9 @@
     name: "GlobalNumerical",
     data() {
       return {
-        forecastTimeSel: ['000', '006', '012', '018', '024', '030',
-          '036', '042', '048', '054', '060', '066', '072', '078', '084',
+        globalNumRadio: '1', // 选择风浪/海浪【(格点)】查询
+        forecastTimeSel: ['000', '006', '012','018', '024', '030', '036', '042', '048', '054',
+          '060', '066', '072', '078', '084',
           '090', '096', '102', '108', '114', '120'],
         forecastSelectedTime: '000', //预报时次
         waveForecastTimeSel: [],
@@ -138,21 +143,41 @@
       this.initPage();
     },
 
-    watch: {
-        waveTimeSelectedTime(val){
-          this.addPngImage(val);
-        }
-    },
+    /*watch: {
+      windTimeSelectedTime(val){
+          this.addPngImage(val,'/Wind_W10Contour_0_');
+        },
+      waveTimeSelectedTime(val){
+        this.addPngImage(val);
+      },
+    },*/
     methods: {
-      // 贴图方法
-      addPngImage(val){
-        globalBus.$emit('addPngImageGlobalNum', this.getPngImageUrl(val))
+      // 贴图时间触发
+      addPngChangeHandler(){
+        switch (this.globalNumRadio) {
+          case '1':  //风浪-10米风场
+            this.addPngImage(this.windTimeSelectedTime, '/Wind_W10Contour_')
+            break;
+          case '2':  //风浪-海浪
+            this.addPngImage(this.windTimeSelectedTime, '/Wave_Swh_')
+            break;
+          case '3':  //格点-10米风场
+            break;
+          case '4':  //格点-波高
+            break;
+        }
       },
 
-      // 获取WindPng图片
-      getPngImageUrl(time){
-        return 'http://' + this.$store.state.serverIP + '/img/ECMWF/' + time + '' + '/Wind_W10Contour_0_' + time + '.png'
+      // 贴图方法
+      addPngImage(val, suffix){
+        globalBus.$emit('addPngImageGlobalNum', this.getPngImageUrl(val, suffix))
       },
+
+      // 获取Png图片url
+      getPngImageUrl(time, suffix){
+        return 'http://' + this.$store.state.serverIP + '/img/ECMWF/' + time + suffix + parseInt(this.forecastSelectedTime) + '_' + time + '.png'
+      },
+
       // 页面参数初始化
       initPage() {
         //读取气象08时预报xml(早的)

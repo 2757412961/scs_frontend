@@ -77,7 +77,8 @@
         sea_area_layer: null,//近海海区图层
         zfhy_area_layer: null,//执法海域图层
         pro_layers: [],//数值预报产品图层
-        globalNum_imgLayer: null,
+        globalNum_left_imgLayer: null,
+        globalNum_right_imgLayer: null,
 
         //台风图层
         typh_layer: null, // 点图层
@@ -175,6 +176,16 @@
 
         /** xxx图层初始化 */
 
+        /** 智能网格预报-全球模式  图层初始化*/
+        var globalNum_imgLayer_resource = new ImageStaticSource({
+            url:''
+          });
+        this.globalNum_left_imgLayer = new ImageLayer({
+          source: globalNum_imgLayer_resource
+        });
+        this.globalNum_right_imgLayer = new ImageLayer({
+          source: globalNum_imgLayer_resource
+        });
 
         /** 视图初始化*/
         var view = new View({
@@ -820,29 +831,98 @@
       //  *****************************seaArea 近海预报   end******************************************
 
       //  *****************************GlobalNumerical 全球区域   start******************************************
+
+      addPngImageGlobalNumerical(pngUrl){
+
+        this.map.removeLayer(this.globalNum_left_imgLayer)
+        this.map.removeLayer(this.globalNum_right_imgLayer)
+
+        let mapExtent = this.map.getView().getProjection().getExtent()
+        var projection = new Projection({
+          code: 'EPSG:3857',
+          extent: mapExtent,
+        });
+        let rightSide1 = fromLonLat([0,-85]);
+        let rightSide2 = fromLonLat([360,85]);
+        let rightSideExtent = [rightSide1[0], rightSide1[1], rightSide2[0], rightSide2[1]];
+        let rightSidePng = new ImageStaticSource({
+          url: pngUrl,
+          projection: projection,
+          imageExtent: rightSideExtent,
+          crossOrigin: '',
+        });
+        let x1 = fromLonLat([91,-53]);
+        let x2 = fromLonLat([109,-34]);  //左下角 右上角  成功
+        let layerExtent =  [x1[0], x1[1], x2[0], x2[1]];
+        this.globalNum_right_imgLayer = new ImageLayer({
+          source: rightSidePng,
+          // extent: layerExtent  //只渲染部分，成功！
+        });
+        this.globalNum_right_imgLayer.setOpacity(0.7)
+        this.map.addLayer(this.globalNum_right_imgLayer);
+
+
+        let leftSide1 = fromLonLat([-360,-85]); //
+        let leftSide2 = fromLonLat([0,85]);
+        let leftSideExtent = [leftSide1[0], leftSide1[1], leftSide2[0], leftSide2[1]];
+
+        let leftSidePng = new ImageStaticSource({
+          url: pngUrl,
+          projection: projection,
+          imageExtent: leftSideExtent,
+          crossOrigin: '',
+        });
+        this.globalNum_left_imgLayer = new ImageLayer({
+          source: leftSidePng
+        });
+        this.globalNum_left_imgLayer.setOpacity(0.7)
+        this.map.addLayer(this.globalNum_left_imgLayer);
+
+      },
+
       globalNumericalAddImage(){
         globalBus.$on('addPngImageGlobalNum', (pngUrl) => {
-          var extent = [0, 0, 11530, 5447];
+          this.addPngImageGlobalNumerical(pngUrl);
+          /*return
+          let mapProjection = this.map.getView().getProjection()
+          let mapExtent = this.map.getView().getProjection().getExtent()
+          let lonLat =  [0,90,360,90];
+          let rightSide1 = fromLonLat([0,-85]);
+          let rightSide2 = fromLonLat([360,85]);
+          var rightSideExtent = [rightSide1[0], rightSide1[1], rightSide2[0], rightSide2[1]];
           var projection = new Projection({
-            code: 'EPSG:4326',
-            extent: extent
+            code: 'EPSG:3857',
+            extent: mapExtent,
           });
-          //var imageExtent = [12981061.897802796-500, 4876961.53119492-500, 12981061.897802796+500, 4876961.53119492+500];
+          var imageExtent = [0,
+                          -20037508.342789244,
+                          20037508.342789244*2,
+                          20037508.342789244];
           this.globalNum_imgLayer = new ImageLayer({
             source: new ImageStaticSource({
               url: pngUrl,
               projection: projection,
-              imageExtent: extent
-            })
+              imageExtent: rightSideExtent,
+              crossOrigin: '',
+            }),
           });
           console.log(this.globalNum_imgLayer)
-          var imgView = new View({
-            projection: projection,
-            center: getCenter(extent),
-            zoom: 2
-          })
-          this.map.setView(imgView)
+          this.globalNum_imgLayer.setOpacity(0.6)
           this.map.addLayer(this.globalNum_imgLayer);
+          let leftSide1 = fromLonLat([-360,-85]);
+          let leftSide2 = fromLonLat([0,85]);
+          var leftSideExtent = [leftSide1[0], leftSide1[1], leftSide2[0], leftSide2[1]];
+          this.globalNum_imgLayer = new ImageLayer({
+            source: new ImageStaticSource({
+              url: pngUrl,
+              projection: projection,
+              imageExtent: leftSideExtent,
+              crossOrigin: '',
+            }),
+          });
+          this.globalNum_imgLayer.setOpacity(0.6)
+          this.map.addLayer(this.globalNum_imgLayer);*/
+
         })
       },
       //  *****************************GlobalNumerical 全球区域   end******************************************

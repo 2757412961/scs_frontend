@@ -74,7 +74,7 @@
                 map: null,//地图
                 sea_area_layer: null,//近海海区图层
                 zfhy_area_layer: null,//执法海域图层
-                pro_layers: [],//数值预报产品图层
+                // pro_layers: [],//数值预报产品图层
 
                 //台风图层
                 typh_layer: null, // 点图层
@@ -173,8 +173,25 @@
                     source: typh_forcast_source
                 });
 
-                /** xxx图层初始化 */
+                /** 近海海域图层初始化 */
+                var sea_area_source = new Vector({
+                    features: null
+                });
+                this.sea_area_layer = new VectorLayer({
+                    name: "sea_area_layer",
+                    chName: "近海海域图层",
+                    source: sea_area_source
+                });
 
+                /** 执法海域图层初始化 */
+                var zfhy_area_source = new Vector({
+                    features: null
+                });
+                this.zfhy_area_layer = new VectorLayer({
+                    name: "zfhy_area_layer",
+                    chName: "执法海域图层",
+                    source: zfhy_area_source
+                });
 
                 /** 视图初始化*/
                 var view = new View({
@@ -208,7 +225,8 @@
                 /** Map初始化 */
                 this.map = new Map({
                     target: "scsmap",
-                    layers: [map_layer, this.typh_wind_layer, this.typh_forecast_layer, this.typh_route_layer, this.typh_layer, this.typh_move_layer],
+                    layers: [map_layer, this.sea_area_layer, this.zfhy_area_layer,
+                        this.typh_wind_layer, this.typh_forecast_layer, this.typh_route_layer, this.typh_layer, this.typh_move_layer],
                     view: view,
                     controls: defaultControls().extend([mousePositionControl, ScaleControl]),
                 });
@@ -389,12 +407,18 @@
                 this.typh_wind_layer.getSource().clear();
                 this.typh_forecast_layer.getSource().clear();
 
+                // 近海预报图层
+                this.sea_area_layer.getSource().clear();
+
+                // 执法海域图层
+                this.zfhy_area_layer.getSource().clear();
 
                 // 清除台风路线绘制和定时器
                 clearInterval(this.typh_move_setTime);
                 clearInterval(this.typh_Rotation_Interval);
                 this.typh_Rotation_Interval = null;
                 this.typh_Rotation_Angle = 0;
+                this.typh_move_layer.getSource().clear();
             },
 
             /**
@@ -444,7 +468,7 @@
                           <tr><td align='left'>风速：</td><td align='left'>${typhRouteInfo.windSpeed} 米/秒</td></tr>
                           <tr><td align='left'>七级风圈半径：</td><td align='left'>${typhRouteInfo.radius7} 公里</td></tr>
                           <tr><td align='left'>十级风圈半径：</td><td align='left'>${typhRouteInfo.radius10} 公里</td></tr>
-                          <tr><td align='left'>十二级风圈半径：</td><td align='left'>${typhRouteInfo.radius12} 公里</td></tr>
+<!--                          <tr><td align='left'>十二级风圈半径：</td><td align='left'>${typhRouteInfo.radius12} 公里</td></tr>-->
                           <tr><td align='left'>中心压强：</td><td align='left'>${typhRouteInfo.centPres} hpa</td></tr>
                           <tr><td align='left'>强度：</td><td align='left'>${strength_CNName}(${typhRouteInfo.strength})</td></tr>
                         </table>
@@ -465,7 +489,7 @@
                 let colorTyphForecast = mapLayout.colorTyphForecast;
 
                 //构建Popup_title文字内容
-                this.ol_popup_min_width = "270px";
+                this.ol_popup_min_width = "210px";
 
                 if (typhForecastInfo != null) {
                     if (typhForecastType == 'China') {
@@ -493,7 +517,7 @@
                           <tr><td align='left'>起报时间：</td><td align='left'>${typhForecastInfo.stTime}</td></tr>
                           <tr><td align='left'>预报时间：</td><td align='left'>${typhForecastInfo.location}</td></tr>
                           <tr><td align='left'>中心位置：</td><td align='left'>${typhForecastInfo.lng}°E, ${typhForecastInfo.lat}°N</td></tr>
-                          <tr><td align='left'>风速：</td><td align='left'>${typhForecastInfo.speed} hpa</td></tr>
+                          <tr><td align='left'>风速：</td><td align='left'>${typhForecastInfo.speed} 米/秒</td></tr>
                           <tr><td align='left'>中心压强：</td><td align='left'>${typhForecastInfo.presure} hpa</td></tr>
                           <tr><td align='left'>强度：</td><td align='left'>${strength_CNName}(${typhForecastStre})</td></tr>
                           <tr><td align='left'>预报单位：</td><td align='left'>${colorTyphForecast[typhForecastType].CN_Name}</td></tr>
@@ -568,8 +592,6 @@
                 let cenX = typhRouteInfo.lon;
                 let cenY = typhRouteInfo.lat;
 
-                let minCountPoints = 20;
-
                 // function drawChinaJapan()
                 this.$axios
                     .get(`/api/SCSServices/getTyphForecastChinaJapan.action`, {
@@ -583,7 +605,7 @@
                         let data = res.data;
                         let lastPoint = fromLonLat([cenX, cenY]);
 
-                        for (let i = 0; i < Math.min(data.length, minCountPoints); i++) {
+                        for (let i = 0; i < data.length; i++) {
                             let type = 'China';
                             if (data[i]['tm'] === "日本") type = 'Japan';
                             let nowPoint = fromLonLat([data[i]['lon'], data[i]['lat']]);
@@ -616,7 +638,7 @@
                         let data = res.data;
                         let lastPoint = fromLonLat([cenX, cenY]);
 
-                        for (let i = 0; i < Math.min(data.length, minCountPoints); i++) {
+                        for (let i = 0; i < data.length; i++) {
                             let type = 'USA';
                             let strength = this.calStrengthBySpeed(data[i]['speed']);
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
@@ -649,7 +671,7 @@
                         let data = res.data;
                         let lastPoint = fromLonLat([cenX, cenY]);
 
-                        for (let i = 0; i < Math.min(data.length, minCountPoints); i++) {
+                        for (let i = 0; i < data.length; i++) {
                             let type = 'Europe';
                             let strength = this.calStrengthBySpeed(data[i]['speed']);
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
@@ -681,7 +703,7 @@
                         let data = res.data;
                         let lastPoint = fromLonLat([cenX, cenY]);
 
-                        for (let i = 0; i < Math.min(data.length, minCountPoints); i++) {
+                        for (let i = 0; i < data.length; i++) {
                             let type = 'TEPO';
                             let strength = this.calStrengthBySpeed(data[i]['speed']);
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
@@ -764,7 +786,7 @@
             /**
              * 绘制台风路径
              */
-            typhRoute() {
+            typhRouteDrawLinePoint() {
                 globalBus.$on('addTyphMonitor', (val, oldVal) => {
                     console.log('I AM HERE!!!!');
                     // 需要删除原有图层或已有要素
@@ -875,7 +897,12 @@
                             that.typh_move_layer.getSource().getFeatures()[0].getStyle().getImage().setRotation(that.typh_Rotation_Angle);
                             that.typh_move_layer.getSource().changed();
                         }, 100);
+
+                        // 清除定时器
                         clearInterval(that.typh_move_setTime);
+
+                        // 绘制最后一个点的预报
+                        that.typhForecastDraw(that.typh_move_layer.getSource().getFeatures()[0].get("data"), typhModelNum);
                         return;
                     }
 
@@ -883,6 +910,7 @@
                     that.typh_move_layer.getSource().clear();
                     var moveFeature = new Feature(new Point(fromLonLat([val[index]['lon'], val[index]['lat']])));
                     moveFeature.set('name', 'typhMoveFeature');
+                    moveFeature.set("data", val[index]);
                     moveFeature.setStyle(iconStyle);
                     that.typh_move_layer.getSource().addFeature(moveFeature);
 
@@ -923,9 +951,10 @@
                     that.typh_route_layer.getSource().addFeature(lineFeature);
 
                     index += 1;
-                    that.typh_move_setTime = setTimeout(drawTyph, 10);
+                    that.typh_move_setTime = setTimeout(drawTyph, 100);
                 }
 
+                // 动画化绘制路线
                 drawTyph();
             }
             ,
@@ -977,17 +1006,17 @@
                         let polygons = this.seaAreaList2Polygon(areaList[i].pt);
                         // 创建feature，加入要显示的预报数据(第一个数据)
                         if (areaList[i].area == areaForecastData[i].data[0].hqbh) { //判断海区是否一致，根据编号
-                            vectorSource_seaArea.addFeature(this.seaAreaCreatePolygonFeature(polygons, areaList[i].alias, areaList[i].area, areaForecastData[i].data[0]));
+                            this.sea_area_layer.getSource().addFeature(this.seaAreaCreatePolygonFeature(polygons, areaList[i].alias, areaList[i].area, areaForecastData[i].data[0]));
                         } else { //如果位置不对应，遍历 areaForecastData，寻找对应预报数据
                             for (let j = 0; j < areaForecastData.length; j++) {
                                 if (areaForecastData[j].data[0].hqbh == areaList[i].area) {
-                                    vectorSource_seaArea.addFeature(this.seaAreaCreatePolygonFeature(polygons, areaList[i].alias, areaList[i].area, areaForecastData[i].data[0]));
+                                    this.sea_area_layer.getSource().addFeature(this.seaAreaCreatePolygonFeature(polygons, areaList[i].alias, areaList[i].area, areaForecastData[i].data[0]));
                                 }
                             }
                         }
                     }
-                    let seaAreVectorLayer = this.seaAreaCreateVectorLayer(vectorSource_seaArea);
-                    this.map.addLayer(seaAreVectorLayer);
+                    // let seaAreVectorLayer = this.seaAreaCreateVectorLayer(vectorSource_seaArea);
+                    // this.map.addLayer(seaAreVectorLayer);
                 })
             },
             seaAreaForecastPopup(feature, pixel) {
@@ -1033,12 +1062,35 @@
             },
             //  *****************************seaArea 近海预报   end******************************************
 
+
+            //  ***************************** lawArea 执法海域预报   start ******************************************
+            lawAreaDrawPolygon() {
+                globalBus.$on('lawAreaDraw', (lawAreaJson) => {
+                    for (let i = 0; i < lawAreaJson.length; i++) {
+                        let areaName = lawAreaJson[i].area;
+                        let color = lawAreaJson[i].color;
+                        let labx = parseFloat(lawAreaJson[i].labx);
+                        let laby = parseFloat(lawAreaJson[i].laby);
+                        let ppp = [];
+                        lawAreaJson[i].pt.forEach(function (xys) {
+                            ppp.push([parseFloat(xys.x), parseFloat(xys.y)]);
+                        });
+
+
+                        console.log(ppp);
+                    }
+                })
+            },
+            //  ***************************** lawArea 执法海域预报   end ********************************************
+
         },
 
         mounted: function () {
             this.mapInit();
-            this.typhRoute();
+            this.typhRouteDrawLinePoint();
             this.seaAreaDrawPolygon();
+            this.lawAreaDrawPolygon();
+
         },
         destroyed() {
             console.log("MapLayout is destroyed");

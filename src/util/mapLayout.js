@@ -45,7 +45,7 @@ export default {
       color: "#ffd82b"
     },
     "64KTS": {
-      CN_Name: "11级",
+      CN_Name: "12级",
       color: "#ff350e"
     },
   },

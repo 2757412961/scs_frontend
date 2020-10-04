@@ -17,34 +17,44 @@
           </div>
 
           <div class="globalNumPanelBody_div">
-            <div>输入查询范围：拾取范围 清除</div>
+            <div class="globalNum_draw_div">
+              <div style="width: 40%; font-size: 16px;margin-left: 5%">输入查询范围：</div>
+              <div style="width: 26%; font-size: 16px; cursor: pointer;margin-left: 2%;margin-right: 2%;color: blue"
+                   @click="drawRectangle(true)">拾取范围</div>
+              <div style="width: 18%; font-size: 16px; cursor: pointer;margin-left: 1%;color: blue"
+                   @click="drawRectangle(false)">清除</div>
+            </div>
             <div>
-              <!--              <label class="globalNumInputLabel">北</label>-->
+              <label class="globalNumInputLabel">北</label>
               <el-input
-                placeholder="北纬"
+                placeholder="上"
                 v-model="northInput" size="mini" class="globalNumInput"
+                @input="globalNumInputChange"
                 clearable>
               </el-input>
             </div>
             <div>
-              <!--              <label class="globalNumInputLabel">西</label>-->
+              <label class="globalNumInputLabel">西</label>
               <el-input
-                placeholder="西经"
+                placeholder="左"
                 v-model="westInput" size="mini" class="globalNumInput"
+                @input="globalNumInputChange"
                 clearable>
               </el-input>
               <el-input
-                placeholder="东经"
+                placeholder="右"
                 v-model="eastInput" size="mini" class="globalNumInput"
+                @input="globalNumInputChange"
                 clearable>
               </el-input>
-              <!--              <label class="globalNumInputLabel">东</label>-->
+              <label class="globalNumInputLabel">东</label>
             </div>
             <div>
-              <!--              <label class="globalNumInputLabel">南</label>-->
+              <label class="globalNumInputLabel">南</label>
               <el-input
-                placeholder="南纬"
+                placeholder="下"
                 v-model="southInput" size="mini" class="globalNumInput"
+                @input="globalNumInputChange"
                 clearable>
               </el-input>
             </div>
@@ -119,6 +129,7 @@
     name: "GlobalNumerical",
     data() {
       return {
+        fullViewExtent: [-180, -90, 180,90], //整个页面显示贴图
         globalNumRadio: '1', // 选择风浪/海浪【(格点)】查询
         forecastTimeSel: ['000', '006', '012','018', '024', '030', '036', '042', '048', '054',
           '060', '066', '072', '078', '084',
@@ -142,7 +153,9 @@
     created() {
       this.initPage();
     },
-
+    mounted() {
+      this.fillLonlatInput()
+    },
     /*watch: {
       windTimeSelectedTime(val){
           this.addPngImage(val,'/Wind_W10Contour_0_');
@@ -152,25 +165,72 @@
       },
     },*/
     methods: {
-      // 贴图时间触发
+      // 输入框值改变事件
+      globalNumInputChange(){
+        this.fullViewExtent = [this.westInput, this.southInput, this.eastInput,this.northInput];
+        this.addPngChangeHandler()
+      },
+      // 填充4个经纬度输入框的值
+      fillLonlatInput(){
+        globalBus.$on('fillGlobalNumLonlatInput',(leftBottom,rightTop) => {
+          this.westInput = leftBottom[0];
+          this.southInput = leftBottom[1];
+          this.eastInput = rightTop[0];
+          this.northInput = rightTop[1];
+          this.fullViewExtent = [this.westInput, this.southInput, this.eastInput,this.northInput];
+          // this.fullViewExtent = [leftBottom[0],leftBottom[1],rightTop[0],rightTop[1]];
+        })
+      },
+
+      // 绘制矩形并拾取范围方法
+      drawRectangle(flag){
+        // 调用maplayout中的绘图方法
+        if (!flag){  //如果点击了清除按钮，初始化拾取范围的值
+          this.westInput= -180;
+          this.southInput = -90;
+          this.eastInput = 180;
+          this.northInput = 90;
+          this.fullViewExtent = [this.westInput, this.southInput, this.eastInput,this.northInput];
+        }
+        globalBus.$emit('drawRectangle', flag)
+      },
+
+      // 贴图事件触发
       addPngChangeHandler(){
+        /**
+         *  globalNumType
+         *   1 === 气象图
+         *   2 === 风浪图
+         *   3 === 气象格点图
+         *   4 === 风浪格点图
+         * */
         switch (this.globalNumRadio) {
           case '1':  //风浪-10米风场
             this.addPngImage(this.windTimeSelectedTime, '/Wind_W10Contour_')
             break;
           case '2':  //风浪-海浪
-            this.addPngImage(this.windTimeSelectedTime, '/Wave_Swh_')
+            this.addPngImage(this.waveTimeSelectedTime, '/Wave_Swh_')
             break;
           case '3':  //格点-10米风场
+            this.addPngImage(this.windTimeSelectedTime, '/Wind_W10Grid_')
             break;
           case '4':  //格点-波高
+            this.addPngImage(this.waveTimeSelectedTime, '/Wave_SwhGrid_')
             break;
         }
       },
 
       // 贴图方法
       addPngImage(val, suffix){
-        globalBus.$emit('addPngImageGlobalNum', this.getPngImageUrl(val, suffix))
+        /**
+         *  globalNumType
+         *   1 === 气象图
+         *   2 === 风浪图
+         *   3 === 气象格点图
+         *   4 === 风浪格点图
+         * */
+        //                                             图片Url                            贴图类型             可视范围
+        globalBus.$emit('addPngImageGlobalNum', this.getPngImageUrl(val, suffix), this.globalNumRadio, this.fullViewExtent)
       },
 
       // 获取Png图片url
@@ -214,6 +274,9 @@
                   this.sortForecastSel(this.windForecastTimeSel,'value')
                   this.windTimeSelectedTime = this.windForecastTimeSel[0].value
 
+                  //时间加载完毕，默认贴图风场
+                  this.addPngChangeHandler()
+
                 } else if(suffix.indexOf('wave') != -1){
                   this.waveForecastStart = dateData.slice(4, 6) + '月' + dateData.slice(6, 8) + '日';
                   let hour = dateData.slice(8, 10);
@@ -254,6 +317,12 @@
     },
   }
 </script>
+<style scoped>
+  .globalNum_draw_div {
+    display: -webkit-inline-box;
+    width: 100%;
+  }
+</style>
 
 <style>
 

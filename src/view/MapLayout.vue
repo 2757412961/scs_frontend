@@ -450,6 +450,11 @@
                 // 执法海域图层
                 this.zfhy_area_layer.getSource().clear();
 
+                // 格点预报
+                this.globalNum_draw_layer.getSource().clear();
+                this.map.removeLayer(this.globalNum_left_imgLayer);
+                this.map.removeLayer(this.globalNum_right_imgLayer);
+
                 // 清除台风路线绘制和定时器
                 clearInterval(this.typh_move_setTime);
                 clearInterval(this.typh_Rotation_Interval);

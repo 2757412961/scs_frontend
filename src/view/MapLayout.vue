@@ -86,6 +86,15 @@
                 typh_Rotation_Angle: null, // 旋转角度
                 typh_move_setTime: null, // 台风路径移动 计时器
 
+                /* 格点预报 start*/
+                globalNum_left_imgLayer: null,
+                globalNum_right_imgLayer: null,
+                globalNum_current_png: {type:'', pngUrl:''},
+                globalNum_draw: null,
+                globalNum_draw_layer: null,
+                globalNum_visible_extent: [],
+                /* 格点预报 end*/
+
                 //记录当前地图缩放层级
                 oldZoom: 0,
 
@@ -191,6 +200,28 @@
                     name: "zfhy_area_layer",
                     chName: "执法海域图层",
                     source: zfhy_area_source
+                });
+
+                /** 智能网格预报-全球模式  图层初始化*/
+                var globalNum_imgLayer_source = new ImageStaticSource({
+                    url:''
+                });
+                this.globalNum_left_imgLayer = new ImageLayer({
+                    source: globalNum_imgLayer_source
+                });
+                this.globalNum_right_imgLayer = new ImageLayer({
+                    source: globalNum_imgLayer_source
+                });
+                var globalNum_drwa_source = new Vector()
+                this.globalNum_draw_layer = new VectorLayer({
+                    source: globalNum_drwa_source
+                });
+                this.globalNum_draw = new Draw({
+                    source:globalNum_drwa_source,
+                    type: 'Circle',
+                    dragVertexDelay:100,
+                    stopClick: true,
+                    geometryFunction: createBox()
                 });
 
                 /** 视图初始化*/
@@ -391,6 +422,9 @@
                     return;
                 //若缩放，记录当前缩放层级
                 this.oldZoom = zoom;
+
+                // zoom有变化，globalNumericalLayer贴图变化
+                this.globalNumericalZoomChange(this.globalNum_visible_extent)
 
                 //判断是否有数据产品图层，若无则返回
                 //若有数据产品图层，则更新数据产品层级
@@ -1062,6 +1096,194 @@
             },
             //  *****************************seaArea 近海预报   end******************************************
 
+
+            //  *****************************GlobalNumerical 全球区域   start******************************************
+
+            // 绘制矩形
+            drawRectangelGlobalNumerical(){
+                globalBus.$on('drawRectangle', (flag) => {
+                    if (flag){
+                        this.globalNum_draw_layer.getSource().clear()
+                        this.map.removeLayer(this.globalNum_draw_layer)
+                        this.map.removeInteraction(this.globalNum_draw)
+                        let pngUrl = this.globalNum_current_png.pngUrl
+                        var globalNumThis = this
+                        this.globalNum_draw.on('drawend', function(e) {
+                            const geometry = e.feature.getGeometry()
+                            const corrdinates = geometry.getCoordinates()
+                            // [0][0]是左下角 [0][1]右下 [0][2]右上 [0][3]左上
+                            let leftBottom = transform(corrdinates[0][0],"EPSG:3857", "EPSG:4326")
+                            let rightTop = transform(corrdinates[0][2],"EPSG:3857", "EPSG:4326")
+                            // this.globalNum_visible_extent = [leftBottom[0],leftBottom[1],rightTop[0],rightTop[1]]
+                            globalNumThis.globalNum_visible_extent  = [corrdinates[0][0][0],corrdinates[0][0][1],corrdinates[0][2][0],corrdinates[0][2][1]];
+                            globalNumThis.addPngImageGlobalNumerical(pngUrl,globalNumThis.globalNum_visible_extent);
+
+                            globalBus.$emit('fillGlobalNumLonlatInput',leftBottom,rightTop)
+                            globalNumThis.map.removeInteraction(globalNumThis.globalNum_draw)
+                        })
+                        this.map.addLayer(this.globalNum_draw_layer)
+                        this.map.addInteraction(this.globalNum_draw)
+                    } else {
+                        this.globalNum_draw_layer.getSource().clear()
+                        this.map.removeLayer(this.globalNum_draw_layer)
+                        this.map.removeInteraction(this.globalNum_draw)
+                    }
+
+                });
+            },
+
+            addPngImageGlobalNumerical(pngUrl, viewExtent){
+
+                this.map.removeLayer(this.globalNum_left_imgLayer)
+                this.map.removeLayer(this.globalNum_right_imgLayer)
+                let mapExtent = this.map.getView().getProjection().getExtent()
+                var projection = new Projection({
+                    code: 'EPSG:3857',
+                    extent: mapExtent,
+                });
+                let rightSide1 = fromLonLat([0,-85]);
+                let rightSide2 = fromLonLat([360,85]);
+                let rightSideExtent = [rightSide1[0], rightSide1[1], rightSide2[0], rightSide2[1]];
+                let rightSidePng = new ImageStaticSource({
+                    url: pngUrl,
+                    projection: projection,
+                    imageExtent: rightSideExtent,
+                    crossOrigin: '',
+                });
+                let x1 = fromLonLat([-19.67,-17.91]);
+                let x2 = fromLonLat([29.02,3.93]);  //左下角 右上角  成功
+                let layerExtent =  [x1[0], x1[1], x2[0], x2[1]];
+                this.globalNum_right_imgLayer = new ImageLayer({
+                    source: rightSidePng,
+                    extent: viewExtent  //只渲染部分，成功！
+                });
+                this.globalNum_right_imgLayer.setOpacity(0.8)
+                this.map.addLayer(this.globalNum_right_imgLayer);
+
+
+                let leftSide1 = fromLonLat([-360,-85]); //
+                let leftSide2 = fromLonLat([0,85]);
+                let leftSideExtent = [leftSide1[0], leftSide1[1], leftSide2[0], leftSide2[1]];
+
+                let leftSidePng = new ImageStaticSource({
+                    url: pngUrl,
+                    projection: projection,
+                    imageExtent: leftSideExtent,
+                    crossOrigin: '',
+                });
+                this.globalNum_left_imgLayer = new ImageLayer({
+                    source: leftSidePng,
+                    extent: viewExtent  //只渲染部分，成功！
+
+                });
+                this.globalNum_left_imgLayer.setOpacity(0.8)
+                this.map.addLayer(this.globalNum_left_imgLayer);
+
+            },
+
+            globalNumericalZoomChange(viewExtent){
+                let currentZoom = parseInt(this.map.getView().getZoom())
+                let newPngUrl = '';
+                if (this.globalNum_current_png.type == '3'){
+                    if (currentZoom>=2 && currentZoom <=4){
+                        newPngUrl = this.globalNum_current_png.pngUrl.replace('.png','_D0.png')
+                    } else if (currentZoom>=5 && currentZoom <=8){
+                        newPngUrl = this.globalNum_current_png.pngUrl.replace('.png','_D5.png')
+                    }
+                }else if (this.globalNum_current_png.type == '4'){
+                    if (currentZoom>=2 && currentZoom <=3){
+                        newPngUrl = this.globalNum_current_png.pngUrl.replace('.png','_D0.png')
+                    } else if (currentZoom>=4 && currentZoom <=5){
+                        newPngUrl = this.globalNum_current_png.pngUrl.replace('.png','_D5.png')
+                    } else if (currentZoom>=6 && currentZoom <=8){
+                        newPngUrl = this.globalNum_current_png.pngUrl.replace('.png','_D6.png')
+                    }
+                }else{
+                    return;
+                }
+                if (this.globalNum_current_png.pngUrl == newPngUrl)
+                    return
+                this.addPngImageGlobalNumerical(newPngUrl,viewExtent);
+            },
+
+            globalNumericalAddImage(){
+                globalBus.$on('addPngImageGlobalNum', (pngUrl, globalNumType, viewExtent) => {
+                    /**
+                     *  globalNumType
+                     *   1 === 气象图
+                     *   2 === 风浪图
+                     *   3 === 气象格点图    分为 D5（Zoom 2-4） 和 D0( zoom 5-8 ) 两种
+                     *   4 === 风浪格点图    分为 D6（Zoom 2-3） 和 D5( zoom 4-5 ) 和 D0( zoom 6-8 ) 三种
+                     * */
+                    let leftBottom = transform([viewExtent[0],viewExtent[1]],"EPSG:4326", "EPSG:3857")
+                    let rightTop = transform([viewExtent[2],viewExtent[3]],"EPSG:4326", "EPSG:3857")
+                    this.globalNum_visible_extent = [leftBottom[0],leftBottom[1],rightTop[0],rightTop[1]]
+                    switch (globalNumType) {
+                        case '1':  //风浪-10米风场
+                            this.globalNum_current_png.type = '1'
+                            this.globalNum_current_png.pngUrl = pngUrl
+                            this.addPngImageGlobalNumerical(pngUrl,this.globalNum_visible_extent);
+                            break;
+                        case '2':  //风浪-海浪
+                            this.globalNum_current_png.type = '2'
+                            this.globalNum_current_png.pngUrl = pngUrl
+                            this.addPngImageGlobalNumerical(pngUrl,this.globalNum_visible_extent);
+                            break;
+                        case '3':  //格点-10米风场 根据当前zoom变换不同图片
+                            this.globalNum_current_png.type = '3'
+                            this.globalNum_current_png.pngUrl = pngUrl
+                            this.globalNumericalZoomChange(this.globalNum_visible_extent)
+                            break;
+                        case '4':  //格点-波高
+                            this.globalNum_current_png.type = '4'
+                            this.globalNum_current_png.pngUrl = pngUrl
+                            this.globalNumericalZoomChange(this.globalNum_visible_extent)
+                            break;
+                    }
+
+                    /*return
+                    let mapProjection = this.map.getView().getProjection()
+                    let mapExtent = this.map.getView().getProjection().getExtent()
+                    let lonLat =  [0,90,360,90];
+                    let rightSide1 = fromLonLat([0,-85]);
+                    let rightSide2 = fromLonLat([360,85]);
+                    var rightSideExtent = [rightSide1[0], rightSide1[1], rightSide2[0], rightSide2[1]];
+                    var projection = new Projection({
+                      code: 'EPSG:3857',
+                      extent: mapExtent,
+                    });
+                    var imageExtent = [0,
+                                    -20037508.342789244,
+                                    20037508.342789244*2,
+                                    20037508.342789244];
+                    this.globalNum_imgLayer = new ImageLayer({
+                      source: new ImageStaticSource({
+                        url: pngUrl,
+                        projection: projection,
+                        imageExtent: rightSideExtent,
+                        crossOrigin: '',
+                      }),
+                    });
+                    console.log(this.globalNum_imgLayer)
+                    this.globalNum_imgLayer.setOpacity(0.6)
+                    this.map.addLayer(this.globalNum_imgLayer);
+                    let leftSide1 = fromLonLat([-360,-85]);
+                    let leftSide2 = fromLonLat([0,85]);
+                    var leftSideExtent = [leftSide1[0], leftSide1[1], leftSide2[0], leftSide2[1]];
+                    this.globalNum_imgLayer = new ImageLayer({
+                      source: new ImageStaticSource({
+                        url: pngUrl,
+                        projection: projection,
+                        imageExtent: leftSideExtent,
+                        crossOrigin: '',
+                      }),
+                    });
+                    this.globalNum_imgLayer.setOpacity(0.6)
+                    this.map.addLayer(this.globalNum_imgLayer);*/
+
+                })
+            },
+            //  *****************************GlobalNumerical 全球区域   end******************************************
 
             //  ***************************** lawArea 执法海域预报   start ******************************************
             lawAreaDrawPolygon() {

@@ -55,7 +55,7 @@
                 this.$store.commit('setName',userName);
                 //TODO 添加用户权限
                 this.$store.commit('setCategory',response.data);
-                sessionStorage.setItem('store', JSON.stringify(this.$store.state))
+                sessionStorage.setItem('store', JSON.stringify(this.$store.state));
                 this.$router.push({
                   name: 'typhoon'
                 })

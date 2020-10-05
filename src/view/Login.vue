@@ -51,11 +51,11 @@
               if(response.data!=-1){
                 //若登录成功，则跳转home页面，并修改全局user变量
                 debugger
-                console.log(this.userName)
                 var userName = this.userName
                 this.$store.commit('setName',userName);
                 //TODO 添加用户权限
                 this.$store.commit('setCategory',response.data);
+                sessionStorage.setItem('store', JSON.stringify(this.$store.state))
                 this.$router.push({
                   name: 'typhoon'
                 })

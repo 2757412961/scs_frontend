@@ -24,7 +24,7 @@
     import XYZ from "ol/source/XYZ";
     // import TileLayer from "ol/layer/Tile";
     import 'ol/ol.css'
-    import {transform} from 'ol/proj';
+    import {transform, Projection} from 'ol/proj';
     import {fromLonLat, getTransform} from 'ol/proj';
     import {toLonLat} from 'ol/proj.js';
     import Select from 'ol/interaction/Select';

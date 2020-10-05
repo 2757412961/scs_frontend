@@ -52,6 +52,7 @@
         Text,
     } from 'ol/style';
     import Stystyle from 'ol/style/Style';
+    import {asArray} from 'ol/color';
 
     import Geometry from 'ol/geom/Geometry';
     import Point from 'ol/geom/Point';
@@ -110,7 +111,6 @@
 
                 //记录上一次光标指向的feature，用于方法缩小指定feature
                 lastPointerFeature: null,
-
 
                 // 静态资源导入 asserts
                 typh_img: require('../assets/typh.png'),
@@ -333,19 +333,20 @@
                     var feature = features[0];
 
                     if (feature.get('name').search(/Point/) != -1) {
-                        if (feature != this.lastpointerFeature) {
+                        if (feature != this.lastPointerFeature) {
                             //移动前后是不同feature，将原来的feature图标大小回归正常
-                            if (this.lastpointerFeature != null) {
-                                var style = this.lastpointerFeature.getStyle();
+                            if (this.lastPointerFeature != null) {
+                                var style = this.lastPointerFeature.getStyle();
                                 style.getImage().setScale(1);
-                                this.lastpointerFeature.setStyle(style);
+                                this.lastPointerFeature.setStyle(style);
                                 this.overlay.setPosition(undefined);
                             }
-                            this.lastpointerFeature = feature; //记录本次feature
-                            var style = this.lastpointerFeature.getStyle();
+                            this.lastPointerFeature = feature; //记录本次feature
+                            var style = this.lastPointerFeature.getStyle();
                             style.getImage().setScale(1.5); //图标放大
-                            this.lastpointerFeature.setStyle(style);
+                            this.lastPointerFeature.setStyle(style);
                         }
+
                         if (feature.get('name').search(/NOT/) != -1) {
                             this.siteId = 1;
                         } else if (feature.get('name').search(/typhPointFeature/) != -1) {
@@ -374,15 +375,32 @@
                           this.lastPointerFeature = feature; //记录本次feature
                         }*/
                         this.seaAreaForecastPopup(feature, pixel);
+                    } else if (feature.get('name').search(/lawAreaPolygonFeature/) != -1) {
+                        this.lawAreaPolygonPopup(feature, pixel);
                     }
                 } else {
-                    if (this.lastpointerFeature != null) {
-                        var style = this.lastpointerFeature.getStyle();
-                        style.getImage().setScale(1);
-                        this.lastpointerFeature.setStyle(style);
+                    if (this.lastPointerFeature != null) {
+                        if (this.lastPointerFeature.get('name').search(/Point/) != -1) {
+                            var style = this.lastPointerFeature.getStyle();
+                            style.getImage().setScale(1);
+                            this.lastPointerFeature.setStyle(style);
+                        } else if (this.lastPointerFeature.get('name').search(/seaArea/) != -1) {
+                            this.lastPointerFeature.setStyle(new Style({
+                                stroke: new Stroke({
+                                    color: '#429FCE',
+                                    width: 2
+                                }),
+                                fill: new Fill({color: '#C2D1E0'}),
+                            }));
+                        } else if (this.lastPointerFeature.get('name').search(/lawAreaPolygonFeature/) != -1) {
+                            let oldColor = this.lastPointerFeature.getStyle().getFill().getColor();
+                            oldColor[3] = 0.5;
+                            this.lastPointerFeature.getStyle().getFill().setColor(oldColor);
+                            this.zfhy_area_layer.getSource().changed();
+                        }
                     }
                     this.overlay.setPosition(undefined);
-                    this.lastpointerFeature = null;//记录本次feature
+                    this.lastPointerFeature = null;//记录本次feature
                 }
             },
 
@@ -520,7 +538,7 @@
                 }
             },
             /**
-             * 台风 预报点 popip
+             * 台风 预报点 popup
              */
             typhForecastPointPopup(feature) {
                 let typhForecastInfo = feature.get('data');
@@ -570,6 +588,75 @@
                     this.content.innerHTML = html;
                     this.overlay.setPosition(feature.getGeometry().getCoordinates());
                 }
+            },
+            /**
+             * 近海海域 预报 popup
+             */
+            seaAreaForecastPopup(feature, pixel) {
+                //如果移动到新的feature，修改feature样式
+                if (this.lastPointerFeature !== feature) { //鼠标移动到了新的feature
+                    let featureStyle = feature.getStyle();  //记录本次feature的样式
+                    if (this.lastPointerFeature != null) {  //如果上次feature不为空，将值设置为上一feature的样式
+                        this.lastPointerFeature.setStyle(featureStyle);
+                    }
+                    let highlightStyle = new Style({  //鼠标覆盖，创建新的feature样式
+                        stroke: new Stroke({
+                            color: '#3681AA',
+                            width: 2
+                        }),
+                        fill: new Fill({
+                            color: 'rgba(54, 129, 170, 1)'
+                        }),
+                    });
+                    feature.setStyle(highlightStyle);
+                    // this.seaAreaForecastPopup(feature, pixel); //显示弹框
+                }
+                var seaAreInfo = feature.get('feature_data');
+                //构建Popup_title文字内容
+                this.ol_popup_min_width = "270px";
+                this.popup_title = seaAreInfo.hqbh + ":" + seaAreInfo.hqmc;
+
+                if (seaAreInfo != null) {
+                    //组织弹出框内容
+                    var html = `
+                        <table>
+                          <tr><td align='left'>天气情况：</td><td align='left'>${seaAreInfo.tqqk}</td></tr>
+                          <tr><td align='left'>风向：</td><td align='left'>${seaAreInfo.fx}</td></tr>
+                          <tr><td align='left'>风速(级)：</td><td align='left'>${seaAreInfo.fs} </td></tr>
+                          <tr><td align='left'>视程范围(公里)：</td><td align='left'>${seaAreInfo.scfw}</td></tr>
+                          <tr><td align='left'>风浪(米)：</td><td align='left'>${seaAreInfo.fl} </td></tr>
+                          <tr><td align='left'>涌浪(米)：</td><td align='left'>${seaAreInfo.yl} </td></tr>
+                        </table>
+                    `.trim();
+                    this.content.innerHTML = html;
+                    this.overlay.setPosition(this.map.getCoordinateFromPixel(pixel));
+                }
+                this.lastPointerFeature = feature; //记录本次feature
+            },
+            /**
+             * 执法海域 预报 popup
+             */
+            lawAreaPolygonPopup(feature, pixel) {
+                //如果移动到新的feature，修改feature样式
+                if (this.lastPointerFeature !== feature) { //鼠标移动到了新的feature
+                    if (this.lastPointerFeature != null) {
+                        let oldColor = this.lastPointerFeature.getStyle().getFill().getColor();
+                        oldColor[3] = 0.5;
+                        this.lastPointerFeature.getStyle().getFill().setColor(oldColor);
+                    }
+
+                    let rgba = feature.getStyle().getFill().getColor();
+                    rgba[3] = 1;
+                    feature.getStyle().getFill().setColor(rgba);
+
+                    this.zfhy_area_layer.getSource().changed();
+                    this.lastPointerFeature = feature; //记录本次feature
+                }
+
+                this.ol_popup_min_width = "100px";
+                this.popup_title = feature.get('areaName');
+                this.content.innerHTML = "";
+                this.overlay.setPosition(this.map.getCoordinateFromPixel(pixel));
             },
 
             /**
@@ -1061,65 +1148,45 @@
                     // this.map.addLayer(seaAreVectorLayer);
                 })
             },
-            seaAreaForecastPopup(feature, pixel) {
-                //如果移动到新的feature，修改feature样式
-                if (this.lastPointerFeature !== feature) { //鼠标移动到了新的feature
-                    let featureStyle = feature.getStyle();  //记录本次feature的样式
-                    if (this.lastPointerFeature != null) {  //如果上次feature不为空，将值设置为上一feature的样式
-                        this.lastPointerFeature.setStyle(featureStyle);
-                    }
-                    let highlightStyle = new Style({  //鼠标覆盖，创建新的feature样式
-                        stroke: new Stroke({
-                            color: '#3681AA',
-                            width: 2
-                        }),
-                        fill: new Fill({
-                            color: 'rgba(54, 129, 170,1)'
-                        }),
-                    });
-                    feature.setStyle(highlightStyle);
-                    // this.seaAreaForecastPopup(feature, pixel); //显示弹框
-                }
-                var seaAreInfo = feature.get('feature_data');
-                //构建Popup_title文字内容
-                this.ol_popup_min_width = "270px";
-                this.popup_title = seaAreInfo.hqbh + ":" + seaAreInfo.hqmc;
-
-                if (seaAreInfo != null) {
-                    //组织弹出框内容
-                    var html = `
-                        <table>
-                          <tr><td align='left'>天气情况：</td><td align='left'>${seaAreInfo.tqqk}</td></tr>
-                          <tr><td align='left'>风向：</td><td align='left'>${seaAreInfo.fx}</td></tr>
-                          <tr><td align='left'>风速(级)：</td><td align='left'>${seaAreInfo.fs} </td></tr>
-                          <tr><td align='left'>视程范围(公里)：</td><td align='left'>${seaAreInfo.scfw}</td></tr>
-                          <tr><td align='left'>风浪(米)：</td><td align='left'>${seaAreInfo.fl} </td></tr>
-                          <tr><td align='left'>涌浪(米)：</td><td align='left'>${seaAreInfo.yl} </td></tr>
-                        </table>
-                    `.trim();
-                    this.content.innerHTML = html;
-                    this.overlay.setPosition(this.map.getCoordinateFromPixel(pixel));
-                }
-                this.lastPointerFeature = feature; //记录本次feature
-            },
             //  *****************************seaArea 近海预报   end******************************************
 
 
             //  ***************************** lawArea 执法海域预报   start ******************************************
+            createLawAreaPolygon(json) {
+                let areaName = json.area;
+                let color = json.color;
+                let labx = parseFloat(json.labx);
+                let laby = parseFloat(json.laby);
+                let points = [];
+                json.pt.forEach(function (xys) {
+                    points.push([parseFloat(xys.x), parseFloat(xys.y)]);
+                });
+                points.push([parseFloat(json.pt[0].x), parseFloat(json.pt[0].y)])
+
+                let lawAreaFeature = new Feature({
+                    geometry: new Polygon([points]),
+                    name: 'lawAreaPolygonFeature',
+                    areaName: areaName
+                });
+
+                // 设置样式
+                let rgba = asArray(color).slice();
+                rgba[3] = 0.5;
+                lawAreaFeature.setStyle(new Style({
+                    fill: new Fill({
+                        color: rgba,
+                    }),
+                }));
+
+                this.zfhy_area_layer.getSource().addFeature(lawAreaFeature);
+            },
+            // 绘制执法海域 Polygon
             lawAreaDrawPolygon() {
                 globalBus.$on('lawAreaDraw', (lawAreaJson) => {
+                    this.moveViewTo(fromLonLat([120, 23])[0], fromLonLat([120, 23])[1], 4.5);
+
                     for (let i = 0; i < lawAreaJson.length; i++) {
-                        let areaName = lawAreaJson[i].area;
-                        let color = lawAreaJson[i].color;
-                        let labx = parseFloat(lawAreaJson[i].labx);
-                        let laby = parseFloat(lawAreaJson[i].laby);
-                        let ppp = [];
-                        lawAreaJson[i].pt.forEach(function (xys) {
-                            ppp.push([parseFloat(xys.x), parseFloat(xys.y)]);
-                        });
-
-
-                        console.log(ppp);
+                        this.createLawAreaPolygon(lawAreaJson[i]);
                     }
                 })
             },

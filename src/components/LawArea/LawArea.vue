@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <div>
     <el-row>
       <el-col>
         <button @click="drawLawArea">nishigeerhuoma</button>
@@ -17,8 +17,11 @@
         name: "LawArea",
         data() {
             return {
-                // 执法海域举例
+                // 执法海域json
                 lawAreaJson: require('../../../static/resources/LawArea.json'),
+                lawAreaName: "",
+                lawAreaData: [{}],
+
 
             }
         },
@@ -26,10 +29,19 @@
             drawLawArea() {
                 globalBus.$emit('lawAreaDraw', this.lawAreaJson);
             },
+            changeLawAreaName() {
+                globalBus.$on('changeLawAreaName', (newName) => {
+                    this.lawAreaName = newName;
+                });
+            },
 
 
         },
-        watch: {},
+        watch: {
+            lawAreaName: function () {
+
+            }
+        },
         beforeCreate() {
 
         },
@@ -42,6 +54,7 @@
         mounted() {
             console.log("LawArea is mounted");
             this.drawLawArea();
+            this.changeLawAreaName();
         },
         beforeUpdate() {
 

@@ -309,11 +309,21 @@
                 if (feature.get('name').search(/NOT/) != -1) {
                     this.not = null;
                 } else if (feature.get('name').search(/typhPointFeature/) != -1) {
+                    // 如果点击了typhPoint的feature
                     let typhRouteInfo = feature.get('data');
                     if (typhRouteInfo != null) {
                         this.typhWindDraw(typhRouteInfo, 0.01);
                         this.typhForecastDraw(typhRouteInfo, feature.get('typhModelNum'));
                     }
+                } else if (feature.get('name').search(/seaArea/) != -1) {
+                    // 如果点击了seaArea的feature
+                    let id_feature = feature.get('feature_id');
+                    // 调用seaArea方法，传递id
+                    globalBus.$emit('updateSeaAreaDataIndex', id_feature);
+                } else if (feature.get('name').search(/lawAreaPolygonFeature/) != -1) {
+                    // 如果点击了lawArea的feature
+                    let areaName = feature.get('areaName');
+                    globalBus.$emit('changeLawAreaName', areaName);
                 }
 
                 return;
@@ -386,15 +396,12 @@
                             this.lastPointerFeature.setStyle(style);
                         } else if (this.lastPointerFeature.get('name').search(/seaArea/) != -1) {
                             this.lastPointerFeature.setStyle(new Style({
-                                stroke: new Stroke({
-                                    color: '#429FCE',
-                                    width: 2
-                                }),
+                                stroke: new Stroke({color: '#429FCE', width: 2}),
                                 fill: new Fill({color: '#C2D1E0'}),
                             }));
                         } else if (this.lastPointerFeature.get('name').search(/lawAreaPolygonFeature/) != -1) {
                             let oldColor = this.lastPointerFeature.getStyle().getFill().getColor();
-                            oldColor[3] = 0.5;
+                            oldColor[3] = 0.4;
                             this.lastPointerFeature.getStyle().getFill().setColor(oldColor);
                             this.zfhy_area_layer.getSource().changed();
                         }
@@ -416,18 +423,12 @@
                 if (hit) {
                     var features = this.map.getFeaturesAtPixel(pixel);
                     var feature = features[0];
-                    // 如果点击了seaArea的feature
-                    if (feature.get('name').search(/seaArea/) != -1) {
-                        // 获取feature Id
-                        let id_feature = feature.get('feature_id');
-                        // 调用seaArea方法，传递id
-                        globalBus.$emit('updateSeaAreaDataIndex', id_feature);
-                    }
+
+
                     return;
                 } else {
 
                 }
-
             },
 
             /**
@@ -479,6 +480,12 @@
                 this.typh_Rotation_Interval = null;
                 this.typh_Rotation_Angle = 0;
                 this.typh_move_layer.getSource().clear();
+            },
+
+            clearMap() {
+                globalBus.$on('clearMap', (s) => {
+                    this.clearLayerSource();
+                })
             },
 
             /**
@@ -641,7 +648,7 @@
                 if (this.lastPointerFeature !== feature) { //鼠标移动到了新的feature
                     if (this.lastPointerFeature != null) {
                         let oldColor = this.lastPointerFeature.getStyle().getFill().getColor();
-                        oldColor[3] = 0.5;
+                        oldColor[3] = 0.4;
                         this.lastPointerFeature.getStyle().getFill().setColor(oldColor);
                     }
 
@@ -988,28 +995,23 @@
                 pointFeature.set('data', val[0]);
                 pointFeature.set('typhName', typhName);
                 pointFeature.set('typhModelNum', typhModelNum);
-                pointFeature.setStyle(new Stystyle({
+                pointFeature.setStyle(new Style({
                     image: new CircleStyle({
                         radius: 5,
                         fill: new Fill({
                             color: mapLayout.colorTyphStrength[pointFeature.get('data')['strength']].color
-                        }),
-                        // text: new Text({
-                        //     //位置
-                        //     textAlign: 'center',
-                        //     //基准线
-                        //     textBaseline: 'middle',
-                        //     //文字样式
-                        //     font: '15px Microsoft YaHei',
-                        //     //文本内容
-                        //     text: 'pointFeature.get()',
-                        //     //文本填充样式（即文字颜色）
-                        //     fill: new Fill({color: '#000000'}),
-                        //     stroke: new Stroke({
-                        //         color: '#ffcc33', width: 12
-                        //     })
-                        // })
-                    })
+                        })
+                    }),
+                    text: new Text({
+                        text: typhName,
+                        font: '15px Microsoft YaHei',
+                        fill: new Fill({color: '#000000'}),
+                        stroke: new Stroke({color: '#ffcc33', width: 12}),
+                        placement: 'point',
+                        textAlign: "center",
+                        offsetX: 0,
+                        offsetY: 30
+                    }),
                 }));
                 that.typh_layer.getSource().addFeature(pointFeature);
                 // 结束初始化，开始绘制 ------------------------------------------------------------------------------
@@ -1085,8 +1087,7 @@
 
                 // 动画化绘制路线
                 drawTyph();
-            }
-            ,
+            },
 
 
             //  *****************************seaArea 近海预报  start******************************************
@@ -1171,10 +1172,17 @@
 
                 // 设置样式
                 let rgba = asArray(color).slice();
-                rgba[3] = 0.5;
+                rgba[3] = 0.4;
                 lawAreaFeature.setStyle(new Style({
                     fill: new Fill({
                         color: rgba,
+                    }),
+                    text: new Text({
+                        text: areaName,
+                        textAlign: "center",
+                        textBaseline: "middle",
+                        placement: "point", //point 则自动计算面的中心k点然后标注  line 则根据面要素的边进行标注
+                        // overflow: true //超出面的部分不显示
                     }),
                 }));
 
@@ -1183,12 +1191,12 @@
             // 绘制执法海域 Polygon
             lawAreaDrawPolygon() {
                 globalBus.$on('lawAreaDraw', (lawAreaJson) => {
-                    this.moveViewTo(fromLonLat([120, 23])[0], fromLonLat([120, 23])[1], 4.5);
+                    this.moveViewTo(fromLonLat([120, 17])[0], fromLonLat([120, 17])[1], 5);
 
                     for (let i = 0; i < lawAreaJson.length; i++) {
                         this.createLawAreaPolygon(lawAreaJson[i]);
                     }
-                })
+                });
             },
             //  ***************************** lawArea 执法海域预报   end ********************************************
 
@@ -1227,7 +1235,6 @@
 
                 });
             },
-
             addPngImageGlobalNumerical(pngUrl, viewExtent) {
 
                 this.map.removeLayer(this.globalNum_left_imgLayer)
@@ -1276,7 +1283,6 @@
                 this.map.addLayer(this.globalNum_left_imgLayer);
 
             },
-
             globalNumericalZoomChange(viewExtent) {
                 let currentZoom = parseInt(this.map.getView().getZoom())
                 let newPngUrl = '';
@@ -1301,7 +1307,6 @@
                     return
                 this.addPngImageGlobalNumerical(newPngUrl, viewExtent);
             },
-
             globalNumericalAddImage() {
                 globalBus.$on('addPngImageGlobalNum', (pngUrl, globalNumType, viewExtent) => {
                     /**
@@ -1385,6 +1390,7 @@
 
         mounted: function () {
             this.mapInit();
+            this.clearMap();
             this.typhRouteDrawLinePoint();
             this.seaAreaDrawPolygon();
             this.lawAreaDrawPolygon();

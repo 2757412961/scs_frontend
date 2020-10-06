@@ -77,7 +77,7 @@
             return {
                 map: null,//地图
                 sea_area_layer: null,//近海海区图层
-                zfhy_area_layer: null,//执法海域图层
+                law_area_layer: null,//执法海域图层
                 // pro_layers: [],//数值预报产品图层
 
                 //台风图层
@@ -199,8 +199,8 @@
                 var zfhy_area_source = new Vector({
                     features: null
                 });
-                this.zfhy_area_layer = new VectorLayer({
-                    name: "zfhy_area_layer",
+                this.law_area_layer = new VectorLayer({
+                    name: "law_area_layer",
                     chName: "执法海域图层",
                     source: zfhy_area_source
                 });
@@ -259,7 +259,7 @@
                 /** Map初始化 */
                 this.map = new Map({
                     target: "scsmap",
-                    layers: [map_layer, this.sea_area_layer, this.zfhy_area_layer,
+                    layers: [map_layer, this.sea_area_layer, this.law_area_layer,
                         this.typh_wind_layer, this.typh_forecast_layer, this.typh_route_layer, this.typh_layer, this.typh_move_layer],
                     view: view,
                     controls: defaultControls().extend([mousePositionControl, ScaleControl]),
@@ -403,7 +403,7 @@
                             let oldColor = this.lastPointerFeature.getStyle().getFill().getColor();
                             oldColor[3] = 0.4;
                             this.lastPointerFeature.getStyle().getFill().setColor(oldColor);
-                            this.zfhy_area_layer.getSource().changed();
+                            this.law_area_layer.getSource().changed();
                         }
                     }
                     this.overlay.setPosition(undefined);
@@ -467,7 +467,7 @@
                 this.sea_area_layer.getSource().clear();
 
                 // 执法海域图层
-                this.zfhy_area_layer.getSource().clear();
+                // this.law_area_layer.getSource().clear();
 
                 // 格点预报
                 this.globalNum_draw_layer.getSource().clear();
@@ -482,9 +482,11 @@
                 this.typh_move_layer.getSource().clear();
             },
 
-            clearMap() {
-                globalBus.$on('clearMap', (s) => {
-                    this.clearLayerSource();
+            clearMapLawAreaLayer() {
+                globalBus.$on('clearMapLawAreaLayer', (s) => {
+                    // this.clearLayerSource();
+                    // 执法海域图层
+                    this.law_area_layer.getSource().clear();
                 })
             },
 
@@ -656,7 +658,7 @@
                     rgba[3] = 1;
                     feature.getStyle().getFill().setColor(rgba);
 
-                    this.zfhy_area_layer.getSource().changed();
+                    this.law_area_layer.getSource().changed();
                     this.lastPointerFeature = feature; //记录本次feature
                 }
 
@@ -1186,12 +1188,16 @@
                     }),
                 }));
 
-                this.zfhy_area_layer.getSource().addFeature(lawAreaFeature);
+                this.law_area_layer.getSource().addFeature(lawAreaFeature);
             },
             // 绘制执法海域 Polygon
             lawAreaDrawPolygon() {
                 globalBus.$on('lawAreaDraw', (lawAreaJson) => {
                     this.moveViewTo(fromLonLat([120, 17])[0], fromLonLat([120, 17])[1], 5);
+
+                    // 判断是否已经加入了执法海域要素，如果没有加入则继续执行
+                    let lawAreaSourceFeatures = this.law_area_layer.getSource().getFeatures();
+                    if (lawAreaSourceFeatures.length > 0) return;
 
                     for (let i = 0; i < lawAreaJson.length; i++) {
                         this.createLawAreaPolygon(lawAreaJson[i]);
@@ -1390,10 +1396,10 @@
 
         mounted: function () {
             this.mapInit();
-            this.clearMap();
             this.typhRouteDrawLinePoint();
             this.seaAreaDrawPolygon();
             this.lawAreaDrawPolygon();
+            this.clearMapLawAreaLayer();
             this.globalNumericalAddImage();
             this.drawRectangelGlobalNumerical();
 

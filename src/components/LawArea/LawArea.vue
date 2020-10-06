@@ -7,14 +7,12 @@
       </el-row>
     </div>
 
-    <el-collapse class="lawAreaPanel_class" v-model="activeNames" @change="rightBarHide">
+    <el-collapse id="lawAreaForecast_panel" class="lawAreaPanel_class" v-model="activeNames" @change="rightBarHide">
 
       <el-collapse-item id="rightBar" name="rightSide"
                         :class="[this.lawRightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
-        <div class="lawAreaBarTitle">
-          <el-switch v-model="isShowLayer" active-text="显示执法海域"></el-switch>
-        </div>
         <div class="lawAreaBarTitle">执法海域</div>
+        <div class="lawAreaBarTitle"><el-switch v-model="isShowLayer" active-text="显示执法海域"></el-switch></div>
         <div class="lawAreaBarTitle">{{ this.lawAreaName }}</div>
 
         <div class="lawAreaTableDiv">
@@ -31,10 +29,10 @@
               </tr>
               <tr><td style="width: 45%;">天气情况</td><td>{{ data.tqqk }}</td></tr>
               <tr><td style="width: 45%;">风向</td><td>{{ data.fx }}</td></tr>
-              <tr><td style="width: 45%;">风速（级）</td><td>{{ data.fs }}</td></tr>
+              <tr><td style="width: 45%;">风速（级）</td><td :style="setColorByfs(data.fs)">{{ data.fs }}</td></tr>
               <tr><td style="width: 45%;">视程范围（公里）</td><td>{{ data.scfw }}</td></tr>
-              <tr><td style="width: 45%;">风浪（米）</td><td>{{ data.fl }}</td></tr>
-              <tr><td style="width: 45%;">涌浪（米）</td><td>{{ data.yl }}</td></tr>
+              <tr><td style="width: 45%;">风浪（米）</td><td :style="setColorBylang(data.fl)">{{ data.fl }}</td></tr>
+              <tr><td style="width: 45%;">涌浪（米）</td><td :style="setColorBylang(data.yl)">{{ data.yl }}</td></tr>
             </table>
           </div>
         </div>
@@ -46,7 +44,6 @@
 
 <script>
     import {globalBus} from "../globalBus";
-    import MapLayout from "../../view/MapLayout";
 
     export default {
         name: "LawArea",
@@ -81,6 +78,22 @@
                 globalBus.$on('changeLawAreaName', (newName) => {
                     this.lawAreaName = newName;
                 });
+            },
+
+            // 根据数值返回颜色，风六级以上为红色，否则为黑色
+            setColorByfs(fs) {
+                let lst = fs.split('-');
+                for (let i = 0; i < lst.length; i++) {
+                    if (lst[i] != "" && parseInt(lst[i]) >= 6) {
+                        return 'color: red;';
+                    }
+                }
+            },
+            // 浪包括风浪和涌浪，3m以上为红色，否则为黑色
+            setColorBylang(lang) {
+                if (parseInt(lang) >= 3) {
+                    return 'color: red;';
+                }
             },
 
             //侧边栏动画
@@ -119,7 +132,7 @@
                 if (val) {
                     this.drawLawArea();
                 } else {
-                    globalBus.$emit('clearMap', 'nothing');
+                    globalBus.$emit('clearMapLawAreaLayer', 'nothing');
                 }
             },
         },

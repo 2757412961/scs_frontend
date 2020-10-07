@@ -12,7 +12,9 @@
       <el-collapse-item id="rightBar" name="rightSide"
                         :class="[this.lawRightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
         <div class="lawAreaBarTitle">执法海域</div>
-        <div class="lawAreaBarTitle"><el-switch v-model="isShowLayer" active-text="显示执法海域"></el-switch></div>
+        <div class="lawAreaBarTitle">
+          <el-switch v-model="isShowLayer" active-text="显示执法海域"></el-switch>
+        </div>
         <div class="lawAreaBarTitle">{{ this.lawAreaName }}</div>
 
         <div class="lawAreaTableDiv">
@@ -27,12 +29,30 @@
                   </div>
                 </th>
               </tr>
-              <tr><td style="width: 45%;">天气情况</td><td>{{ data.tqqk }}</td></tr>
-              <tr><td style="width: 45%;">风向</td><td>{{ data.fx }}</td></tr>
-              <tr><td style="width: 45%;">风速（级）</td><td :style="setColorByfs(data.fs)">{{ data.fs }}</td></tr>
-              <tr><td style="width: 45%;">视程范围（公里）</td><td>{{ data.scfw }}</td></tr>
-              <tr><td style="width: 45%;">风浪（米）</td><td :style="setColorBylang(data.fl)">{{ data.fl }}</td></tr>
-              <tr><td style="width: 45%;">涌浪（米）</td><td :style="setColorBylang(data.yl)">{{ data.yl }}</td></tr>
+              <tr>
+                <td style="width: 45%;">天气情况</td>
+                <td>{{ data.tqqk }}</td>
+              </tr>
+              <tr>
+                <td style="width: 45%;">风向</td>
+                <td>{{ data.fx }}</td>
+              </tr>
+              <tr>
+                <td style="width: 45%;">风速（级）</td>
+                <td :style="setColorByfs(data.fs)">{{ data.fs }}</td>
+              </tr>
+              <tr>
+                <td style="width: 45%;">视程范围（公里）</td>
+                <td>{{ data.scfw }}</td>
+              </tr>
+              <tr>
+                <td style="width: 45%;">风浪（米）</td>
+                <td :style="setColorBylang(data.fl)">{{ data.fl }}</td>
+              </tr>
+              <tr>
+                <td style="width: 45%;">涌浪（米）</td>
+                <td :style="setColorBylang(data.yl)">{{ data.yl }}</td>
+              </tr>
             </table>
           </div>
         </div>
@@ -78,6 +98,9 @@
                 globalBus.$on('changeLawAreaName', (newName) => {
                     this.lawAreaName = newName;
                 });
+            },
+            firstLawAreaNameChange() {
+                this.lawAreaName = '钓鱼岛';
             },
 
             // 根据数值返回颜色，风六级以上为红色，否则为黑色
@@ -149,7 +172,7 @@
             console.log("LawArea is mounted");
             this.drawLawArea();
             this.changeLawAreaName();
-            this.lawAreaName = '钓鱼岛';
+            this.firstLawAreaNameChange();
         },
         beforeUpdate() {
 

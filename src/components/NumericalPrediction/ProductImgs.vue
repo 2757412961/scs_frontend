@@ -4,9 +4,9 @@
     :title="productTitle"
     draggable
     footer-hide
-    width="900">
+    width="850">
 
-    <el-container>
+    <el-container style="padding: 0px">
 
       <el-header>
         <span>&#12288;&#12288;日期：</span>
@@ -197,5 +197,18 @@
 
   span {
     font-size: 15px;
+  }
+
+
+  /deep/ .ivu-modal-body {
+    padding: 15px 0 0 0;
+  }
+
+  /deep/ .el-header {
+    padding: 0;
+  }
+
+  /deep/ .el-main {
+    padding: 0 0 3px 0;
   }
 </style>

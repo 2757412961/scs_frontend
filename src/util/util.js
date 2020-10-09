@@ -58,7 +58,7 @@ export default {
     if (_date < 10) {
       _date = "0" + _date;
     }
-    return _month + "月" + _date + "日 " + _hour + "时";
+    return _month + "-" + _date + " " + _hour + ":00";
   },
 
 

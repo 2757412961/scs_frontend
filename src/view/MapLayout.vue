@@ -118,8 +118,11 @@
                 //记录上一次光标指向的feature，用于方法缩小指定feature
                 lastPointerFeature: null,
 
+                // ol.interaction.Select,添加高亮显示和点击事件
+                selectClick: null,
+
                 // 静态资源导入 asserts
-                typh_img: require('../assets/typh.png'),
+                typh_img: require('../assets/Typhoon/typh5.png'),
             }
         },
         created() {
@@ -316,12 +319,12 @@
                 this.map.on('moveend', this.zoomEvent);
 
                 //鼠标点击feature事件绑定
-                var selectClick = new Select({
+                this.selectClick = new Select({
                     condition: singleClick,
                     multi: true,
                 });
-                this.map.addInteraction(selectClick);
-                selectClick.on("select", this.singleClick);
+                this.map.addInteraction(this.selectClick);
+                this.selectClick.on("select", this.singleClick);
             },
 
 
@@ -351,6 +354,9 @@
                     let areaName = feature.get('areaName');
                     globalBus.$emit('changeLawAreaName', areaName);
                 }
+
+                // 清除选中要素
+                this.selectClick.getFeatures().clear();
 
                 return;
             },
@@ -1006,7 +1012,7 @@
                     image: new Icon({
                         src: this.typh_img,
                         color: '#FFFFFF',
-                        scale: 0.4,
+                        scale: 0.2,
                         opacity: 0.9,
                         rotation: 0,
                     })

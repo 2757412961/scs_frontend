@@ -9,74 +9,74 @@ import RegionNumerical from '../components/NumericalPrediction/RegionNumerical'
 import GlobalNumerical from '../components/NumericalPrediction/GlobalNumerical'
 
 export const loginRouter = {
-  path:'/login',
-  name:'login',
-  meta:{
-    title:'登录'
+  path: '/login',
+  name: 'login',
+  meta: {
+    title: '登录'
   },
-  component:Login
+  component: Login
 }
 export const moduleRouter = [
   {
-    path:'/typhoon',
-    name:'typhoon',
-    meta:{
-      title:'台风警报'
+    path: '/typhoon',
+    name: 'typhoon',
+    meta: {
+      title: '台风警报'
     },
-    component:Typhoon,
-  },{
-    path:'/seaArea',
-    name:'seaArea',
-    meta:{
-      title:'近海海区'
+    component: Typhoon,
+  }, {
+    path: '/seaArea',
+    name: 'seaArea',
+    meta: {
+      title: '近海海区'
     },
-    component:SeaArea,
-  },{
-    path:'/observation',
-    name:'observation',
-    meta:{
-      title:'观测实况'
+    component: SeaArea,
+  }, {
+    path: '/observation',
+    name: 'observation',
+    meta: {
+      title: '观测实况'
     },
-    component:Observation,
-  },{
-    path:'/lawArea',
-    name:'lawArea',
-    meta:{
-      title:'执法海域'
+    component: Observation,
+  }, {
+    path: '/lawArea',
+    name: 'lawArea',
+    meta: {
+      title: '执法海域'
     },
-    component:LawArea,
-  },{
-    path:'/predictionPaper',
-    name:'predictionPaper',
-    meta:{
-      title:'预报单'
+    component: LawArea,
+  }, {
+    path: '/predictionPaper',
+    name: 'predictionPaper',
+    meta: {
+      title: '预报单'
     },
-    component:PredictionPaper,
-  },{
-    path:'/regionNumerical',
-    name:'regionNumerical',
-    meta:{
-      title:'数值预报—区域模式'
+    component: PredictionPaper,
+  }, {
+    path: '/regionNumerical',
+    name: 'regionNumerical',
+    meta: {
+      title: '数值预报—区域模式'
     },
-    component:RegionNumerical,
-  },{
-    path:'/globalNumerical',
-    name:'globalNumerical',
-    meta:{
-      title:'数值预报—全球模式'
+    component: RegionNumerical,
+  }, {
+    path: '/globalNumerical',
+    name: 'globalNumerical',
+    meta: {
+      title: '数值预报—全球模式'
     },
-    component:GlobalNumerical,
-  }
+    component: GlobalNumerical,
+  },
 
 
 ]
 export const mainRouter = {
-  path:'/home',
-  name:'home',
-  meta:{
-    title:'Home'
+  path: '/home',
+  name: 'home',
+  meta: {
+    title: 'Home'
   },
-  component:Home,
+  component: Home,
   children: moduleRouter
 }
 export const routers = [

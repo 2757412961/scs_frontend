@@ -50,6 +50,7 @@
       <!--<el-button type="text" style="padding: 5px;" @click="signOutAlert"><font-awesome-icon :icon="['fas','sign-out-alt']" />退出</el-button>-->
       <user-modal ref="userModal"></user-modal>
       <roll-modal ref="rollModal"></roll-modal>
+      <ProductImgsModal ref="productImgsModal"></ProductImgsModal>
       <!--</div>-->
     </el-main>
   </el-container>
@@ -58,12 +59,11 @@
 <script>
     import UserModal from "../components/User/UserModal";
     import RollModal from "../components/RollForecast/AreaSelectModal"
-
-    import {globalBus} from "../components/globalBus";
+    import ProductImgsModal from "../components/NumericalPrediction/ProductImgs";
 
     export default {
         name: "HeadNav",
-        components: {UserModal, RollModal},
+        components: {UserModal, RollModal, ProductImgsModal},
         data() {
             return {
                 active: 'dataSearch'
@@ -98,8 +98,10 @@
                         this.$refs.rollModal.openRollForecastModal(true);
                         break;
                     case "pnWeather":
+                        this.$refs.productImgsModal.openProductImgsModal('xbt');
                         break;
                     case "gzaWeather":
+                        this.$refs.productImgsModal.openProductImgsModal('gza');
                         break;
                     case "sateliteImg":
                         break;

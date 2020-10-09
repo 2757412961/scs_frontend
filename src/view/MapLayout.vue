@@ -5,8 +5,11 @@
     <div id="scsmap" style="">
 
     </div>
-    <div id="scale-position" style="position:absolute;left:10px;bottom:20px;"></div>
-    <div id="mouse-position" style="position:absolute;left:19px;bottom:5px;"></div>
+    <div id="fullScreen-position" style="position:fixed;   left:10px; bottom:320px;"></div>
+    <div id="zoomToExtent-position" style="position:fixed; left:1px;  top:265px;"></div>
+    <div id="overviewMap-position" style="position:fixed;  left:33px;  top:352px;"></div>
+    <div id="scale-position" style="position:absolute;     left:10px; bottom:20px;"></div>
+    <div id="mouse-position" style="position:absolute;     left:19px; bottom:5px;"></div>
 
     <!-- pop up -->
     <div id="popup" class="ol-popup" :style={minWidth:ol_popup_min_width}>
@@ -29,9 +32,16 @@
     import {toLonLat} from 'ol/proj.js';
     import Select from 'ol/interaction/Select';
     import {singleClick} from 'ol/events/condition';
+
+    // 地图控件
+    import ZoomSlider from 'ol/control/ZoomSlider';
+    import FullScreen from 'ol/control/FullScreen';
+    import OverviewMap from 'ol/control/OverviewMap';
+    import ZoomToExtent from 'ol/control/ZoomToExtent';
     import MousePosition from 'ol/control/MousePosition.js';
-    import {createStringXY} from 'ol/coordinate.js';
     import {ScaleLine, defaults as defaultControls} from 'ol/control.js';
+
+    import {createStringXY} from 'ol/coordinate.js';
     import 'ol/ol.css';
     import Overlay from 'ol/Overlay';
     import Feature from 'ol/Feature';
@@ -43,17 +53,12 @@
     import ImageLayer from 'ol/layer/Image';
     import {getVectorContext} from 'ol/render';
 
-    import {
-        Circle as CircleStyle,
-        Fill,
-        Icon,
-        Stroke,
-        Style,
-        Text,
-    } from 'ol/style';
+    // 样式
+    import {Circle as CircleStyle, Fill, Icon, Stroke, Style, Text,} from 'ol/style';
     import Stystyle from 'ol/style/Style';
     import {asArray} from 'ol/color';
 
+    // Geometry
     import Geometry from 'ol/geom/Geometry';
     import Point from 'ol/geom/Point';
     import MultiPoint from 'ol/geom/MultiPoint';
@@ -65,6 +70,7 @@
     import {createBox} from 'ol/interaction/Draw';
     import {getCenter} from 'ol/extent'
 
+    // 本地引用
     import util from "../util/util";
     import mapLayout from "../util/mapLayout";
     import {globalBus} from '../components/globalBus';
@@ -236,6 +242,22 @@
                 });
                 this.oldZoom = 10;
 
+                // zoom 滑块
+                var zoomSliderControl = new ZoomSlider();
+                //添加缩放到当前视图滑动控件
+                var zoomToExtentControl = new ZoomToExtent({
+                    target: document.getElementById('zoomToExtent-position'),
+                });
+                //添加全屏控件
+                var fullScreenControl = new FullScreen({
+                    // target: document.getElementById('fullScreen-position'),
+                });
+                //添加缩略图控件
+                var overviewMapControl = new OverviewMap({
+                    collapsed: false,
+                    target: document.getElementById('overviewMap-position'),
+                });
+
                 //mousePosition初始化
                 var mousePositionControl = new MousePosition({
                     coordinateFormat: createStringXY(4),
@@ -262,11 +284,15 @@
                     layers: [map_layer, this.sea_area_layer, this.law_area_layer,
                         this.typh_wind_layer, this.typh_forecast_layer, this.typh_route_layer, this.typh_layer, this.typh_move_layer],
                     view: view,
-                    controls: defaultControls().extend([mousePositionControl, ScaleControl]),
+                    controls: defaultControls().extend([
+                        zoomSliderControl, zoomToExtentControl,
+                        fullScreenControl, overviewMapControl,
+                        mousePositionControl, ScaleControl
+                    ]),
                 });
 
                 /**
-                 * Elements that make up the popup. 借鉴与深中项目
+                 * Elements that make up the popup.
                  */
                 this.container = document.getElementById('popup');
                 this.content = document.getElementById('popup-content');

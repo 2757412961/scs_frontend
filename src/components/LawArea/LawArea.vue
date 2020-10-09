@@ -29,30 +29,12 @@
                   </div>
                 </th>
               </tr>
-              <tr>
-                <td style="width: 45%;">天气情况</td>
-                <td>{{ data.tqqk }}</td>
-              </tr>
-              <tr>
-                <td style="width: 45%;">风向</td>
-                <td>{{ data.fx }}</td>
-              </tr>
-              <tr>
-                <td style="width: 45%;">风速（级）</td>
-                <td :style="setColorByfs(data.fs)">{{ data.fs }}</td>
-              </tr>
-              <tr>
-                <td style="width: 45%;">视程范围（公里）</td>
-                <td>{{ data.scfw }}</td>
-              </tr>
-              <tr>
-                <td style="width: 45%;">风浪（米）</td>
-                <td :style="setColorBylang(data.fl)">{{ data.fl }}</td>
-              </tr>
-              <tr>
-                <td style="width: 45%;">涌浪（米）</td>
-                <td :style="setColorBylang(data.yl)">{{ data.yl }}</td>
-              </tr>
+              <tr><td style="width: 45%;">天气情况</td><td>{{ data.tqqk }}</td></tr>
+              <tr><td style="width: 45%;">风向</td><td>{{ data.fx }}</td></tr>
+              <tr><td style="width: 45%;">风速（级）</td><td :style="setColorByfs(data.fs)">{{ data.fs }}</td></tr>
+              <tr><td style="width: 45%;">视程范围（公里）</td><td>{{ data.scfw }}</td></tr>
+              <tr><td style="width: 45%;">风浪（米）</td><td :style="setColorBylang(data.fl)">{{ data.fl }}</td></tr>
+              <tr><td style="width: 45%;">涌浪（米）</td><td :style="setColorBylang(data.yl)">{{ data.yl }}</td></tr>
             </table>
           </div>
         </div>

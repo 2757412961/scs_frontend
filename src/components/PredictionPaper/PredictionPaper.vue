@@ -322,6 +322,15 @@
       </el-collapse-item>
 
     </el-collapse>
+    <el-dialog
+      id="pdfDialog"
+      title="海洋环境预报单"
+      :visible.sync="isViewPdf"
+      :before-close="handleClose"
+      width="92%"
+      :fullscreen="false" style="margin-top: -5%;overflow-y: hidden">
+      <iframe :src='pdfSrc' frameborder="0" style="width: 90vw; height: 80vh;overflow-x: hidden"></iframe>
+    </el-dialog>
   </div>
 </template>
 
@@ -330,6 +339,8 @@
     name: "PredictionPaper",
     data() {
       return {
+        pdfSrc: '',
+        isViewPdf: false,
         rightIsHide: false,
         btnIconData: 'el-icon-d-arrow-right',//按钮图标
         activeNames: ['rightSide'],
@@ -400,30 +411,42 @@
     watch: {
       // 监听近海海区预报pdf
       seaAreaPaperFileName(val){
-        window.open("http://" + this.$store.state.serverIP + "/hqybd/" + val.fileName,'_blank');
+        this.isViewPdf = true
+        this.pdfSrc = "http://" + this.$store.state.serverIP + "/hqybd/" + val.fileName
+       // window.open("http://" + this.$store.state.serverIP + "/hqybd/" + val.fileName,'_blank');
       },
 
       // 监听执法海区预报pdf
       lawAreaPaperFileName(val){
-        window.open("http://" + this.$store.state.serverIP + "/zfybd/" + val.fileName,'_blank');
+        this.isViewPdf = true
+        this.pdfSrc = "http://" + this.$store.state.serverIP + "/zfybd/" + val.fileName
+        // window.open("http://" + this.$store.state.serverIP + "/zfybd/" + val.fileName,'_blank');
       },
 
       // 台风预报pdf
       typhoonPaperFileName(val){
-        window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName,'_blank');
+        this.isViewPdf = true
+        this.pdfSrc = "http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName
+        // window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName,'_blank');
       },
       // 热带低压预报pdf
       tropicsPaperFileName(val){
-        window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName,'_blank');
+        this.isViewPdf = true
+        this.pdfSrc = "http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName
+        // window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName,'_blank');
       },
       // 未来十天预报pdf
       nextTenDaysPaperFileName(val){
-        window.open("http://" + this.$store.state.serverIP + "/wlstybd/" + val.fileName,'_blank');
+        this.isViewPdf = true
+        this.pdfSrc = "http://" + this.$store.state.serverIP + "/wlstybd/" + val.fileName
+        // window.open("http://" + this.$store.state.serverIP + "/wlstybd/" + val.fileName,'_blank');
       },
 
       // 海冰预报pdf
       seaIcePaperFileName(val){
-          window.open("http://" + this.$store.state.serverIP + "/hbybd/" + val.fileName,'_blank');
+        this.isViewPdf = true
+        this.pdfSrc = "http://" + this.$store.state.serverIP + "/hbybd/" + val.fileName
+          // window.open("http://" + this.$store.state.serverIP + "/hbybd/" + val.fileName,'_blank');
       },
 
     },
@@ -736,6 +759,10 @@
 </script>
 
 <style>
+
+  #pdfDialog .el-dialog__body{
+    padding: 10px;
+  }
 
   .forecastPaperSel {
     width: 70%;

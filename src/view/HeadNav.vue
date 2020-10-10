@@ -51,6 +51,7 @@
       <user-modal ref="userModal"></user-modal>
       <roll-modal ref="rollModal"></roll-modal>
       <ProductImgsModal ref="productImgsModal"></ProductImgsModal>
+      <predictionPaper-modal  ref="predictionPaperModal"></predictionPaper-modal>
       <!--</div>-->
     </el-main>
   </el-container>
@@ -60,10 +61,11 @@
     import UserModal from "../components/User/UserModal";
     import RollModal from "../components/RollForecast/AreaSelectModal"
     import ProductImgsModal from "../components/NumericalPrediction/ProductImgs";
+    import PredictionPaperModal from "../components/PredictionPaper/PredictionPaper"
 
     export default {
         name: "HeadNav",
-        components: {UserModal, RollModal, ProductImgsModal},
+        components: {UserModal, RollModal, ProductImgsModal,PredictionPaperModal},
         data() {
             return {
                 active: 'dataSearch'
@@ -83,7 +85,6 @@
                     case "seaArea":
                     case "observation":
                     case "lawArea":
-                    case "predictionPaper":
                     case "regionNumerical":
                     case "globalNumerical":
                         this.$router.push({
@@ -91,6 +92,9 @@
                         });
                         break;
                     //如果是弹出窗口，则打开对应Modal
+                    case "predictionPaper":
+                      this.$refs.predictionPaperModal.openPredictionModal();
+                      break;
                     case "fullScreenSesArea":  //滚动预报-近海海区 false
                         this.$refs.rollModal.openRollForecastModal(false);
                         break;

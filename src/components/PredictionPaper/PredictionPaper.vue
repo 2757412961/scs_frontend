@@ -1,346 +1,323 @@
 <template>
-  <div>
-    <div class="predictBtn_class" :style="this.rightIsHide?'margin-left:95%':'margin-left:74%'">
-      <el-row>
-        <el-button id="rightBtn" style="font-size: 30px;" :icon="this.btnIconData" circle
-                   @click="rightBarHide"></el-button>
-      </el-row>
+  <!--预报单modal-->
+  <modal width="800" :mask-closable="false"
+         v-model="predictionModal"
+         title="海区环境预报单" @on-ok="predictionModal=false"
+         @on-cancel="loading=true">
+    <div class="predictionContent_class">
+
+      <div id="seaAreaPrediction" class="seaAreaPrediction">
+        <div class="prediction_title">
+          <span style="">海区预报单</span>
+        </div>
+
+        <div class="predictDivBtn_class" @click="seaAreaLoadFile">
+          <span>加载</span>
+        </div>
+
+        <div class="predictionLeftSel">
+          <span>年：</span>
+          <el-select class="forecastPaperSel" v-model="seaAreaSelectedYear" placeholder="请选择" size="mini" @change="seaAreaYearChange">
+            <el-option
+              v-for="(item,index) in seaAreaYear"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionRightSel">
+          <span>月：</span>
+          <el-select class="forecastPaperSel" v-model="seaAreaSelectedMonth" placeholder="请选择" size="mini" @change="seaAreaMonthChange">
+            <el-option
+              v-for="(item,index)  in seaAreaMonth"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionLeftSel">
+          <span>日：</span>
+          <el-select class="forecastPaperSel" v-model="seaAreaSelectedDay" placeholder="请选择" size="mini">
+            <el-option
+              v-for="(item,index)  in seaAreaDay"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionRightSel">
+          <span style="">20时</span>
+          <div style=" display: inline-block;" class="forecastPaperSel">
+          </div>
+        </div>
+
+      </div>
+
+      <div id="lawAreaPrediction" class="seaAreaPrediction">
+        <div class="prediction_title">
+          <span style="">执法预报单</span>
+        </div>
+
+        <div class="predictDivBtn_class" @click="lawAreaLoadFile">
+          <span>加载</span>
+        </div>
+
+        <div class="predictionLeftSel">
+          <span>年：</span>
+          <el-select class="forecastPaperSel" v-model="lawAreaSelectedYear" placeholder="请选择" size="mini"  @change="lawAreaYearChange">
+            <el-option
+              v-for="(item,index) in lawAreaYear"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionRightSel">
+          <span>月：</span>
+          <el-select class="forecastPaperSel" v-model="lawAreaSelectedMonth" placeholder="请选择" size="mini"  @change="lawAreaMonthChange">
+            <el-option
+              v-for="(item,index) in lawAreaMonth"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionLeftSel">
+          <span >日：</span>
+          <el-select class="forecastPaperSel" v-model="lawAreaSelectedDay" placeholder="请选择" size="mini" @change="lawAreaDayChange">
+            <el-option
+              v-for="(item,index) in lawAreaDay"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionRightSel">
+          <span>时：</span>
+          <el-select class="forecastPaperSel" v-model="lawAreaSelectedHour" placeholder="请选择" size="mini">
+            <el-option
+              v-for="(item,index) in lawAreaHour"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+      </div>
+
+      <div id="typhoonPrediction" class="seaAreaPrediction">
+        <div class="prediction_title">
+          <span style="">台风预报单</span>
+        </div>
+
+        <div class="predictDivBtn_class" @click="typhoonLoadFile">
+          <span>加载</span>
+        </div>
+
+        <div class="predictionLeftSel" style="width: 90%">
+          <span style="">台风编号：</span>
+          <el-select style="width: 60%" v-model="typhoonSelectedNum" placeholder="请选择" size="mini" @change="typhoonNumChange">
+            <el-option
+              v-for="(item,index)  in typhoonNum"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionRightSel"  style="width: 90%">
+          <span style="">预报次数：</span>
+          <el-select style="width: 60%" v-model="typhoonSelectedReleaseNum" placeholder="请选择" size="mini" @change="typhoonReleaseNumChange">
+            <el-option
+              v-for="(item,index)  in typhoonReleaseNum"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionLeftSel"  style="width: 90%">
+          <span style="">发布时间：</span>
+          <el-select style="width: 60%" v-model="typhoonSelectedReleaseDate" placeholder="请选择" size="mini">
+            <el-option
+              v-for="(item,index)  in typhoonReleaseDate"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+      </div>
+
+      <div id="tropicsPrediction" class="seaAreaPrediction">
+        <div class="prediction_title">
+          <span style="">热带低压消息</span>
+        </div>
+
+        <div class="predictDivBtn_class" @click="tropicsLoadFile">
+          <span>加载</span>
+        </div>
+
+        <div class="predictionLeftSel" style="width: 90%">
+          <span style="">编号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <el-select style="width: 60%" v-model="tropicsSelectedNum" placeholder="请选择" size="mini" @change="tropicsNumChange">
+            <el-option
+              v-for="(item,index)  in tropicsNum"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionRightSel"  style="width: 90%">
+          <span style="">预报次数：</span>
+          <el-select style="width: 60%" v-model="tropicsSelectedReleaseNum" placeholder="请选择" size="mini" @change="tropicsReleaseNumChange">
+            <el-option
+              v-for="(item,index)  in tropicsReleaseNum"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionLeftSel"  style="width: 90%">
+          <span style="">发布时间：</span>
+          <el-select style="width: 60%" v-model="tropicsSelectedReleaseDate" placeholder="请选择" size="mini">
+            <el-option
+              v-for="(item,index)  in tropicsReleaseDate"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+      </div>
+
+      <div id="tenDaysPrediction" class="seaAreaPrediction">
+        <div class="prediction_title">
+          <span style="">未来十天预报单</span>
+        </div>
+
+        <div class="predictDivBtn_class" @click="nextTenDaysLoadFile">
+          <span>加载</span>
+        </div>
+
+        <div class="predictionLeftSel">
+          <span>年：</span>
+          <el-select class="forecastPaperSel" v-model="nextTenDaysSelectedYear" placeholder="请选择" size="mini" @change="nextTenDaysYearChange">
+            <el-option
+              v-for="(item,index) in nextTenDaysYear"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionRightSel">
+          <span>月：</span>
+          <el-select class="forecastPaperSel" v-model="nextTenDaysSelectedMonth" placeholder="请选择" size="mini" @change="nextTenDaysMonthChange">
+            <el-option
+              v-for="(item,index) in nextTenDaysMonth"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionLeftSel">
+          <span>日：</span>
+          <el-select class="forecastPaperSel" v-model="nextTenDaysSelectedDay" placeholder="请选择" size="mini">
+            <el-option
+              v-for="(item,index) in nextTenDaysDay"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionRightSel">
+          <span></span>
+          <div style="display: inline-block;" class="forecastPaperSel">
+          </div>
+        </div>
+      </div>
+
+      <div id="icePrediction" class="seaAreaPrediction">
+        <div class="prediction_title">
+          <span style="">海冰预报单</span>
+        </div>
+
+        <div class="predictDivBtn_class" @click="seaIceLoadFile">
+          <span>加载</span>
+        </div>
+
+        <div class="predictionLeftSel">
+          <span>年：&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <el-select class="forecastPaperSel" v-model="seaIceSelectedYear" placeholder="请选择" size="mini" @change="seaIceYearChange">
+            <el-option
+              v-for="(item,index) in seaIceYear"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionRightSel">
+          <span>编号：</span>
+          <el-select style="width: 65%" v-model="seaIceSelectedNum" placeholder="请选择" size="mini" @change="seaIceNumChange">
+            <el-option
+              v-for="(item,index) in seaIceNum"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div class="predictionRightSel"  style="width: 90%">
+          <span>周期：</span>
+          <el-select style="width: 60%" v-model="seaIceSelectedCycle" placeholder="请选择" size="mini">
+            <el-option
+              v-for="(item,index)  in seaIceCycle"
+              :key="index"
+              :label="seaIceCycleName(item)"
+              :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+      </div>
+
     </div>
-
-    <el-collapse id="predictPaper_panel" class="predictPaper_class" v-model="activeNames" @change="rightBarHide">
-      <el-collapse-item id="rightBar" name="rightSide"
-                        :class="[this.rightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
-        <div class="predictPaper_title">
-          预报单
-        </div>
-        <div class="predictionContent_class">
-
-          <div id="seaAreaPrediction" class="seaAreaPrediction">
-            <div class="prediction_title">
-              <span style="">海区预报单</span>
-            </div>
-
-            <div class="predictDivBtn_class" @click="seaAreaLoadFile">
-              <span>加载</span>
-            </div>
-
-            <div class="predictionLeftSel">
-              <span>年：</span>
-              <el-select class="forecastPaperSel" v-model="seaAreaSelectedYear" placeholder="请选择" size="mini" @change="seaAreaYearChange">
-                <el-option
-                  v-for="(item,index) in seaAreaYear"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionRightSel">
-              <span>月：</span>
-              <el-select class="forecastPaperSel" v-model="seaAreaSelectedMonth" placeholder="请选择" size="mini" @change="seaAreaMonthChange">
-                <el-option
-                  v-for="(item,index)  in seaAreaMonth"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionLeftSel">
-              <span>日：</span>
-              <el-select class="forecastPaperSel" v-model="seaAreaSelectedDay" placeholder="请选择" size="mini">
-                <el-option
-                  v-for="(item,index)  in seaAreaDay"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionRightSel">
-              <span style="">20时</span>
-              <div style=" display: inline-block;" class="forecastPaperSel">
-              </div>
-            </div>
-
-          </div>
-
-          <div id="lawAreaPrediction" class="seaAreaPrediction">
-            <div class="prediction_title">
-              <span style="">执法预报单</span>
-            </div>
-
-            <div class="predictDivBtn_class" @click="lawAreaLoadFile">
-              <span>加载</span>
-            </div>
-
-            <div class="predictionLeftSel">
-              <span>年：</span>
-              <el-select class="forecastPaperSel" v-model="lawAreaSelectedYear" placeholder="请选择" size="mini"  @change="lawAreaYearChange">
-                <el-option
-                  v-for="(item,index) in lawAreaYear"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionRightSel">
-              <span>月：</span>
-              <el-select class="forecastPaperSel" v-model="lawAreaSelectedMonth" placeholder="请选择" size="mini"  @change="lawAreaMonthChange">
-                <el-option
-                  v-for="(item,index) in lawAreaMonth"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionLeftSel">
-              <span >日：</span>
-              <el-select class="forecastPaperSel" v-model="lawAreaSelectedDay" placeholder="请选择" size="mini" @change="lawAreaDayChange">
-                <el-option
-                  v-for="(item,index) in lawAreaDay"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionRightSel">
-              <span>时：</span>
-              <el-select class="forecastPaperSel" v-model="lawAreaSelectedHour" placeholder="请选择" size="mini">
-                <el-option
-                  v-for="(item,index) in lawAreaHour"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-          </div>
-
-          <div id="typhoonPrediction" class="seaAreaPrediction">
-            <div class="prediction_title">
-              <span style="">台风预报单</span>
-            </div>
-
-            <div class="predictDivBtn_class" @click="typhoonLoadFile">
-              <span>加载</span>
-            </div>
-
-            <div class="predictionLeftSel" style="width: 90%">
-              <span style="">台风编号：</span>
-              <el-select style="width: 60%" v-model="typhoonSelectedNum" placeholder="请选择" size="mini" @change="typhoonNumChange">
-                <el-option
-                  v-for="(item,index)  in typhoonNum"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionRightSel"  style="width: 90%">
-              <span style="">预报次数：</span>
-              <el-select style="width: 60%" v-model="typhoonSelectedReleaseNum" placeholder="请选择" size="mini" @change="typhoonReleaseNumChange">
-                <el-option
-                  v-for="(item,index)  in typhoonReleaseNum"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionLeftSel"  style="width: 90%">
-              <span style="">发布时间：</span>
-              <el-select style="width: 60%" v-model="typhoonSelectedReleaseDate" placeholder="请选择" size="mini">
-                <el-option
-                  v-for="(item,index)  in typhoonReleaseDate"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-          </div>
-
-          <div id="tropicsPrediction" class="seaAreaPrediction">
-            <div class="prediction_title">
-              <span style="">热带低压消息</span>
-            </div>
-
-            <div class="predictDivBtn_class" @click="tropicsLoadFile">
-              <span>加载</span>
-            </div>
-
-            <div class="predictionLeftSel" style="width: 90%">
-              <span style="">编号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-              <el-select style="width: 60%" v-model="tropicsSelectedNum" placeholder="请选择" size="mini" @change="tropicsNumChange">
-                <el-option
-                  v-for="(item,index)  in tropicsNum"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionRightSel"  style="width: 90%">
-              <span style="">预报次数：</span>
-              <el-select style="width: 60%" v-model="tropicsSelectedReleaseNum" placeholder="请选择" size="mini" @change="tropicsReleaseNumChange">
-                <el-option
-                  v-for="(item,index)  in tropicsReleaseNum"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionLeftSel"  style="width: 90%">
-              <span style="">发布时间：</span>
-              <el-select style="width: 60%" v-model="tropicsSelectedReleaseDate" placeholder="请选择" size="mini">
-                <el-option
-                  v-for="(item,index)  in tropicsReleaseDate"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-          </div>
-
-          <div id="tenDaysPrediction" class="seaAreaPrediction">
-            <div class="prediction_title">
-              <span style="">未来十天预报单</span>
-            </div>
-
-            <div class="predictDivBtn_class" @click="nextTenDaysLoadFile">
-              <span>加载</span>
-            </div>
-
-            <div class="predictionLeftSel">
-              <span>年：</span>
-              <el-select class="forecastPaperSel" v-model="nextTenDaysSelectedYear" placeholder="请选择" size="mini" @change="nextTenDaysYearChange">
-                <el-option
-                  v-for="(item,index) in nextTenDaysYear"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionRightSel">
-              <span>月：</span>
-              <el-select class="forecastPaperSel" v-model="nextTenDaysSelectedMonth" placeholder="请选择" size="mini" @change="nextTenDaysMonthChange">
-                <el-option
-                  v-for="(item,index) in nextTenDaysMonth"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionLeftSel">
-              <span>日：</span>
-              <el-select class="forecastPaperSel" v-model="nextTenDaysSelectedDay" placeholder="请选择" size="mini">
-                <el-option
-                  v-for="(item,index) in nextTenDaysDay"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionRightSel">
-              <span></span>
-              <div style="display: inline-block;" class="forecastPaperSel">
-              </div>
-            </div>
-          </div>
-
-          <div id="icePrediction" class="seaAreaPrediction">
-            <div class="prediction_title">
-              <span style="">海冰预报单</span>
-            </div>
-
-            <div class="predictDivBtn_class" @click="seaIceLoadFile">
-              <span>加载</span>
-            </div>
-
-            <div class="predictionLeftSel">
-              <span>年：</span>
-              <el-select class="forecastPaperSel" v-model="seaIceSelectedYear" placeholder="请选择" size="mini" @change="seaIceYearChange">
-                <el-option
-                  v-for="(item,index) in seaIceYear"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionRightSel">
-              <span>编号：</span>
-              <el-select style="width: 65%" v-model="seaIceSelectedNum" placeholder="请选择" size="mini" @change="seaIceNumChange">
-                <el-option
-                  v-for="(item,index) in seaIceNum"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-            <div class="predictionRightSel"  style="width: 90%">
-              <span style=" margin-left: -20%;">周期：</span>
-              <el-select style="width: 60%" v-model="seaIceSelectedCycle" placeholder="请选择" size="mini">
-                <el-option
-                  v-for="(item,index)  in seaIceCycle"
-                  :key="index"
-                  :label="seaIceCycleName(item)"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-
-          </div>
-
-        </div>
-
-      </el-collapse-item>
-
-    </el-collapse>
-    <el-dialog
-      id="pdfDialog"
-      title="海洋环境预报单"
-      :visible.sync="isViewPdf"
-      :before-close="handleClose"
-      width="92%"
-      :fullscreen="false" style="margin-top: -5%;overflow-y: hidden">
-      <iframe :src='pdfSrc' frameborder="0" style="width: 90vw; height: 80vh;overflow-x: hidden"></iframe>
-    </el-dialog>
-  </div>
+  </modal>
 </template>
 
 <script>
   export default {
-    name: "PredictionPaper",
+    name: "predictionPaper-modal",
     data() {
       return {
-        pdfSrc: '',
-        isViewPdf: false,
+        predictionModal: false,
         rightIsHide: false,
         btnIconData: 'el-icon-d-arrow-right',//按钮图标
         activeNames: ['rightSide'],
@@ -400,57 +377,55 @@
       }
 
     },
-    created() {
+    /*created() {
       this.getSeaAreaForecastConditon("","","");
       this.getLawAreaForecastConditon("","","", "")
       this.getTyphoonForecastConditon("","","")
       this.getTropicsForecastConditon("","","")
       this.getNextTenDaysForecastConditon("","","");
       this.getSeaIceForecastConditon("","","");
-    },
+    },*/
     watch: {
       // 监听近海海区预报pdf
       seaAreaPaperFileName(val){
-        this.isViewPdf = true
-        this.pdfSrc = "http://" + this.$store.state.serverIP + "/hqybd/" + val.fileName
-       // window.open("http://" + this.$store.state.serverIP + "/hqybd/" + val.fileName,'_blank');
+       window.open("http://" + this.$store.state.serverIP + "/hqybd/" + val.fileName,'_blank');
       },
 
       // 监听执法海区预报pdf
       lawAreaPaperFileName(val){
-        this.isViewPdf = true
-        this.pdfSrc = "http://" + this.$store.state.serverIP + "/zfybd/" + val.fileName
-        // window.open("http://" + this.$store.state.serverIP + "/zfybd/" + val.fileName,'_blank');
+        window.open("http://" + this.$store.state.serverIP + "/zfybd/" + val.fileName,'_blank');
       },
 
       // 台风预报pdf
       typhoonPaperFileName(val){
-        this.isViewPdf = true
-        this.pdfSrc = "http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName
-        // window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName,'_blank');
+        window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName,'_blank');
       },
       // 热带低压预报pdf
       tropicsPaperFileName(val){
-        this.isViewPdf = true
-        this.pdfSrc = "http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName
-        // window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName,'_blank');
+        window.open("http://" + this.$store.state.serverIP + "/tfybd/" + val.fileName,'_blank');
       },
       // 未来十天预报pdf
       nextTenDaysPaperFileName(val){
-        this.isViewPdf = true
-        this.pdfSrc = "http://" + this.$store.state.serverIP + "/wlstybd/" + val.fileName
-        // window.open("http://" + this.$store.state.serverIP + "/wlstybd/" + val.fileName,'_blank');
+        window.open("http://" + this.$store.state.serverIP + "/wlstybd/" + val.fileName,'_blank');
       },
 
       // 海冰预报pdf
       seaIcePaperFileName(val){
-        this.isViewPdf = true
-        this.pdfSrc = "http://" + this.$store.state.serverIP + "/hbybd/" + val.fileName
-          // window.open("http://" + this.$store.state.serverIP + "/hbybd/" + val.fileName,'_blank');
+        window.open("http://" + this.$store.state.serverIP + "/hbybd/" + val.fileName,'_blank');
       },
 
     },
     methods: {
+      /**打开预报单modal**/
+      openPredictionModal(){
+        this.predictionModal = true
+        this.getSeaAreaForecastConditon("","","");
+        this.getLawAreaForecastConditon("","","", "")
+        this.getTyphoonForecastConditon("","","")
+        this.getTropicsForecastConditon("","","")
+        this.getNextTenDaysForecastConditon("","","");
+        this.getSeaIceForecastConditon("","","");
+      },
 
       /**  海冰预报单  **/
       seaIceCycleName(val){
@@ -769,7 +744,7 @@
   }
 
   .predictionContent_class {
-    height: calc(70vh);
+    height: calc(60vh);
     overflow-y: scroll;
   }
 

@@ -289,7 +289,7 @@
                     view: view,
                     controls: defaultControls().extend([
                         zoomSliderControl, zoomToExtentControl,
-                        fullScreenControl, overviewMapControl,
+                        fullScreenControl,overviewMapControl,
                         mousePositionControl, ScaleControl
                     ]),
                 });
@@ -301,7 +301,7 @@
                 this.content = document.getElementById('popup-content');
                 this.overlay = new Overlay({
                     element: this.container,
-                    autoPan: true,
+                    autoPan: false,
                     autoPanAnimation: {
                         duration: 2500
                     },
@@ -1319,7 +1319,6 @@
                 });
                 this.globalNum_left_imgLayer.setOpacity(0.8)
                 this.map.addLayer(this.globalNum_left_imgLayer);
-
             },
             globalNumericalZoomChange(viewExtent) {
                 let currentZoom = parseInt(this.map.getView().getZoom())

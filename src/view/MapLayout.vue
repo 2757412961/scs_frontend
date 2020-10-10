@@ -81,20 +81,32 @@
         components: {},
         data() {
             return {
-                map: null,//地图
-                sea_area_layer: null,//近海海区图层
-                law_area_layer: null,//执法海域图层
-                // pro_layers: [],//数值预报产品图层
+                map: null, //地图
+                sea_area_layer: null, //近海海区图层
+                law_area_layer: null, //执法海域图层
+                // pro_layers: [], //数值预报产品图层
 
                 //台风图层
                 typh_layer: null, // 点图层
                 typh_route_layer: null, // 路线图层
-                typh_move_layer: null, // 移动点图层
                 typh_wind_layer: null, // 风圈图层
-                typh_forecast_layer: null, // 预报 图层
+                typh_move_layer: null, // 移动点图层
                 typh_Rotation_Interval: null, // 移动点自转 定时器
                 typh_Rotation_Angle: null, // 旋转角度
                 typh_move_setTime: null, // 台风路径移动 计时器
+
+                // 台风预报图层
+                typh_forecast_layer: null, // 预报 图层
+                typh_forecast_feature: null, // 预报起点的 Feature
+                typh_Center_layer: null, // 中心
+                typh_China_layer: null, // 中国
+                typh_Japan_layer: null, // 日本
+                typh_Europe_layer: null, // 欧洲
+                typh_USA_layer: null, // 美国
+                typh_TEPO_layer: null, // TEPO
+                typh_Korea_layer: null, // 韩国
+                typh_Taiwan_layer: null, // 台湾
+                typh_HongKong_layer: null, // 香港
 
                 /* 格点预报 start*/
                 globalNum_left_imgLayer: null,
@@ -194,6 +206,71 @@
                     source: typh_forcast_source
                 });
 
+                /** 台风预测图层初始化 **/
+                this.typh_Center_layer = new VectorLayer({
+                    name: "typh_Center_layer",
+                    chName: "台风预测中心图层",
+                    source: new Vector({
+                        features: null
+                    })
+                });
+                this.typh_China_layer = new VectorLayer({
+                    name: "typh_China_layer",
+                    chName: "台风预测中国图层",
+                    source: new Vector({
+                        features: null
+                    })
+                });
+                this.typh_Japan_layer = new VectorLayer({
+                    name: "typh_Japan_layer",
+                    chName: "台风预测日本图层",
+                    source: new Vector({
+                        features: null
+                    })
+                });
+                this.typh_Europe_layer = new VectorLayer({
+                    name: "typh_Europe_layer",
+                    chName: "台风预测欧洲图层",
+                    source: new Vector({
+                        features: null
+                    })
+                });
+                this.typh_USA_layer = new VectorLayer({
+                    name: "typh_USA_layer",
+                    chName: "台风预测美国图层",
+                    source: new Vector({
+                        features: null
+                    })
+                });
+                this.typh_TEPO_layer = new VectorLayer({
+                    name: "typh_TEPO_layer",
+                    chName: "台风预测TEPO图层",
+                    source: new Vector({
+                        features: null
+                    })
+                });
+                this.typh_Korea_layer = new VectorLayer({
+                    name: "typh_Korea_layer",
+                    chName: "台风预测韩国图层",
+                    source: new Vector({
+                        features: null
+                    })
+                });
+                this.typh_Taiwan_layer = new VectorLayer({
+                    name: "typh_Taiwan_layer",
+                    chName: "台风预测台湾图层",
+                    source: new Vector({
+                        features: null
+                    })
+                });
+                this.typh_HongKong_layer = new VectorLayer({
+                    name: "typh_HongKong_layer",
+                    chName: "台风预测香港图层",
+                    source: new Vector({
+                        features: null
+                    })
+                });
+
                 /** 近海海域图层初始化 */
                 var sea_area_source = new Vector({
                     features: null
@@ -284,12 +361,15 @@
                 /** Map初始化 */
                 this.map = new Map({
                     target: "scsmap",
-                    layers: [map_layer, this.sea_area_layer, this.law_area_layer,
-                        this.typh_wind_layer, this.typh_forecast_layer, this.typh_route_layer, this.typh_layer, this.typh_move_layer],
+                    layers: [map_layer, this.sea_area_layer, this.law_area_layer, // Polygon
+                        this.typh_wind_layer, this.typh_forecast_layer, this.typh_Center_layer, // Wind
+                        this.typh_China_layer, this.typh_Japan_layer, this.typh_Europe_layer, this.typh_USA_layer, // CJEU
+                        this.typh_TEPO_layer, this.typh_Korea_layer, this.typh_Taiwan_layer, this.typh_HongKong_layer, // TKTH
+                        this.typh_route_layer, this.typh_layer, this.typh_move_layer],
                     view: view,
                     controls: defaultControls().extend([
                         zoomSliderControl, zoomToExtentControl,
-                        fullScreenControl,overviewMapControl,
+                        fullScreenControl, overviewMapControl,
                         mousePositionControl, ScaleControl
                     ]),
                 });
@@ -342,6 +422,7 @@
                     let typhRouteInfo = feature.get('data');
                     if (typhRouteInfo != null) {
                         this.typhWindDraw(typhRouteInfo, 0.01);
+                        this.typh_forecast_feature = feature;
                         this.typhForecastDraw(typhRouteInfo, feature.get('typhModelNum'));
                     }
                 } else if (feature.get('name').search(/seaArea/) != -1) {
@@ -493,6 +574,9 @@
                 this.typh_route_layer.getSource().clear();
                 this.typh_move_layer.getSource().clear();
                 this.typh_wind_layer.getSource().clear();
+
+                // 清除台风预报要素
+                this.clearTyphForecastSource();
                 this.typh_forecast_layer.getSource().clear();
 
                 // 近海预报图层
@@ -513,13 +597,26 @@
                 this.typh_Rotation_Angle = 0;
                 this.typh_move_layer.getSource().clear();
             },
-
             clearMapLawAreaLayer() {
                 globalBus.$on('clearMapLawAreaLayer', (s) => {
                     // this.clearLayerSource();
                     // 执法海域图层
                     this.law_area_layer.getSource().clear();
                 })
+            },
+            /**
+             * 台风预报要素要素清空
+             */
+            clearTyphForecastSource() {
+                this.typh_Center_layer.getSource().clear();
+                this.typh_China_layer.getSource().clear();
+                this.typh_Japan_layer.getSource().clear();
+                this.typh_Europe_layer.getSource().clear();
+                this.typh_USA_layer.getSource().clear();
+                this.typh_TEPO_layer.getSource().clear();
+                this.typh_Korea_layer.getSource().clear();
+                this.typh_Taiwan_layer.getSource().clear();
+                this.typh_HongKong_layer.getSource().clear();
             },
 
             /**
@@ -590,7 +687,7 @@
                 let colorTyphForecast = mapLayout.colorTyphForecast;
 
                 //构建Popup_title文字内容
-                this.ol_popup_min_width = "210px";
+                this.ol_popup_min_width = "230px";
 
                 if (typhForecastInfo != null) {
                     if (typhForecastType == 'China') {
@@ -753,11 +850,13 @@
             /**
              * 台风 预报路径和点 绘制
              */
-            typhForecastDraw(typhRouteInfo, ModelNum) {
-                this.typh_forecast_layer.getSource().clear();
+            typhChinaForecastDraw(countryLayer) {
+                if (this.typh_forecast_feature == null) return;
+                countryLayer.getSource().clear();
 
+                let typhRouteInfo = this.typh_forecast_feature.get('data');
                 let typhNum = typhRouteInfo.typhNum;
-                let typhModelNum = ModelNum;
+                let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
                 let typhTime = typhRouteInfo.routeTime;
                 let cenX = typhRouteInfo.lon;
                 let cenY = typhRouteInfo.lat;
@@ -777,10 +876,9 @@
 
                         for (let i = 0; i < data.length; i++) {
                             let type = 'China';
-                            if (data[i]['tm'] === "日本") type = 'Japan';
                             let nowPoint = fromLonLat([data[i]['lon'], data[i]['lat']]);
 
-                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, data[i]['strength']);
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, data[i]['strength'], countryLayer);
                             lastPoint = nowPoint;
                         }
                     })
@@ -789,10 +887,18 @@
                             confirmButtonText: '确定',
                             type: 'warning'
                         })
-                    })
-                    .finally((res) => {
+                    });
+            },
+            typhUSAEuropeForecastDraw(countryLayer) {
+                if (this.typh_forecast_feature == null) return;
+                countryLayer.getSource().clear();
 
-                    })
+                let typhRouteInfo = this.typh_forecast_feature.get('data');
+                let typhNum = typhRouteInfo.typhNum;
+                let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
+                let typhTime = typhRouteInfo.routeTime;
+                let cenX = typhRouteInfo.lon;
+                let cenY = typhRouteInfo.lat;
 
                 // function drawUSAEurope() USA
                 this.$axios
@@ -813,7 +919,7 @@
                             let strength = this.calStrengthBySpeed(data[i]['speed']);
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
 
-                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength);
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength, countryLayer);
                             lastPoint = nowPoint;
                         }
                     })
@@ -822,10 +928,18 @@
                             confirmButtonText: '确定',
                             type: 'warning'
                         })
-                    })
-                    .finally((res) => {
+                    });
+            },
+            typhEuropeForecastDraw(countryLayer) {
+                if (this.typh_forecast_feature == null) return;
+                countryLayer.getSource().clear();
 
-                    })
+                let typhRouteInfo = this.typh_forecast_feature.get('data');
+                let typhNum = typhRouteInfo.typhNum;
+                let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
+                let typhTime = typhRouteInfo.routeTime;
+                let cenX = typhRouteInfo.lon;
+                let cenY = typhRouteInfo.lat;
 
                 // function drawUSAEurope() Europe
                 this.$axios
@@ -846,7 +960,7 @@
                             let strength = this.calStrengthBySpeed(data[i]['speed']);
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
 
-                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength);
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength, countryLayer);
                             lastPoint = nowPoint;
                         }
                     })
@@ -855,10 +969,18 @@
                             confirmButtonText: '确定',
                             type: 'warning'
                         })
-                    })
-                    .finally((res) => {
+                    });
+            },
+            typhTEPOForecastDraw(countryLayer) {
+                if (this.typh_forecast_feature == null) return;
+                countryLayer.getSource().clear();
 
-                    })
+                let typhRouteInfo = this.typh_forecast_feature.get('data');
+                let typhNum = typhRouteInfo.typhNum;
+                let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
+                let typhTime = typhRouteInfo.routeTime;
+                let cenX = typhRouteInfo.lon;
+                let cenY = typhRouteInfo.lat;
 
                 // function drawTEPO()
                 this.$axios
@@ -878,7 +1000,7 @@
                             let strength = this.calStrengthBySpeed(data[i]['speed']);
                             let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
 
-                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength);
+                            this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength, countryLayer);
                             lastPoint = nowPoint;
                         }
                     })
@@ -887,13 +1009,30 @@
                             confirmButtonText: '确定',
                             type: 'warning'
                         })
-                    })
-                    .finally((res) => {
+                    });
+            },
+            typhForecastDraw(typhRouteInfo, ModelNum) {
+                // this.typh_forecast_layer.getSource().clear();
+                // let typhNum = typhRouteInfo.typhNum;
+                // let typhModelNum = ModelNum;
+                // let typhTime = typhRouteInfo.routeTime;
+                // let cenX = typhRouteInfo.lon;
+                // let cenY = typhRouteInfo.lat;
 
-                    })
+                // function drawChinaJapan()
+                this.typhChinaForecastDraw(this.typh_China_layer);
+
+                // function drawUSAEurope() USA
+                this.typhUSAEuropeForecastDraw(this.typh_USA_layer);
+
+                // function drawUSAEurope() Europe
+                this.typhEuropeForecastDraw(this.typh_Europe_layer);
+
+                // function drawTEPO()
+                this.typhTEPOForecastDraw(this.typh_TEPO_layer);
 
             },
-            drawTyphForecastFeature(dataVal, type, lastPoint, nowPoint, strength) {
+            drawTyphForecastFeature(dataVal, type, lastPoint, nowPoint, strength, countryLayer) {
                 let colorTyphStrength = mapLayout.colorTyphStrength;
                 let colorTyphForecast = mapLayout.colorTyphForecast;
 
@@ -926,8 +1065,8 @@
                     })
                 );
 
-                this.typh_forecast_layer.getSource().addFeature(lineFeature);
-                this.typh_forecast_layer.getSource().addFeature(pointFeature);
+                countryLayer.getSource().addFeature(lineFeature);
+                countryLayer.getSource().addFeature(pointFeature);
             },
             calStrengthBySpeed(speed) {
                 // 风速 强度 对应表
@@ -1012,7 +1151,7 @@
                     image: new Icon({
                         src: this.typh_img,
                         color: '#FFFFFF',
-                        scale: 0.2,
+                        scale: 0.15,
                         opacity: 0.9,
                         rotation: 0,
                     })
@@ -1067,6 +1206,7 @@
                         clearInterval(that.typh_move_setTime);
 
                         // 绘制最后一个点的预报
+                        that.typh_forecast_feature = that.typh_move_layer.getSource().getFeatures()[0];
                         that.typhForecastDraw(that.typh_move_layer.getSource().getFeatures()[0].get("data"), typhModelNum);
                         return;
                     }
@@ -1076,6 +1216,7 @@
                     var moveFeature = new Feature(new Point(fromLonLat([val[index]['lon'], val[index]['lat']])));
                     moveFeature.set('name', 'typhMoveFeature');
                     moveFeature.set("data", val[index]);
+                    moveFeature.set('typhModelNum', typhModelNum);
                     moveFeature.setStyle(iconStyle);
                     that.typh_move_layer.getSource().addFeature(moveFeature);
 

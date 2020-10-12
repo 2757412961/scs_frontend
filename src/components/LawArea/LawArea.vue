@@ -19,23 +19,22 @@
 
         <div class="lawAreaTableDiv">
           <div v-for="data in lawAreaForecastData">
-            <table border="1px" cellspacing="0" class="lawAreaTable">
-              <tr>
-                <th colspan="2">
-                  <div style="font-size: 20px; line-height: 2.3">
-                    {{ util.transDate2MMHHMM(new Date(data.qbsj + (data.ybtc-12) * 60 * 60 * 1000)) }}
-                    至
-                    {{ util.transDate2MMHHMM(new Date(data.qbsj + data.ybtc * 60 * 60 * 1000)) }}
-                  </div>
-                </th>
-              </tr>
-              <tr><td style="width: 45%;">天气情况</td><td>{{ data.tqqk }}</td></tr>
-              <tr><td style="width: 45%;">风向</td><td>{{ data.fx }}</td></tr>
-              <tr><td style="width: 45%;">风速（级）</td><td :style="setColorByfs(data.fs)">{{ data.fs }}</td></tr>
-              <tr><td style="width: 45%;">视程范围（公里）</td><td>{{ data.scfw }}</td></tr>
-              <tr><td style="width: 45%;">风浪（米）</td><td :style="setColorBylang(data.fl)">{{ data.fl }}</td></tr>
-              <tr><td style="width: 45%;">涌浪（米）</td><td :style="setColorBylang(data.yl)">{{ data.yl }}</td></tr>
+            <table border="1px" cellspacing="0" class="altrowstable">
+              <tr class="headrowcolor"><th colspan="2">
+                <div>
+                  {{ util.transDate2MMHHMM(new Date(data.qbsj + (data.ybtc-12) * 60 * 60 * 1000)) }}
+                  至
+                  {{ util.transDate2MMHHMM(new Date(data.qbsj + data.ybtc * 60 * 60 * 1000)) }}
+                </div>
+              </th></tr>
+              <tr class="evenrowcolor"><td style="width: 45%;" class="">天气情况</td><td>{{ data.tqqk }}</td></tr>
+              <tr class="oddrowcolor"><td style="width: 45%;">风向</td><td>{{ data.fx }}</td></tr>
+              <tr class="evenrowcolor"><td style="width: 45%;">风速（级）</td><td :style="setColorByfs(data.fs)">{{ data.fs }}</td></tr>
+              <tr class="oddrowcolor"><td style="width: 45%;">视程范围（公里）</td><td>{{ data.scfw }}</td></tr>
+              <tr class="evenrowcolor"><td style="width: 45%;">风浪（米）</td><td :style="setColorBylang(data.fl)">{{ data.fl }}</td></tr>
+              <tr class="oddrowcolor"><td style="width: 45%;">涌浪（米）</td><td :style="setColorBylang(data.yl)">{{ data.yl }}</td></tr>
             </table>
+            <br>
           </div>
         </div>
       </el-collapse-item>
@@ -263,4 +262,43 @@
       -webkit-transform: translateX(0);
     }
   }
+
+  /* 表格样式 */
+  table.altrowstable {
+    font-family: verdana, arial, sans-serif;
+    font-size: 11px;
+    color: #333333;
+    border-width: 1px;
+    border-color: #a9c6c9;
+    border-collapse: collapse;
+  }
+
+  table.altrowstable th {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #a9c6c9;
+  }
+
+  table.altrowstable td {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #a9c6c9;
+  }
+
+  .headrowcolor {
+    /*background-color: #409EFF;*/
+    font-size: 17px;
+    color: #409EFF;
+  }
+
+  .oddrowcolor {
+    background-color: #bbdde5;
+  }
+
+  .evenrowcolor {
+    background-color: #f2faff;
+  }
+
 </style>

@@ -30,7 +30,7 @@
           </div>
         </div>
         <el-table
-          :data="table.data" border
+          :data="table.data" border stripe
           style="width: 100%;font-size: 18px;">
           <el-table-column
             align="center"
@@ -96,7 +96,7 @@
           </div>
         </div>
         <el-table
-          :data="table.data" border
+          :data="table.data" border stripe
           style="width: 100%;font-size: 18px;">
           <el-table-column
             align="center"
@@ -162,7 +162,7 @@
         <el-table
           :data="table.data"
           border
-          :stripe="true"
+          stripe
           style="width: 100%;font-size: 18px;">
           <el-table-column
             align="center"
@@ -210,7 +210,7 @@
         <el-table
           :data="table.data"
           border
-          :stripe="true"
+          stripe
           style="width: 100%;font-size: 18px;">
           <el-table-column
             align="center"

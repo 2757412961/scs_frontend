@@ -749,7 +749,7 @@
   }
 
   .predictDivBtn_class {
-    width: 20%;
+    width: 5%;
     float: right;
     margin: 2%;
     margin-right: 10%;

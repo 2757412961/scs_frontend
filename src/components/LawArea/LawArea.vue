@@ -9,32 +9,30 @@
 
     <el-collapse id="lawAreaForecast_panel" class="lawAreaPanel_class" v-model="activeNames" @change="rightBarHide">
 
-      <el-collapse-item id="rightBar" name="rightSide"
-                        :class="[this.lawRightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
+      <el-collapse-item id="rightBar" style="border: 4px solid rgb(28, 94, 133);border-radius: 9px;"
+                        name="rightSide" :class="[this.lawRightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
         <div class="lawAreaBarTitle">执法海域</div>
         <div class="lawAreaBarTitle">
           <el-switch v-model="isShowLayer" active-text="显示执法海域"></el-switch>
         </div>
-        <div class="lawAreaBarTitle">{{ this.lawAreaName }}</div>
+        <div class="lawAreaBarTitle" style="font-weight: initial;">{{ this.lawAreaName }}</div>
 
         <div class="lawAreaTableDiv">
           <div v-for="data in lawAreaForecastData">
-            <table border="1px" cellspacing="0" class="lawAreaTable">
-              <tr>
-                <th colspan="2">
-                  <div style="font-size: 20px; line-height: 2.3">
-                    {{ util.transDate2MMHHMM(new Date(data.qbsj + (data.ybtc-12) * 60 * 60 * 1000)) }}
-                    至
-                    {{ util.transDate2MMHHMM(new Date(data.qbsj + data.ybtc * 60 * 60 * 1000)) }}
-                  </div>
-                </th>
-              </tr>
-              <tr><td style="width: 45%;">天气情况</td><td>{{ data.tqqk }}</td></tr>
-              <tr><td style="width: 45%;">风向</td><td>{{ data.fx }}</td></tr>
-              <tr><td style="width: 45%;">风速（级）</td><td :style="setColorByfs(data.fs)">{{ data.fs }}</td></tr>
-              <tr><td style="width: 45%;">视程范围（公里）</td><td>{{ data.scfw }}</td></tr>
-              <tr><td style="width: 45%;">风浪（米）</td><td :style="setColorBylang(data.fl)">{{ data.fl }}</td></tr>
-              <tr><td style="width: 45%;">涌浪（米）</td><td :style="setColorBylang(data.yl)">{{ data.yl }}</td></tr>
+            <table border="1px" cellspacing="0" class="altrowstable">
+              <tr class="headrowcolor"><th colspan="2">
+                <div>
+                  {{ util.transDate2MMHHMM(new Date(data.qbsj + (data.ybtc-12) * 60 * 60 * 1000)) }}
+                  至
+                  {{ util.transDate2MMHHMM(new Date(data.qbsj + data.ybtc * 60 * 60 * 1000)) }}
+                </div>
+              </th></tr>
+              <tr><td style="width: 45%;" class="evenrowcolor">天气情况</td><td>{{ data.tqqk }}</td></tr>
+              <tr><td style="width: 45%;" class="evenrowcolor">风向</td><td>{{ data.fx }}</td></tr>
+              <tr><td style="width: 45%;" class="evenrowcolor">风速（级）</td><td :style="setColorByfs(data.fs)">{{ data.fs }}</td></tr>
+              <tr><td style="width: 45%;" class="evenrowcolor">视程范围（公里）</td><td>{{ data.scfw }}</td></tr>
+              <tr><td style="width: 45%;" class="evenrowcolor">风浪（米）</td><td :style="setColorBylang(data.fl)">{{ data.fl }}</td></tr>
+              <tr><td style="width: 45%;" class="evenrowcolor">涌浪（米）</td><td :style="setColorBylang(data.yl)">{{ data.yl }}</td></tr>
             </table>
           </div>
         </div>
@@ -191,7 +189,7 @@
   }
 
   .lawAreaTableDiv {
-    height: calc(70vh);
+    height: calc(64vh);
     overflow-y: scroll;
   }
 
@@ -213,15 +211,21 @@
     border: 0;
   }
 
-  #rightBar {
+  #rightBar .el-collapse-item__header{
     font-size: 0px;
     /*width: 45px;*/
     height: 0px;
     /*border-radius: 30px;*/
     /*margin-left: -19%;*/
     border: 0;
-    border-radius: 8px;
+  }
+
+  #rightBar .el-collapse-item__content{
     padding-bottom: 15px;
+  }
+
+  #rightBar .el-collapse-item__wrap {
+    border-radius: 4px;
   }
 
   .seaAreRightInner-container-right {
@@ -263,4 +267,73 @@
       -webkit-transform: translateX(0);
     }
   }
+
+  /*滚动条整体样式*/
+  .lawAreaTableDiv::-webkit-scrollbar {
+    width: 10px; /*高宽分别对应横竖滚动条的尺寸*/
+    height: 1px;
+  }
+
+  /*滚动条里面小方块*/
+  .lawAreaTableDiv::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #99d2f1;
+    background-image: -webkit-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.2) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.2) 75%,
+      transparent 75%,
+      transparent
+    );
+  }
+
+  /*滚动条里面轨道*/
+  .lawAreaTableDiv::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background: #ededed;
+    border-radius: 10px;
+  }
+
+  /* 表格样式 */
+  table.altrowstable {
+    font-family: verdana, arial, sans-serif;
+    font-size: 11px;
+    color: #333333;
+    border-width: 1px;
+    border-color: #a9c6c9;
+    border-collapse: collapse;
+    margin-bottom: 8%;
+  }
+
+  table.altrowstable th {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #a9c6c9;
+  }
+
+  table.altrowstable td {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #a9c6c9;
+  }
+
+  .headrowcolor {
+    /*background-color: #409EFF;*/
+    font-size: 17px;
+    color: #409EFF;
+  }
+
+  .oddrowcolor {
+    background-color: #f2faff;
+  }
+
+  .evenrowcolor {
+    background-color: #CCFFFF;
+  }
+
 </style>

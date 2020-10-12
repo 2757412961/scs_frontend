@@ -24,16 +24,16 @@ zzhe
         </div>
         <div id="forecastTableDiv" class="seaAreaTableDiv">
           <div v-for="data in this.forecastData[parseInt(this.tableDataIndex)-1].data">
-            <table id="seaAreaTable_id" border="1px" cellspacing="0" class="seaAreaTable">
-              <tr>
+            <table id="seaAreaTable_id" border="1px" cellspacing="0" class="altrowstable">
+              <tr class="headrowcolor">
                 <td colspan="2">
-                  <div style="font-size: 20px; line-height: 2.3; font-weight: bold; background-color:rgba(142, 206, 240,0.9) ">
+                  <div>
                     {{transferTime(data.qbsj + (data.ybtc-12)*60*60*1000)}} 至 {{transferTime(data.qbsj + data.ybtc*60*60*1000)}}
                   </div>
                 </td>
               </tr>
               <tr>
-                <td style="width: 45%;">
+                <td style="width: 45%;" class="evenrowcolor">
                   天气情况
                 </td>
                 <td>
@@ -41,7 +41,7 @@ zzhe
                 </td>
               </tr>
               <tr>
-                <td style="width: 45%;">
+                <td style="width: 45%;" class="evenrowcolor">
                   风向
                 </td>
                 <td>
@@ -49,7 +49,7 @@ zzhe
                 </td>
               </tr>
               <tr>
-                <td style="width: 45%;">
+                <td style="width: 45%;" class="evenrowcolor">
                   风速(级)
                 </td>
                 <td>
@@ -57,7 +57,7 @@ zzhe
                 </td>
               </tr>
               <tr>
-                <td style="width: 45%;">
+                <td style="width: 45%;" class="evenrowcolor">
                   视程范围(公里)
                 </td>
                 <td>
@@ -65,7 +65,7 @@ zzhe
                 </td>
               </tr>
               <tr>
-                <td style="width: 45%;">
+                <td style="width: 45%;" class="evenrowcolor">
                   风浪(米)
                 </td>
                 <td>
@@ -73,7 +73,7 @@ zzhe
                 </td>
               </tr>
               <tr>
-                <td style="width: 45%;">
+                <td style="width: 45%;" class="evenrowcolor">
                   涌浪(米)
                 </td>
                 <td>
@@ -355,4 +355,45 @@ zzhe
     background   : #ededed;
     border-radius: 10px;
   }
+
+  /* 表格样式 */
+  table.altrowstable {
+    font-family: verdana, arial, sans-serif;
+    font-size: 11px;
+    color: #333333;
+    border-width: 1px;
+    border-color: #a9c6c9;
+    border-collapse: collapse;
+    margin-bottom: 8%;
+  }
+
+  table.altrowstable th {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #a9c6c9;
+  }
+
+  table.altrowstable td {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #a9c6c9;
+  }
+
+  .headrowcolor {
+    /*background-color: #409EFF;*/
+    font-size: 17px;
+    color: #409EFF;
+  }
+
+  .oddrowcolor {
+    background-color: #f2faff;
+  }
+
+  .evenrowcolor {
+    background-color: #CCFFFF;
+  }
+
+
 </style>

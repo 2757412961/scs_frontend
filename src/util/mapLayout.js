@@ -76,6 +76,18 @@ export default {
       CN_Name: "TEPO",
       color: "#BA2DA9"
     },
+    "Korea": {
+      CN_Name: "韩国",
+      color: "#BA2DA9"
+    },
+    "Taiwan": {
+      CN_Name: "台湾",
+      color: "#BA2DA9"
+    },
+    "HongKong": {
+      CN_Name: "香港",
+      color: "#BA2DA9"
+    },
   },
 
   // 台风绘图

@@ -153,7 +153,7 @@
       <div class="legendPanel">
         <div class="legendImg">
           <transition name="el-zoom-in-center">
-              <div v-show="show3" class="transition-box">
+              <div v-show="showLegend" class="transition-box">
                 <div>
                   <img style="border: 4px solid rgba(255, 255, 255,0.7);border-radius: 8px;"
                     src="../../assets/legend/typhoon.png"></img>
@@ -170,9 +170,9 @@
           </transition>
         </div>
       </div>
-      <div @click="show3 = !show3" class="legendPanel"
+      <div @click="showLegend = !showLegend" class="legendPanel"
            style="bottom:10%; height: 2%">
-        <el-button type="info" size="small" style="background: rgba(28, 94, 133,0.8)" round>图例</el-button>
+        <el-button type="info" size="small" style="background: rgba(28, 94, 133,0.8)" round>{{this.showLegend?'收起':'展开'}}</el-button>
       </div>
     </div>
 
@@ -186,7 +186,7 @@
         name: "Typhoon",
         data() {
             return {
-              show3: true,
+                showLegend: true,
                 forecastCheckList: ['1','2','3','4'],
                 activeName: '1',
                 foreCheckActive: '1',

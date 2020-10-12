@@ -7,18 +7,19 @@ zzhe
   <div>
     <div class="seaAreabtn_class"  :style="this.rightIsHide?'margin-left:95%':'margin-left:74%'">
       <el-row>
-        <el-button id="rightBtn" style="font-size: 30px;" :icon="this.btnIconData" circle @click="rightBarHide"></el-button>
+        <el-button id="rightBtn" style="font-size: 25px;" :icon="this.btnIconData" circle @click="rightBarHide"></el-button>
       </el-row>
     </div>
 
     <el-collapse id="seaAreaForecast_panel" class="seaAreaPanel_class"
                  v-model="activeNames" @change="rightBarHide">
 
-      <el-collapse-item id="rightBar" name="rightSide" :class="[this.rightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']" >
+      <el-collapse-item id="rightBar" style="border: 4px solid rgb(28, 94, 133);border-radius: 9px;"
+                        name="rightSide" :class="[this.rightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']" >
         <div class="seaAreaBarTitle">
             近海预报
         </div>
-        <div class="seaAreaBarTitle">
+        <div class="seaAreaBarTitle" style="font-weight: initial;">
           第{{this.tableDataIndex}}海区：{{this.forecastData[parseInt(this.tableDataIndex)-1].data[0].hqmc}}
         </div>
         <div id="forecastTableDiv" class="seaAreaTableDiv">
@@ -26,7 +27,7 @@ zzhe
             <table id="seaAreaTable_id" border="1px" cellspacing="0" class="seaAreaTable">
               <tr>
                 <td colspan="2">
-                  <div style="font-size: 20px; line-height: 2.3">
+                  <div style="font-size: 20px; line-height: 2.3; font-weight: bold; background-color:rgba(142, 206, 240,0.9) ">
                     {{transferTime(data.qbsj + (data.ybtc-12)*60*60*1000)}} 至 {{transferTime(data.qbsj + data.ybtc*60*60*1000)}}
                   </div>
                 </td>
@@ -233,7 +234,9 @@ zzhe
 
   .seaAreaTable{
     width: 96%;
-    margin: 2%;
+    margin-left: 2%;
+    margin-right: 2%;
+    margin-top: 6%;
     border: 2px solid black;
     border-radius: 6px;
   }
@@ -253,7 +256,7 @@ zzhe
   }
 
   #rightBtn .el-button{
-    font-size: 30px;
+    font-size: 25px;
   }
   .seaAreabtn_class{
     margin-left: 74%;
@@ -283,7 +286,7 @@ zzhe
   }
 
   #rightBar .el-collapse-item__wrap {
-    border-radius: 8px;
+    border-radius: 4px;
   }
 
   .seaAreRightInner-container-right {
@@ -326,4 +329,30 @@ zzhe
     }
   }
 
+  .seaAreaTableDiv::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width : 10px;  /*高宽分别对应横竖滚动条的尺寸*/
+    height: 1px;
+  }
+  .seaAreaTableDiv::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius   : 10px;
+    background-color: #99d2f1;
+    background-image: -webkit-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.2) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.2) 75%,
+      transparent 75%,
+      transparent
+    );
+  }
+  .seaAreaTableDiv::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background   : #ededed;
+    border-radius: 10px;
+  }
 </style>

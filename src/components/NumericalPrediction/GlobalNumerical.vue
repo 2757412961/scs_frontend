@@ -16,50 +16,6 @@
             精细化数值预报产品
           </div>
 
-          <div class="globalNumPanelBody_div">
-            <div class="globalNum_draw_div">
-              <div style="width: 40%; font-size: 16px;margin-left: 5%">输入查询范围：</div>
-              <div style="width: 26%; font-size: 16px; cursor: pointer;margin-left: 2%;margin-right: 2%;color: blue"
-                   @click="drawRectangle(true)">拾取范围</div>
-              <div style="width: 18%; font-size: 16px; cursor: pointer;margin-left: 1%;color: blue"
-                   @click="drawRectangle(false)">清除</div>
-            </div>
-            <div>
-              <label class="globalNumInputLabel">北</label>
-              <el-input
-                placeholder="上"
-                v-model="northInput" size="mini" class="globalNumInput"
-                @input="globalNumInputChange"
-                clearable>
-              </el-input>
-            </div>
-            <div>
-              <label class="globalNumInputLabel">西</label>
-              <el-input
-                placeholder="左"
-                v-model="westInput" size="mini" class="globalNumInput"
-                @input="globalNumInputChange"
-                clearable>
-              </el-input>
-              <el-input
-                placeholder="右"
-                v-model="eastInput" size="mini" class="globalNumInput"
-                @input="globalNumInputChange"
-                clearable>
-              </el-input>
-              <label class="globalNumInputLabel">东</label>
-            </div>
-            <div>
-              <label class="globalNumInputLabel">南</label>
-              <el-input
-                placeholder="下"
-                v-model="southInput" size="mini" class="globalNumInput"
-                @input="globalNumInputChange"
-                clearable>
-              </el-input>
-            </div>
-          </div>
-
           <div class="globalNumPanelBody_div"
                style="font-size: 14px; font-weight: normal;text-align: left;padding: 2%;padding-left: 6%">
             <div style="margin-bottom: 2%">气象起报时间：{{windForecastStart}}
@@ -110,6 +66,51 @@
             <div style="margin: 2%">
               <el-radio v-model="globalNumRadio" label="3" border @change="addPngChangeHandler">10m风场(级)</el-radio>
               <el-radio v-model="globalNumRadio" label="4" border @change="addPngChangeHandler">波高(米)</el-radio>
+            </div>
+          </div>
+
+
+          <div class="globalNumPanelBody_div">
+            <div class="globalNum_draw_div">
+              <div style="width: 40%; font-size: 16px;margin-left: 5%">输入查询范围：</div>
+              <div style="width: 26%; font-size: 16px; cursor: pointer;margin-left: 2%;margin-right: 2%;color: blue"
+                   @click="drawRectangle(true)">拾取范围</div>
+              <div style="width: 18%; font-size: 16px; cursor: pointer;margin-left: 1%;color: blue"
+                   @click="drawRectangle(false)">清除</div>
+            </div>
+            <div>
+              <label class="globalNumInputLabel">北</label>
+              <el-input
+                placeholder="上"
+                v-model="northInput" size="mini" class="globalNumInput"
+                @input="globalNumInputChange"
+                clearable>
+              </el-input>
+            </div>
+            <div>
+              <label class="globalNumInputLabel">西</label>
+              <el-input
+                placeholder="左"
+                v-model="westInput" size="mini" class="globalNumInput"
+                @input="globalNumInputChange"
+                clearable>
+              </el-input>
+              <el-input
+                placeholder="右"
+                v-model="eastInput" size="mini" class="globalNumInput"
+                @input="globalNumInputChange"
+                clearable>
+              </el-input>
+              <label class="globalNumInputLabel">东</label>
+            </div>
+            <div>
+              <label class="globalNumInputLabel">南</label>
+              <el-input
+                placeholder="下"
+                v-model="southInput" size="mini" class="globalNumInput"
+                @input="globalNumInputChange"
+                clearable>
+              </el-input>
             </div>
           </div>
 

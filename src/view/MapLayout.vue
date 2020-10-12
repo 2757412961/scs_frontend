@@ -369,7 +369,7 @@
                     view: view,
                     controls: defaultControls().extend([
                         zoomSliderControl, zoomToExtentControl,
-                        fullScreenControl, overviewMapControl,
+                        fullScreenControl,
                         mousePositionControl, ScaleControl
                     ]),
                 });

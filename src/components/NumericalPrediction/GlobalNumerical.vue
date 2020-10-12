@@ -2,7 +2,7 @@
   <div>
     <div class="globalNumBtn_class" :style="this.rightIsHide?'margin-left:95%':'margin-left:74%'">
       <el-row>
-        <el-button id="globalNumRightBtn" style="font-size: 30px;" :icon="this.btnIconData" circle
+        <el-button id="globalNumRightBtn" style="font-size: 25px;" :icon="this.btnIconData" circle
                    @click="rightBarHide"></el-button>
       </el-row>
     </div>

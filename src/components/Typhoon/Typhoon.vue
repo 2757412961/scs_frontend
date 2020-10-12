@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+<!--    <div>
       <el-collapse id="tablePanel" class="tf_panel" v-model="activeName" accordion>
         <el-collapse-item title="" name="1" style="height: 100%;">
           <div
@@ -24,7 +24,7 @@
               </el-option>
             </el-select>
           </div>
-          <!-- 台风号、台风名表格-->
+          &lt;!&ndash; 台风号、台风名表格&ndash;&gt;
           <el-table
             :data="typhList" height="250" border
             style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%;margin-left: 1%"
@@ -40,7 +40,7 @@
               sortable>
             </el-table-column>
           </el-table>
-          <!-- 时间、风速-->
+          &lt;!&ndash; 时间、风速&ndash;&gt;
           <el-table
             :data="routeList" height="250" border
             style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%;margin-left: 1%"
@@ -59,28 +59,123 @@
 
         </el-collapse-item>
       </el-collapse>
-    </div>
+    </div>-->
+
     <div>
-      <el-collapse id="forecastPanel" v-model="foreCheckActive" class="foreCheck" accordion>
-        <el-collapse-item title="预报机构" name="1">
-          <el-checkbox-group v-model="forecastCheckList" class="foreCheck">
-            <el-checkbox label="中央"></el-checkbox>
-            <el-checkbox label="美国"></el-checkbox>
-            <el-checkbox label="欧洲"></el-checkbox>
-            <el-checkbox label="TEPO"></el-checkbox>
-          </el-checkbox-group>
+      <div class="typhoonBtn_class"  :style="this.rightIsHide?'margin-left:95%':'margin-left:74%'">
+        <el-row>
+          <el-button id="rightBtn" style="font-size: 25px;" :icon="this.btnIconData" circle @click="rightBarHide"></el-button>
+        </el-row>
+      </div>
+
+      <el-collapse id="typhoonForecast_panel" class="typhoonPanel_class"
+                   v-model="activeNames" @change="rightBarHide">
+
+        <el-collapse-item id="rightBar" style="border: 4px solid rgb(28, 94, 133);border-radius: 9px;"
+                          name="rightSide" :class="[this.rightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']" >
+          <div class="typhoonBarTitle">
+            台风预警
+          </div>
+          <div id="forecastTableDiv" class="typhoonTableDiv">
+            <div
+              style="height: 40px;margin-left: 1%; width: 98%; border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%"
+              align="left">
+              <span style="margin-left: 5%">年份：</span>
+              <el-select v-model="selectedYear" placeholder="请选择" size="small"
+                         style="width: 30%;height: 26px;margin-top: 3px">
+                <el-option
+                  v-for="item in yearList"
+                  :key="item.value"
+                  :label="item.value"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </div>
+            <!-- 台风号、台风名表格-->
+            <el-table
+              :data="typhList" height="220" border
+              style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 4%;margin-left: 1%"
+              @row-click="chooseTyph" :default-sort="{prop: 'typhNum', order: 'descending'}">
+              <el-table-column
+                prop="typhNum"
+                label="台风号"
+                sortable>
+              </el-table-column>
+              <el-table-column
+                prop="typhName"
+                label="台风名"
+                sortable>
+              </el-table-column>
+            </el-table>
+            <!-- 时间、风速-->
+            <el-table
+              :data="routeList" height="250" border
+              style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 4%;margin-left: 1%"
+              @row-click="chooseTyph" :default-sort="{prop: 'time', order: 'descending'}">
+              <el-table-column
+                prop="time"
+                label="时间"
+                sortable>
+              </el-table-column>
+              <el-table-column
+                prop="windSpeed"
+                label="风速"
+                sortable>
+              </el-table-column>
+            </el-table>
+
+          </div>
+
         </el-collapse-item>
+
       </el-collapse>
     </div>
-    <div>
-      <el-collapse id="legendPanel" v-model="legendActive" class="legendPanel" accordion>
-        <el-collapse-item title="台风图例" name="1">
-          <img
-            class="legendImg"
-            src="../../assets/legend/typhoon.png"></img>
-        </el-collapse-item>
-      </el-collapse>
+
+    <!--<div id="forecastPanel">
+      <div class="forecastPanel">
+        <el-collapse-transition>
+          <div v-show="show3">
+            <el-checkbox-group v-model="forecastCheckList" class="foreCheck">
+              <el-checkbox label="中央"></el-checkbox>
+              <el-checkbox label="美国"></el-checkbox>
+              <el-checkbox label="欧洲"></el-checkbox>
+              <el-checkbox label="TEPO"></el-checkbox>
+            </el-checkbox-group>
+          </div>
+        </el-collapse-transition>
+      </div>
+      <div @click="show3 = !show3" class="forecastPanel"
+           style="bottom:12%; height: 2%">
+        <el-button type="info" size="small" style="background: rgba(28, 94, 133,0.7)" round>机构</el-button>
+      </div>
+    </div>-->
+    <div id="legendImgPanel">
+      <div class="legendPanel">
+        <div class="legendImg">
+          <transition name="el-zoom-in-center">
+              <div v-show="show3" class="transition-box">
+                <div>
+                  <img style="border: 4px solid rgba(255, 255, 255,0.7);border-radius: 8px;"
+                    src="../../assets/legend/typhoon.png"></img>
+                </div>
+                <div class="foreCheck">
+                  <el-checkbox-group v-model="forecastCheckList">
+                    <el-checkbox label="1">中央</el-checkbox>
+                    <el-checkbox label="2">美国</el-checkbox>
+                    <el-checkbox label="3">欧洲</el-checkbox>
+                    <el-checkbox label="4">TEPO</el-checkbox>
+                  </el-checkbox-group>
+                </div>
+              </div>
+          </transition>
+        </div>
+      </div>
+      <div @click="show3 = !show3" class="legendPanel"
+           style="bottom:10%; height: 2%">
+        <el-button type="info" size="small" style="background: rgba(28, 94, 133,0.8)" round>图例</el-button>
+      </div>
     </div>
+
   </div>
 </template>
 
@@ -91,7 +186,8 @@
         name: "Typhoon",
         data() {
             return {
-                forecastCheckList: [],
+              show3: true,
+                forecastCheckList: ['1','2','3','4'],
                 activeName: '1',
                 foreCheckActive: '1',
                 legendActive: '1',
@@ -133,6 +229,9 @@
                 typhMonitor: {},
                 // 用对象数组可以直接保存后端发送的结果
                 typhMonitorList: [{}],
+                activeNames:['rightSide'],
+                rightIsHide: false,
+                btnIconData:'el-icon-d-arrow-right',//按钮图标
             };
         },
         computed: {
@@ -150,6 +249,19 @@
             }
         },
         methods: {
+
+          //侧边栏动画
+          rightBarHide() {
+            this.rightIsHide = !this.rightIsHide;
+            if (this.rightIsHide){
+              this.btnIconData='el-icon-d-arrow-left'
+              this.activeNames = ['no']
+            } else {
+              this.btnIconData='el-icon-d-arrow-right'
+              this.activeNames = ['rightSide']
+            }
+          },
+
             // 获取特定年份的所有台风
             typhoonList(year) {
                 this.typhList = [];
@@ -365,121 +477,54 @@
 
 <style>
 
-  /*  .ivu-layout-header {
-      background: rgb(84, 92, 100);
-      padding: 0 10px;
-      height: 61px;
-      line-height: 60px;
-      border-bottom: 1px solid #e6e6e6;
-    }
-    .ivu-layout-sider {
-      background: rgb(84, 92, 100);
-    }
-    .rotate-icon{
-      transform:translate(-40px,0px) rotate(-180deg);
-    }
-    .menu-item span{
-      display: inline-block;
-      overflow: hidden;
-      width: 69px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      vertical-align: bottom;
-      transition: width .2s ease .2s;
-    }
-    .menu-item i{
-      transform: translateX(0px);
-      transition: font-size .2s ease, transform .2s ease;
-      vertical-align: middle;
-      font-size: 16px;
-    }
-    .vertical-center-modal{
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .collapsed-menu span{
-      width: 0px;
-      transition: width .2s ease;
-    }
-    .collapsed-menu i{
-      transform: translateX(0px);
-      transition: font-size 0.2s ease 0.2s, transform .2s ease .2s;
-      vertical-align: middle;
-      font-size: 22px;
-    }
-    .ivu-modal{
-      top: 0;
-    }
-    .bg {
-      background : #dcdee2;
-      position: absolute;
-      bottom:0;
-      top:61px;
-      right:0;
-      !*left:80%;*!
-    }*/
+  .typhoonBarTitle{
+    width: 96%;
+    font-size: 20px;
+    line-height: 1.7;
+    font-weight: bold;
+    border: 2px solid #3681aa;
+    margin: 2%;
+    border-radius: 7px;
+  }
 
   .legendPanel {
     position: fixed;
     /*width: 40%;*/
     left: 1.3%;
-    bottom: 19%;
+    bottom: 18%;
+  }
+
+  .transition-box {
+    /*margin-bottom: 10px;*/
+    /*width: 200px;*/
+    /**/
+    /*border-radius: 4px;*/
+    /*background-color: #409EFF;*/
+    height: 125px; /*图片的高度*/
+    text-align: center;
+    color: #fff;
+    /*padding: 40px 20px;*/
+    box-sizing: border-box;
+    /*margin-right: 20px;*/
   }
 
   #legendPanel .legendImg {
-    width: 300px;
     height: 125px;
-    margin: 6.4px 6.4px;
-    margin-bottom: 0;
-  }
-
-  #legendPanel .el-collapse-item__content {
-    padding: 0;
-  }
-
-  #legendPanel .el-collapse-item__header {
-    width: 5%;
-    position: fixed;
-    left: 1.3%;
-    bottom: 15%;
-    /*background-color: #6b8eb7;*/
-    height: 25px;
-    border: 0;
-  }
-
-  #forecastPanel .el-collapse-item__wrap {
-    border-bottom: 0;
+    border: 4px solid rgb(28, 94, 133);
+    border-radius: 8px;
   }
 
   .foreCheck {
-    position: fixed;
-    width: 40%;
-    left: 6.3%;
-    bottom: 10%;
-    /*background-color: #6b8fb8;*/
+    width: 120%;
+    background: rgba(255, 255, 255,0.7);
+    border-radius: 8px;
   }
 
-  #forecastPanel .el-collapse-item__header {
-    width: 5%;
+  .forecastPanel {
     position: fixed;
+    /*width: 40%;*/
     left: 1.3%;
     bottom: 10%;
-    /*background-color: #6b8eb7;*/
-    height: 25px;
-    border: 0;
-  }
-
-  #forecastPanel .el-collapse-item__wrap {
-    border-bottom: 0;
-  }
-
-  #forecastPanel .el-collapse-item {
-    margin-bottom: 0;
-  }
-
-  #forecastPanel .el-collapse-item__wrap {
-    background-color: white;
   }
 
   .tf_panel {
@@ -524,4 +569,117 @@
     background-color: #a1a3a9;
     border-radius: 3px;
   }
+
+  /* 右侧边栏  start */
+
+  .typhoonTableDiv {
+    height: calc(75vh);
+    overflow: hidden;
+  }
+
+  .typhoonPanel_class{
+    margin-left: 78%;
+    margin-top: 1%;
+    width: 21%;
+    position: fixed;
+    border: 0;
+  }
+
+  #rightBtn .el-button{
+    font-size: 25px;
+  }
+
+  .typhoonBtn_class{
+    margin-left: 74%;
+    margin-top: 15%;
+    position: fixed;
+  }
+
+  #rightBar .el-collapse-item__header{
+    font-size: 0px;
+    /*width: 45px;*/
+    height: 0px;
+    /*border-radius: 30px;*/
+    /*margin-left: -19%;*/
+    border: 0;
+  }
+
+  #rightBar .el-collapse-item__content{
+    padding-bottom: 15px;
+  }
+
+  #rightBar .el-collapse-item__wrap {
+    border-radius: 4px;
+  }
+
+  .seaAreRightInner-container-right {
+    animation: RightBarMoveRight linear;
+    -webkit-animation: RightBarMoveRight linear;
+    animation-fill-mode: forwards;
+    animation-play-state: running;
+    animation-duration: 0.2s;
+  }
+
+  .seaAreRightInner-container-left {
+    animation: RightBarMoveLeft linear;
+    -webkit-animation: RightBarMoveLeft linear;
+    animation-fill-mode: forwards;
+    animation-play-state: running;
+    animation-duration: 0.3s;
+  }
+
+  /*右侧边栏向右移动*/
+  @keyframes RightBarMoveRight {
+    0% {
+      transform: translateX(0);
+      -webkit-transform: translateX(0);
+    }
+    100% {
+      transform: translateX(110%);
+      -webkit-transform: translateX(110%);
+    }
+  }
+
+  /*右侧边栏向左移动*/
+  @keyframes RightBarMoveLeft {
+    0% {
+      transform: translateX(120%);
+      -webkit-transform: translateX(120%);
+    }
+    100% {
+      transform: translateX(0);
+      -webkit-transform: translateX(0);
+    }
+  }
+
+  .el-table__body-wrapper::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width : 10px;  /*高宽分别对应横竖滚动条的尺寸*/
+    height: 1px;
+  }
+  .el-table__body-wrapper::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius   : 10px;
+    background-color: #99d2f1;
+    background-image: -webkit-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.2) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.2) 75%,
+      transparent 75%,
+      transparent
+    );
+  }
+  .el-table__body-wrapper::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background   : #ededed;
+    border-radius: 10px;
+  }
+
+  /* 右侧边栏  end */
+
+
 </style>

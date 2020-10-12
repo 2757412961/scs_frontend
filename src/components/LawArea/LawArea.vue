@@ -2,7 +2,7 @@
   <div>
     <div class="lawAreabtn_class" :style="this.lawRightIsHide?'margin-left:95%':'margin-left:74%'">
       <el-row>
-        <el-button id="rightBtn" style="font-size: 30px;" :icon="this.btnIconData" circle
+        <el-button id="rightBtn" style="font-size: 25px;" :icon="this.btnIconData" circle
                    @click="rightBarHide"></el-button>
       </el-row>
     </div>

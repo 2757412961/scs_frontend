@@ -9,14 +9,15 @@
 
     <el-collapse id="predictPaper_panel" class="globalNumCollapse_class" v-model="activeNames" @change="rightBarHide">
       <el-collapse-item id="globalNumRightBar" name="rightSide"
+                        style="border: 4px solid rgb(28, 94, 133);border-radius: 9px;"
                         :class="[this.rightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
 
         <div class="globalNumPanelBody">
-          <div class="predictPaper_title">
+          <div class="predictPaper_title" style="margin-top: 4%">
             精细化数值预报产品
           </div>
 
-          <div class="globalNumPanelBody_div"
+         <!-- <div class="globalNumPanelBody_div"
                style="font-size: 14px; font-weight: normal;text-align: left;padding: 2%;padding-left: 6%">
             <div style="margin-bottom: 2%">气象起报时间：{{windForecastStart}}
               <el-select v-model="windTimeSelectedTime" placeholder="请选择" size="mini" style="width: 30%" @change="addPngChangeHandler">
@@ -48,9 +49,9 @@
                 </el-option>
               </el-select>
             </div>
-          </div>
+          </div>-->
 
-          <div class="predictPaper_title">
+          <div class="predictPaper_title" style="font-weight: normal;margin-top: 4%">
             中国近海风浪预报查询
           </div>
           <div class="globalNumPanelBody_div">
@@ -59,7 +60,7 @@
               <el-radio v-model="globalNumRadio" label="2" border @change="addPngChangeHandler">海浪</el-radio>
             </div>
           </div>
-          <div class="predictPaper_title">
+          <div class="predictPaper_title" style="font-weight: normal;margin-top: 4%">
             中国近海风浪格点预报查询
           </div>
           <div class="globalNumPanelBody_div">
@@ -70,7 +71,7 @@
           </div>
 
 
-          <div class="globalNumPanelBody_div">
+          <div class="globalNumPanelBody_div" style="margin-top: 4%">
             <div class="globalNum_draw_div">
               <div style="width: 40%; font-size: 16px;margin-left: 5%">输入查询范围：</div>
               <div style="width: 26%; font-size: 16px; cursor: pointer;margin-left: 2%;margin-right: 2%;color: blue"
@@ -114,22 +115,105 @@
             </div>
           </div>
 
+          <div class="predictPaper_title" style="margin-top: 6%;border: 0">
+            {{windForecastStart}}&nbsp;&nbsp;{{this.windTimeSelectedTime.slice(8, 10)}}时
+          </div>
         </div>
 
       </el-collapse-item>
 
     </el-collapse>
+
+    <div id="gloNum_legendImgPanel" v-show="(this.globalNumRadio==1 || this.globalNumRadio==2)?true:false">
+      <div class="gloNum_legendPanel">
+          <transition name="el-zoom-in-center">
+            <div v-show="showLegend" class="transition-box">
+                <img style="border: 4px solid rgba(255, 255, 255,0.7);border-radius: 8px;height: 45px"
+                     :src="this.globalNumRadio==1?this.wind_legend:this.wave_legend"></img>
+            </div>
+          </transition>
+      </div>
+      <div @click="showLegend = !showLegend" class="gloNum_legendPanel"
+           style="bottom:16.5%; height: 2%;left:1.3%">
+        <el-button type="info" size="small" style="background: rgba(97, 134, 180,0.8)" round>{{this.showLegend?'收起':'展开'}}</el-button>
+      </div>
+    </div>
+
+<!--  预报时次和时间选择框  -->
+    <div id="gloNum_forecastRatePanel">
+      <div class="gloNum_forecastRatePanel">
+          <transition name="el-zoom-in-center">
+            <div v-show="showForecastRate" class="transition-box">
+              <div class="gloNum_foreCheck">
+                  <el-checkbox  :disabled="(this.globalNumRadio==2 || this.globalNumRadio==4)?true:false" label="101" v-model="gloNum_checkRadio" class="gloNum_elRadio_forecastRate">
+                    气象起报时间：{{windForecastStart}}
+                      <el-select  :disabled="(this.globalNumRadio==2 || this.globalNumRadio==4)?true:false"
+                                  v-model="windTimeSelectedTime" placeholder="请选择" size="mini" style="width: 30%;opacity: 0.7;" @change="addPngChangeHandler">
+                        <el-option
+                          v-for="item in windForecastTimeSel"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value">
+                        </el-option>
+                      </el-select>
+                  </el-checkbox >
+                  <el-checkbox  :disabled="(this.globalNumRadio==1 || this.globalNumRadio==3)?true:false" :selected="true" label="102" v-model="gloNum_checkRadio"  class="gloNum_elRadio_forecastRate">
+                    海浪起报时间：{{waveForecastStart}}
+                      <el-select  :disabled="(this.globalNumRadio==1 || this.globalNumRadio==3)?true:false"
+                                  v-model="waveTimeSelectedTime" placeholder="请选择" size="mini" style="width: 30%;opacity: 0.7;" @change="addPngChangeHandler">
+                        <el-option
+                          v-for="item in waveForecastTimeSel"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value">
+                        </el-option>
+                      </el-select>
+                  </el-checkbox >
+                <div class="block" style="margin-top: -1%;display: flex">
+                  <span style="margin-top: 1%;margin-right: 1%; font-size: 14px;font-weight: bold;color: black">
+                    预报时次：</span>
+                  <el-slider style="width: 91%"
+                    v-model="valueSlider"
+                    :marks="sliderMarks"
+                    :min="0"
+                    :max="120"
+                    :step="6" @change="addPngChangeHandler"
+                    show-stops>
+                  </el-slider>
+                </div>
+              </div>
+            </div>
+          </transition>
+      </div>
+      <div @click="showForecastRate = !showForecastRate" class="gloNum_forecastRatePanel"
+           style="bottom:12%; height: 0%;right:1.3%; padding: 0">
+        <el-button type="info" size="small" style="background: rgba(97, 134, 180,0.8)" round>{{this.showForecastRate?'收起':'展开'}}</el-button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
   import xml2js from 'x2js'
   import {globalBus} from "../globalBus";
+  import wind_legend from "../../assets/legend/10mWind.jpg"
+  import wave_legend from "../../assets/legend/wave.jpg"
 
   export default {
     name: "GlobalNumerical",
     data() {
       return {
+        sliderMarks: {
+          0:'000', 6:'006', 12:'012', 18:'018', 24:'024', 30:'030', 36:'036',
+          42:'042', 48:'048', 54:'054',60:'060', 66:'066', 72:'072', 78:'078',
+          84:'084', 90:'090', 96:'096', 102:'102', 108:'108', 114:'114', 120:'120'
+        },
+        valueSlider: 12,
+        gloNum_checkRadio: ['101','102'],
+        wind_legend: wind_legend,
+        wave_legend: wave_legend,
+        showForecastRate: true, //预报时次显示
+        showLegend: true, // legend显示
         fullViewExtent: [-180, -90, 180,90], //整个页面显示贴图
         globalNumRadio: '1', // 选择风浪/海浪【(格点)】查询
         forecastTimeSel: ['000', '006', '012','018', '024', '030', '036', '042', '048', '054',
@@ -157,14 +241,6 @@
     mounted() {
       this.fillLonlatInput()
     },
-    /*watch: {
-      windTimeSelectedTime(val){
-          this.addPngImage(val,'/Wind_W10Contour_0_');
-        },
-      waveTimeSelectedTime(val){
-        this.addPngImage(val);
-      },
-    },*/
     methods: {
       // 输入框值改变事件
       globalNumInputChange(){
@@ -236,7 +312,7 @@
 
       // 获取Png图片url
       getPngImageUrl(time, suffix){
-        return 'http://' + this.$store.state.serverIP + '/img/ECMWF/' + time + suffix + parseInt(this.forecastSelectedTime) + '_' + time + '.png'
+        return 'http://' + this.$store.state.serverIP + '/img/ECMWF/' + time + suffix + parseInt(this.valueSlider) + '_' + time + '.png'
       },
 
       // 页面参数初始化
@@ -319,13 +395,50 @@
   }
 </script>
 <style scoped>
+  .gloNum_elRadio_forecastRate{
+    margin-top: 1%;
+    font-size: 14px;
+    font-weight: bold;
+    color: black
+  }
   .globalNum_draw_div {
     display: -webkit-inline-box;
     width: 100%;
   }
+  .gloNum_legendPanel {
+    position: fixed;
+    /*width: 40%;*/
+    left: 1.3%;
+    bottom: 8%;
+  }
+  .transition-box {
+    height: 40px; /*图片的高度*/
+    text-align: center;
+    color: #fff;
+    box-sizing: border-box;
+  }
+  .gloNum_forecastRatePanel{
+    position: fixed;
+    /*width: 40%;*/
+    right: 3.5%;
+    bottom: 4%;
+    padding: 2%;
+  }
+  .gloNum_foreCheck {
+    width: 65vw;
+    background: rgba(238, 243, 239,0.8);
+    border-radius: 8px;
+    height: 220%;
+    padding-left: 2%;
+    padding-right: 2%;
+  }
+
 </style>
 
 <style>
+  #gloNum_forecastRatePanel .el-checkbox__label {
+    margin-left: -10%;
+  }
 
   .globalNumInputLabel {
     font-weight: initial;
@@ -348,7 +461,7 @@
   }
 
   .globalNumPanelBody {
-    height: calc(80vh);
+    height: calc(66vh);
   }
 
   .predictPaper_title {

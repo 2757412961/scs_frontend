@@ -17,45 +17,11 @@
             精细化数值预报产品
           </div>
 
-         <!-- <div class="globalNumPanelBody_div"
-               style="font-size: 14px; font-weight: normal;text-align: left;padding: 2%;padding-left: 6%">
-            <div style="margin-bottom: 2%">气象起报时间：{{windForecastStart}}
-              <el-select v-model="windTimeSelectedTime" placeholder="请选择" size="mini" style="width: 30%" @change="addPngChangeHandler">
-                <el-option
-                  v-for="item in windForecastTimeSel"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-            </div>
-            <div style="margin-bottom: 2%">海浪起报时间：{{waveForecastStart}}
-              <el-select v-model="waveTimeSelectedTime" placeholder="请选择" size="mini" style="width: 30%" @change="addPngChangeHandler">
-                <el-option
-                  v-for="item in waveForecastTimeSel"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-            </div>
-            <div style="margin-bottom: 2%">预报时次：
-              <el-select v-model="forecastSelectedTime" placeholder="请选择" size="mini" style="width: 30%" @change="addPngChangeHandler">
-                <el-option
-                  v-for="(item, index) in forecastTimeSel"
-                  :key="index"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
-            </div>
-          </div>-->
-
           <div class="predictPaper_title" style="font-weight: normal;margin-top: 4%">
             中国近海风浪预报查询
           </div>
           <div class="globalNumPanelBody_div">
-            <div style="margin: 2%">
+            <div style="margin: 2%;height: 6vh;">
               <el-radio v-model="globalNumRadio" label="1" border @change="addPngChangeHandler">10米风场</el-radio>
               <el-radio v-model="globalNumRadio" label="2" border @change="addPngChangeHandler">海浪</el-radio>
             </div>
@@ -64,14 +30,14 @@
             中国近海风浪格点预报查询
           </div>
           <div class="globalNumPanelBody_div">
-            <div style="margin: 2%">
+            <div style="margin: 2%;height: 6vh;">
               <el-radio v-model="globalNumRadio" label="3" border @change="addPngChangeHandler">10m风场(级)</el-radio>
               <el-radio v-model="globalNumRadio" label="4" border @change="addPngChangeHandler">波高(米)</el-radio>
             </div>
           </div>
 
 
-          <div class="globalNumPanelBody_div" style="margin-top: 4%">
+          <div class="globalNumPanelBody_div" style="margin-top: 4%;height: 24vh;padding-top: 4%">
             <div class="globalNum_draw_div">
               <div style="width: 40%; font-size: 16px;margin-left: 5%">输入查询范围：</div>
               <div style="width: 26%; font-size: 16px; cursor: pointer;margin-left: 2%;margin-right: 2%;color: blue"
@@ -116,7 +82,8 @@
           </div>
 
           <div class="predictPaper_title" style="margin-top: 6%;border: 0">
-            {{windForecastStart}}&nbsp;&nbsp;{{this.windTimeSelectedTime.slice(8, 10)}}时
+            预报时次：
+            {{this.getCurrentSelectedForecastTime((this.globalNumRadio==2 || this.globalNumRadio==4)?this.waveTimeSelectedTime:this.windTimeSelectedTime)}}
           </div>
         </div>
 
@@ -203,6 +170,7 @@
     name: "GlobalNumerical",
     data() {
       return {
+        selectedCurrentForecastTime:'', //当前选择的预报时次
         sliderMarks: {
           0:'000', 6:'006', 12:'012', 18:'018', 24:'024', 30:'030', 36:'036',
           42:'042', 48:'048', 54:'054',60:'060', 66:'066', 72:'072', 78:'078',
@@ -379,6 +347,46 @@
           })
       },
 
+      //获取当前选择的预报时间(基础时间+预报时次)
+      getCurrentSelectedForecastTime(seltime){
+        let selTimeStr = seltime.slice(0,4) + '-' + seltime.slice(4,6) + '-' +  seltime.slice(6,8)
+                + ' ' + seltime.slice(8,10) + ':00:00'
+        let selTime = new Date(selTimeStr).getTime();
+        let nowTimeStamp = selTime + parseInt(this.valueSlider)*60*60*1000;
+        let nowDate = this.transferTime(nowTimeStamp);
+        let dateStr = nowDate.slice(4, 6) + '月' + nowDate.slice(6, 8) + '日' + nowDate.slice(8, 10) + '时';
+        return dateStr;
+      },
+      // 这里传输时时间戳变成了数字串形式，需要转换回去
+      transferTime(cTime) {
+        var jsonDate = new Date(parseInt(cTime));
+        Date.prototype.format = function (format) {
+          var o = {
+            "y+": this.getFullYear(),
+            "M+": this.getMonth() + 1,
+            "d+": this.getDate(),
+            "h+": this.getHours(),
+            "m+": this.getMinutes(),
+            "s+": this.getSeconds()
+
+          };
+
+          if (/(y+)/.test(format)) {
+            format = format.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+          }
+
+          for (var k in o) {
+            if (new RegExp("(" + k + ")").test(format)) {
+              format = format.replace(RegExp.$1, o[k].toString().length == 2 ? o[k] : ("0" + o[k]).substr("" + o[k].length));
+            }
+          }
+          return format;
+        };
+        var newDate = jsonDate.format("yyyyMMddhh");
+        return newDate;
+      },
+
+
       //侧边栏动画
       rightBarHide() {
         this.rightIsHide = !this.rightIsHide;
@@ -461,7 +469,7 @@
   }
 
   .globalNumPanelBody {
-    height: calc(66vh);
+    height: calc(68vh);
   }
 
   .predictPaper_title {

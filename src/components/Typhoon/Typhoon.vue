@@ -1,70 +1,71 @@
 <template>
   <div>
-<!--    <div>
-      <el-collapse id="tablePanel" class="tf_panel" v-model="activeName" accordion>
-        <el-collapse-item title="" name="1" style="height: 100%;">
-          <div
-            style="height: 40px;margin-left: 1%; width: 98%; border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%"
-            align="left">
-            <span style="margin-left: 5%; height: 26px;margin-top: 3px">台风预警</span>
-            <span style="margin-left: 5%; height: 26px;margin-top: 3px"><a href="" style="color: gray">返回</a></span>
-          </div>
+    <!--    <div>
+          <el-collapse id="tablePanel" class="tf_panel" v-model="activeName" accordion>
+            <el-collapse-item title="" name="1" style="height: 100%;">
+              <div
+                style="height: 40px;margin-left: 1%; width: 98%; border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%"
+                align="left">
+                <span style="margin-left: 5%; height: 26px;margin-top: 3px">台风预警</span>
+                <span style="margin-left: 5%; height: 26px;margin-top: 3px"><a href="" style="color: gray">返回</a></span>
+              </div>
 
-          <div
-            style="height: 40px;margin-left: 1%; width: 98%; border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%"
-            align="left">
-            <span style="margin-left: 5%">年份：</span>
-            <el-select v-model="selectedYear" placeholder="请选择" size="small"
-                       style="width: 30%;height: 26px;margin-top: 3px">
-              <el-option
-                v-for="item in yearList"
-                :key="item.value"
-                :label="item.value"
-                :value="item.value">
-              </el-option>
-            </el-select>
-          </div>
-          &lt;!&ndash; 台风号、台风名表格&ndash;&gt;
-          <el-table
-            :data="typhList" height="250" border
-            style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%;margin-left: 1%"
-            @row-click="chooseTyph" :default-sort="{prop: 'typhNum', order: 'descending'}">
-            <el-table-column
-              prop="typhNum"
-              label="台风号"
-              sortable>
-            </el-table-column>
-            <el-table-column
-              prop="typhName"
-              label="台风名"
-              sortable>
-            </el-table-column>
-          </el-table>
-          &lt;!&ndash; 时间、风速&ndash;&gt;
-          <el-table
-            :data="routeList" height="250" border
-            style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%;margin-left: 1%"
-            @row-click="chooseTyph" :default-sort="{prop: 'time', order: 'descending'}">
-            <el-table-column
-              prop="time"
-              label="时间"
-              sortable>
-            </el-table-column>
-            <el-table-column
-              prop="windSpeed"
-              label="风速"
-              sortable>
-            </el-table-column>
-          </el-table>
+              <div
+                style="height: 40px;margin-left: 1%; width: 98%; border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%"
+                align="left">
+                <span style="margin-left: 5%">年份：</span>
+                <el-select v-model="selectedYear" placeholder="请选择" size="small"
+                           style="width: 30%;height: 26px;margin-top: 3px">
+                  <el-option
+                    v-for="item in yearList"
+                    :key="item.value"
+                    :label="item.value"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </div>
+              &lt;!&ndash; 台风号、台风名表格&ndash;&gt;
+              <el-table
+                :data="typhList" height="250" border
+                style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%;margin-left: 1%"
+                @row-click="chooseTyph" :default-sort="{prop: 'typhNum', order: 'descending'}">
+                <el-table-column
+                  prop="typhNum"
+                  label="台风号"
+                  sortable>
+                </el-table-column>
+                <el-table-column
+                  prop="typhName"
+                  label="台风名"
+                  sortable>
+                </el-table-column>
+              </el-table>
+              &lt;!&ndash; 时间、风速&ndash;&gt;
+              <el-table
+                :data="routeList" height="250" border
+                style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 1%;margin-left: 1%"
+                @row-click="chooseTyph" :default-sort="{prop: 'time', order: 'descending'}">
+                <el-table-column
+                  prop="time"
+                  label="时间"
+                  sortable>
+                </el-table-column>
+                <el-table-column
+                  prop="windSpeed"
+                  label="风速"
+                  sortable>
+                </el-table-column>
+              </el-table>
 
-        </el-collapse-item>
-      </el-collapse>
-    </div>-->
+            </el-collapse-item>
+          </el-collapse>
+        </div>-->
 
     <div>
-      <div class="typhoonBtn_class"  :style="this.rightIsHide?'margin-left:95%':'margin-left:74%'">
+      <div class="typhoonBtn_class" :style="this.rightIsHide?'margin-left:95%':'margin-left:74%'">
         <el-row>
-          <el-button id="rightBtn" style="font-size: 25px;" :icon="this.btnIconData" circle @click="rightBarHide"></el-button>
+          <el-button id="rightBtn" style="font-size: 25px;" :icon="this.btnIconData" circle
+                     @click="rightBarHide"></el-button>
         </el-row>
       </div>
 
@@ -72,7 +73,8 @@
                    v-model="activeNames" @change="rightBarHide">
 
         <el-collapse-item id="rightBar" style="border: 4px solid rgb(28, 94, 133);border-radius: 9px;"
-                          name="rightSide" :class="[this.rightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']" >
+                          name="rightSide"
+                          :class="[this.rightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
           <div class="typhoonBarTitle">
             台风预警
           </div>
@@ -93,8 +95,8 @@
             </div>
             <!-- 台风号、台风名表格-->
             <el-table
-              :data="typhList" height="220" border
-              style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 4%;margin-left: 1%"
+              :data="typhList" height="38%" border
+              style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 3%;margin-left: 1%"
               @row-click="chooseTyph" :default-sort="{prop: 'typhNum', order: 'descending'}">
               <el-table-column
                 prop="typhNum"
@@ -109,8 +111,8 @@
             </el-table>
             <!-- 时间、风速-->
             <el-table
-              :data="routeList" height="250" border
-              style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 4%;margin-left: 1%"
+              :data="routeList" height="50%" border
+              style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 3%;margin-left: 1%"
               @row-click="chooseTyph" :default-sort="{prop: 'time', order: 'descending'}">
               <el-table-column
                 prop="time"
@@ -153,26 +155,32 @@
       <div class="legendPanel">
         <div class="legendImg">
           <transition name="el-zoom-in-center">
-              <div v-show="showLegend" class="transition-box">
-                <div>
-                  <img style="border: 4px solid rgba(255, 255, 255,0.7);border-radius: 8px;"
-                    src="../../assets/legend/typhoon.png"></img>
-                </div>
-                <div class="foreCheck">
-                  <el-checkbox-group v-model="forecastCheckList">
-                    <el-checkbox label="1">中央</el-checkbox>
-                    <el-checkbox label="2">美国</el-checkbox>
-                    <el-checkbox label="3">欧洲</el-checkbox>
-                    <el-checkbox label="4">TEPO</el-checkbox>
-                  </el-checkbox-group>
-                </div>
+            <div v-show="showLegend" class="transition-box">
+              <div>
+                <img style="border: 4px solid rgba(255, 255, 255,0.7);border-radius: 8px;"
+                     src="../../assets/legend/typhoon.png"></img>
               </div>
+              <div class="foreCheck">
+                <el-checkbox-group v-model="forecastCheckList">
+                  <el-checkbox label="China">中国</el-checkbox>
+                  <el-checkbox label="Japan">日本</el-checkbox>
+                  <el-checkbox label="Europe">欧洲</el-checkbox>
+                  <el-checkbox label="USA">美国</el-checkbox>
+                  <el-checkbox label="Korea">韩国</el-checkbox>
+                  <el-checkbox label="Taiwan">台湾</el-checkbox>
+                  <el-checkbox label="HongKong">香港</el-checkbox>
+                  <el-checkbox label="TEPO">TEPO</el-checkbox>
+                </el-checkbox-group>
+              </div>
+            </div>
           </transition>
         </div>
       </div>
       <div @click="showLegend = !showLegend" class="legendPanel"
            style="bottom:10%; height: 2%">
-        <el-button type="info" size="small" style="background: rgba(28, 94, 133,0.8)" round>{{this.showLegend?'收起':'展开'}}</el-button>
+        <el-button type="info" size="small" style="background: rgba(28, 94, 133,0.8)" round>
+          {{this.showLegend?'收起':'展开'}}
+        </el-button>
       </div>
     </div>
 
@@ -187,7 +195,7 @@
         data() {
             return {
                 showLegend: true,
-                forecastCheckList: ['1','2','3','4'],
+                forecastCheckList: ["China", "Japan", "Europe", "USA", "TEPO", "Korea", "Taiwan", "HongKong"],
                 activeName: '1',
                 foreCheckActive: '1',
                 legendActive: '1',
@@ -229,9 +237,9 @@
                 typhMonitor: {},
                 // 用对象数组可以直接保存后端发送的结果
                 typhMonitorList: [{}],
-                activeNames:['rightSide'],
+                activeNames: ['rightSide'],
                 rightIsHide: false,
-                btnIconData:'el-icon-d-arrow-right',//按钮图标
+                btnIconData: 'el-icon-d-arrow-right',//按钮图标
             };
         },
         computed: {
@@ -250,17 +258,17 @@
         },
         methods: {
 
-          //侧边栏动画
-          rightBarHide() {
-            this.rightIsHide = !this.rightIsHide;
-            if (this.rightIsHide){
-              this.btnIconData='el-icon-d-arrow-left'
-              this.activeNames = ['no']
-            } else {
-              this.btnIconData='el-icon-d-arrow-right'
-              this.activeNames = ['rightSide']
-            }
-          },
+            //侧边栏动画
+            rightBarHide() {
+                this.rightIsHide = !this.rightIsHide;
+                if (this.rightIsHide) {
+                    this.btnIconData = 'el-icon-d-arrow-left'
+                    this.activeNames = ['no']
+                } else {
+                    this.btnIconData = 'el-icon-d-arrow-right'
+                    this.activeNames = ['rightSide']
+                }
+            },
 
             // 获取特定年份的所有台风
             typhoonList(year) {
@@ -469,15 +477,17 @@
             },
             typhMonitor: function (val, oldVal) {
                 // globalBus.$emit('addTyphMonitor', val, oldVal);
-
-            }
+            },
+            forecastCheckList: function (val, oldVal) {
+                globalBus.$emit('syncForecastLayerState', this.forecastCheckList);
+            },
         }
     }
 </script>
 
 <style>
 
-  .typhoonBarTitle{
+  .typhoonBarTitle {
     width: 96%;
     font-size: 20px;
     line-height: 1.7;
@@ -491,7 +501,7 @@
     position: fixed;
     /*width: 40%;*/
     left: 1.3%;
-    bottom: 18%;
+    bottom: 20%;
   }
 
   .transition-box {
@@ -501,7 +511,7 @@
     /*border-radius: 4px;*/
     /*background-color: #409EFF;*/
     height: 125px; /*图片的高度*/
-    text-align: center;
+    text-align: left;
     color: #fff;
     /*padding: 40px 20px;*/
     box-sizing: border-box;
@@ -515,9 +525,10 @@
   }
 
   .foreCheck {
-    width: 120%;
-    background: rgba(255, 255, 255,0.7);
+    width: 380px;
+    background: rgba(255, 255, 255, 0.7);
     border-radius: 8px;
+    padding-left: 35px;
   }
 
   .forecastPanel {
@@ -577,7 +588,7 @@
     overflow: hidden;
   }
 
-  .typhoonPanel_class{
+  .typhoonPanel_class {
     margin-left: 78%;
     margin-top: 1%;
     width: 21%;
@@ -585,17 +596,17 @@
     border: 0;
   }
 
-  #rightBtn .el-button{
+  #rightBtn .el-button {
     font-size: 25px;
   }
 
-  .typhoonBtn_class{
+  .typhoonBtn_class {
     margin-left: 74%;
     margin-top: 15%;
     position: fixed;
   }
 
-  #rightBar .el-collapse-item__header{
+  #rightBar .el-collapse-item__header {
     font-size: 0px;
     /*width: 45px;*/
     height: 0px;
@@ -604,7 +615,7 @@
     border: 0;
   }
 
-  #rightBar .el-collapse-item__content{
+  #rightBar .el-collapse-item__content {
     padding-bottom: 15px;
   }
 
@@ -654,12 +665,13 @@
 
   .el-table__body-wrapper::-webkit-scrollbar {
     /*滚动条整体样式*/
-    width : 10px;  /*高宽分别对应横竖滚动条的尺寸*/
+    width: 10px; /*高宽分别对应横竖滚动条的尺寸*/
     height: 1px;
   }
+
   .el-table__body-wrapper::-webkit-scrollbar-thumb {
     /*滚动条里面小方块*/
-    border-radius   : 10px;
+    border-radius: 10px;
     background-color: #99d2f1;
     background-image: -webkit-linear-gradient(
       45deg,
@@ -672,10 +684,11 @@
       transparent
     );
   }
+
   .el-table__body-wrapper::-webkit-scrollbar-track {
     /*滚动条里面轨道*/
-    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
-    background   : #ededed;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background: #ededed;
     border-radius: 10px;
   }
 

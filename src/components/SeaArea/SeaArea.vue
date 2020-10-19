@@ -382,9 +382,10 @@ zzhe
   }
 
   .headrowcolor {
-    /*background-color: #409EFF;*/
+    /*background-color: #6B8FB7;*/
+    /*opacity: 0.7;*/
     font-size: 17px;
-    color: #409EFF;
+    color: #7ad6ff;
   }
 
   .oddrowcolor {
@@ -392,7 +393,9 @@ zzhe
   }
 
   .evenrowcolor {
-    background-color: #CCFFFF;
+    background-color: #6B8FB7;
+    opacity: 0.7;
+    color: white;
   }
 
 

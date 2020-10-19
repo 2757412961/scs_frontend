@@ -10,7 +10,8 @@
     <el-collapse id="lawAreaForecast_panel" class="lawAreaPanel_class" v-model="activeNames" @change="rightBarHide">
 
       <el-collapse-item id="rightBar" style="border: 4px solid rgb(28, 94, 133);border-radius: 9px;"
-                        name="rightSide" :class="[this.lawRightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
+                        name="rightSide"
+                        :class="[this.lawRightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
         <div class="lawAreaBarTitle">执法海域</div>
         <div class="lawAreaBarTitle">
           <el-switch v-model="isShowLayer" active-text="显示执法海域"></el-switch>
@@ -20,19 +21,39 @@
         <div class="lawAreaTableDiv">
           <div v-for="data in lawAreaForecastData">
             <table border="1px" cellspacing="0" class="altrowstable">
-              <tr class="headrowcolor"><th colspan="2">
-                <div>
-                  {{ util.transDate2MMHHMM(new Date(data.qbsj + (data.ybtc-12) * 60 * 60 * 1000)) }}
-                  至
-                  {{ util.transDate2MMHHMM(new Date(data.qbsj + data.ybtc * 60 * 60 * 1000)) }}
-                </div>
-              </th></tr>
-              <tr><td style="width: 45%;" class="evenrowcolor">天气情况</td><td>{{ data.tqqk }}</td></tr>
-              <tr><td style="width: 45%;" class="evenrowcolor">风向</td><td>{{ data.fx }}</td></tr>
-              <tr><td style="width: 45%;" class="evenrowcolor">风速（级）</td><td :style="setColorByfs(data.fs)">{{ data.fs }}</td></tr>
-              <tr><td style="width: 45%;" class="evenrowcolor">视程范围（公里）</td><td>{{ data.scfw }}</td></tr>
-              <tr><td style="width: 45%;" class="evenrowcolor">风浪（米）</td><td :style="setColorBylang(data.fl)">{{ data.fl }}</td></tr>
-              <tr><td style="width: 45%;" class="evenrowcolor">涌浪（米）</td><td :style="setColorBylang(data.yl)">{{ data.yl }}</td></tr>
+              <tr class="headrowcolor">
+                <th colspan="2">
+                  <div>
+                    {{ util.transDate2MMHHMM(new Date(data.qbsj + (data.ybtc-12) * 60 * 60 * 1000)) }}
+                    至
+                    {{ util.transDate2MMHHMM(new Date(data.qbsj + data.ybtc * 60 * 60 * 1000)) }}
+                  </div>
+                </th>
+              </tr>
+              <tr>
+                <td style="width: 45%;" class="evenrowcolor">天气情况</td>
+                <td>{{ data.tqqk }}</td>
+              </tr>
+              <tr>
+                <td style="width: 45%;" class="evenrowcolor">风向</td>
+                <td>{{ data.fx }}</td>
+              </tr>
+              <tr>
+                <td style="width: 45%;" class="evenrowcolor">风速（级）</td>
+                <td :style="setColorByfs(data.fs)">{{ data.fs }}</td>
+              </tr>
+              <tr>
+                <td style="width: 45%;" class="evenrowcolor">视程范围（公里）</td>
+                <td>{{ data.scfw }}</td>
+              </tr>
+              <tr>
+                <td style="width: 45%;" class="evenrowcolor">风浪（米）</td>
+                <td :style="setColorBylang(data.fl)">{{ data.fl }}</td>
+              </tr>
+              <tr>
+                <td style="width: 45%;" class="evenrowcolor">涌浪（米）</td>
+                <td :style="setColorBylang(data.yl)">{{ data.yl }}</td>
+              </tr>
             </table>
           </div>
         </div>
@@ -211,7 +232,7 @@
     border: 0;
   }
 
-  #rightBar .el-collapse-item__header{
+  #rightBar .el-collapse-item__header {
     font-size: 0px;
     /*width: 45px;*/
     height: 0px;
@@ -220,7 +241,7 @@
     border: 0;
   }
 
-  #rightBar .el-collapse-item__content{
+  #rightBar .el-collapse-item__content {
     padding-bottom: 15px;
   }
 
@@ -323,9 +344,10 @@
   }
 
   .headrowcolor {
-    /*background-color: #409EFF;*/
+    /*background-color: #6B8FB7;*/
+    /*opacity: 0.7;*/
     font-size: 17px;
-    color: #409EFF;
+    color: #7ad6ff;
   }
 
   .oddrowcolor {
@@ -333,7 +355,9 @@
   }
 
   .evenrowcolor {
-    background-color: #CCFFFF;
+    background-color: #6B8FB7;
+    opacity: 0.7;
+    color: white;
   }
 
 </style>

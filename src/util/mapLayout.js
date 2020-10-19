@@ -58,7 +58,7 @@ export default {
     },
     "China": {
       CN_Name: "中国",
-      color: "#1B08A3"
+      color: "#0066CC"
     },
     "Japan": {
       CN_Name: "日本",
@@ -74,19 +74,19 @@ export default {
     },
     "TEPO": {
       CN_Name: "TEPO",
-      color: "#BA2DA9"
+      color: "#009999"
     },
     "Korea": {
       CN_Name: "韩国",
-      color: "#BA2DA9"
+      color: "#ba1d2a"
     },
     "Taiwan": {
       CN_Name: "台湾",
-      color: "#BA2DA9"
+      color: "#FF9900"
     },
     "HongKong": {
       CN_Name: "香港",
-      color: "#BA2DA9"
+      color: "#666699"
     },
   },
 

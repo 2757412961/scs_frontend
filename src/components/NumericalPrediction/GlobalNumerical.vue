@@ -17,73 +17,95 @@
             精细化数值预报产品
           </div>
 
-          <div class="predictPaper_title" style="font-weight: normal;margin-top: 4%">
-            中国近海风浪预报查询
-          </div>
           <div class="globalNumPanelBody_div">
-            <div style="margin: 2%;height: 6vh;">
-              <el-radio v-model="globalNumRadio" label="1" border @change="addPngChangeHandler">10米风场</el-radio>
-              <el-radio v-model="globalNumRadio" label="2" border @change="addPngChangeHandler">海浪</el-radio>
+            <div style="font-weight: normal;font-size:18px;margin-top: 2%; margin-bottom: -6%">
+              中国近海风浪预报查询
             </div>
-          </div>
-          <div class="predictPaper_title" style="font-weight: normal;margin-top: 4%">
-            中国近海风浪格点预报查询
-          </div>
-          <div class="globalNumPanelBody_div">
-            <div style="margin: 2%;height: 6vh;">
-              <el-radio v-model="globalNumRadio" label="3" border @change="addPngChangeHandler">10m风场(级)</el-radio>
-              <el-radio v-model="globalNumRadio" label="4" border @change="addPngChangeHandler">波高(米)</el-radio>
-            </div>
-          </div>
+            <div style="height: 53vh;">
+              <el-divider></el-divider>
+              <div>
+                <div style="line-height:1.7;font-size: 16px;margin-top: -4%; margin-bottom: 5%">
+                  预报时次：
+                  <span style="font-weight: normal">
+                    {{this.getCurrentSelectedForecastTime((this.globalNumRadio==2 || this.globalNumRadio==4)?this.waveTimeSelectedTime:this.windTimeSelectedTime)}}
+                  </span>
+                </div>
+                <div class="selTitleLabel" style="margin-top: 0">
+                  <label style="line-height:1.7;font-size: 16px;">产品：</label>
+                </div>
+                <div style="margin-top: 0" class="selTitleBody">
+                  <el-radio style="margin: 0;" v-model="globalProductRadio" label="1" border size="medium" @change="addPngChangeHandler">10米风场</el-radio>
+                  <el-radio v-model="globalProductRadio" label="2" border size="medium" @change="addPngChangeHandler">海浪</el-radio>
+                </div>
 
+                <div class="selTitleLabel">
+                  <label style="line-height:1.7;font-size: 16px;">类型：</label>
+                </div>
+                <div  class="selTitleBody">
+                  <el-radio style="margin: 0;"  v-model="globalTypeRadio" label="1" border @change="addPngChangeHandler">&nbsp;&nbsp;填色图&nbsp;&nbsp;</el-radio>
+                  <el-radio v-model="globalTypeRadio" label="2" border @change="addPngChangeHandler">格点</el-radio>
+                </div>
+              </div>
 
-          <div class="globalNumPanelBody_div" style="margin-top: 4%;height: 24vh;padding-top: 4%">
-            <div class="globalNum_draw_div">
-              <div style="width: 40%; font-size: 16px;margin-left: 5%">输入查询范围：</div>
-              <div style="width: 26%; font-size: 16px; cursor: pointer;margin-left: 2%;margin-right: 2%;color: blue"
-                   @click="drawRectangle(true)">拾取范围</div>
-              <div style="width: 18%; font-size: 16px; cursor: pointer;margin-left: 1%;color: blue"
-                   @click="drawRectangle(false)">清除</div>
-            </div>
-            <div>
-              <label class="globalNumInputLabel">北</label>
-              <el-input
-                placeholder="上"
-                v-model="northInput" size="mini" class="globalNumInput"
-                @input="globalNumInputChange"
-                clearable>
-              </el-input>
-            </div>
-            <div>
-              <label class="globalNumInputLabel">西</label>
-              <el-input
-                placeholder="左"
-                v-model="westInput" size="mini" class="globalNumInput"
-                @input="globalNumInputChange"
-                clearable>
-              </el-input>
-              <el-input
-                placeholder="右"
-                v-model="eastInput" size="mini" class="globalNumInput"
-                @input="globalNumInputChange"
-                clearable>
-              </el-input>
-              <label class="globalNumInputLabel">东</label>
-            </div>
-            <div>
-              <label class="globalNumInputLabel">南</label>
-              <el-input
-                placeholder="下"
-                v-model="southInput" size="mini" class="globalNumInput"
-                @input="globalNumInputChange"
-                clearable>
-              </el-input>
-            </div>
-          </div>
+              <!--              坐标选取-->
+              <div class="selTitleLabel">
+                <label style="line-height:1.7;font-size: 16px;">范围：</label>
+              </div>
+              <div style="margin-bottom: 5%"  class="selTitleBody">
+                  <el-radio style="margin: 0;" v-model="drawExtentRatio" border label="1" @change="inputDisabled=false">&nbsp;&nbsp;自定义&nbsp;&nbsp;</el-radio>
+                  <el-radio v-model="drawExtentRatio" border label="2" @change="inputDisabled=true; drawRectangle(false)">全局</el-radio>
+              </div>
 
-          <div class="predictPaper_title" style="margin-top: 6%;border: 0">
-            预报时次：
-            {{this.getCurrentSelectedForecastTime((this.globalNumRadio==2 || this.globalNumRadio==4)?this.waveTimeSelectedTime:this.windTimeSelectedTime)}}
+              <div>
+                <div>
+                  <label class="globalNumInputLabel">北</label>
+                  <el-input
+                    placeholder="上"
+                    :disabled="inputDisabled"
+                    v-model="northInput" size="mini" class="globalNumInput"
+                    @input="globalNumInputChange"
+                    clearable>
+                  </el-input>
+                </div>
+                <div>
+                  <label class="globalNumInputLabel">西</label>
+                  <el-input
+                    placeholder="左"
+                    :disabled="inputDisabled"
+                    v-model="westInput" size="mini" class="globalNumInput"
+                    @input="globalNumInputChange"
+                    clearable>
+                  </el-input>
+                  <el-input
+                    placeholder="右"
+                    :disabled="inputDisabled"
+                    v-model="eastInput" size="mini" class="globalNumInput"
+                    @input="globalNumInputChange"
+                    clearable>
+                  </el-input>
+                  <label class="globalNumInputLabel">东</label>
+                </div>
+                <div>
+                  <label class="globalNumInputLabel">南</label>
+                  <el-input
+                    placeholder="下"
+                    :disabled="inputDisabled"
+                    v-model="southInput" size="mini" class="globalNumInput"
+                    @input="globalNumInputChange"
+                    clearable>
+                  </el-input>
+                </div>
+                <div style="margin-top: 2%">
+                  <el-button type="text" :disabled="inputDisabled"
+                             style="float:left; width: 26%; font-size: 16px;margin-left: 12%;"
+                       @click="drawRectangle(true)">拾取范围</el-button>
+                  <el-button type="text" :disabled="inputDisabled"
+                             style="float:right; width: 26%;font-size: 16px; margin-right: 12%;"
+                       @click="drawRectangle(false)">清除范围</el-button>
+                </div>
+
+              </div>
+            </div>
           </div>
         </div>
 
@@ -176,6 +198,8 @@
           42:'042', 48:'048', 54:'054',60:'060', 66:'066', 72:'072', 78:'078',
           84:'084', 90:'090', 96:'096', 102:'102', 108:'108', 114:'114', 120:'120'
         },
+        drawExtentRatio: '2', // 是否手动绘制范围
+        inputDisabled: true,
         valueSlider: 12,
         gloNum_checkRadio: ['101','102'],
         wind_legend: wind_legend,
@@ -183,7 +207,9 @@
         showForecastRate: true, //预报时次显示
         showLegend: true, // legend显示
         fullViewExtent: [-180, -90, 180,90], //整个页面显示贴图
-        globalNumRadio: '1', // 选择风浪/海浪【(格点)】查询
+        globalNumRadio: '1', // 类型 + 产品 单选框综合的值(贴图的值)
+        globalProductRadio: '1',  //产品 单选框
+        globalTypeRadio: '1',  //类型 单选框
         forecastTimeSel: ['000', '006', '012','018', '024', '030', '036', '042', '048', '054',
           '060', '066', '072', '078', '084',
           '090', '096', '102', '108', '114', '120'],
@@ -218,6 +244,7 @@
       // 填充4个经纬度输入框的值
       fillLonlatInput(){
         globalBus.$on('fillGlobalNumLonlatInput',(leftBottom,rightTop) => {
+          // this.westInput = parseFloat(leftBottom[0]).toFixed(2);
           this.westInput = leftBottom[0];
           this.southInput = leftBottom[1];
           this.eastInput = rightTop[0];
@@ -231,10 +258,10 @@
       drawRectangle(flag){
         // 调用maplayout中的绘图方法
         if (!flag){  //如果点击了清除按钮，初始化拾取范围的值
-          this.westInput= -180;
-          this.southInput = -90;
-          this.eastInput = 180;
-          this.northInput = 90;
+          this.westInput= -180.0;
+          this.southInput = -90.0;
+          this.eastInput = 180.0;
+          this.northInput = 90.0;
           this.fullViewExtent = [this.westInput, this.southInput, this.eastInput,this.northInput];
         }
         globalBus.$emit('drawRectangle', flag)
@@ -242,6 +269,21 @@
 
       // 贴图事件触发
       addPngChangeHandler(){
+
+        /**
+         * 通过【产品】单选框、【类型】单选框，判断 globalNumRadio 的值
+         *
+         **/
+        if (this.globalProductRadio == '1' && this.globalTypeRadio == '1'){
+          this.globalNumRadio = '1'
+        } else if (this.globalProductRadio == '1' && this.globalTypeRadio == '2'){
+          this.globalNumRadio = '3'
+        }else if (this.globalProductRadio == '2' && this.globalTypeRadio == '1'){
+          this.globalNumRadio = '2'
+        }else if (this.globalProductRadio == '2' && this.globalTypeRadio == '2'){
+          this.globalNumRadio = '4'
+        }
+
         /**
          *  globalNumType
          *   1 === 气象图
@@ -403,6 +445,20 @@
   }
 </script>
 <style scoped>
+
+  .selTitleBody {
+    width: 75%;
+    float:left;
+    margin-top: 5%;
+  }
+
+  .selTitleLabel {
+    width: 18%;
+    float: left;
+    margin-left: 5%;
+    margin-top: 5%;
+  }
+
   .gloNum_elRadio_forecastRate{
     margin-top: 1%;
     font-size: 14px;
@@ -469,7 +525,7 @@
   }
 
   .globalNumPanelBody {
-    height: calc(68vh);
+    height: calc(66vh);
   }
 
   .predictPaper_title {

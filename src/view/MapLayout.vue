@@ -1614,17 +1614,16 @@
                         this.globalNum_draw_layer.getSource().clear()
                         this.map.removeLayer(this.globalNum_draw_layer)
                         this.map.removeInteraction(this.globalNum_draw)
-                        let pngUrl = this.globalNum_current_png.pngUrl
                         var globalNumThis = this
-                        this.globalNum_draw.on('drawend', function (e) {
+                      this.globalNum_draw.on('drawend', function (e) {
                             const geometry = e.feature.getGeometry()
                             const corrdinates = geometry.getCoordinates()
                             // [0][0]是左下角 [0][1]右下 [0][2]右上 [0][3]左上
                             let leftBottom = transform(corrdinates[0][0], "EPSG:3857", "EPSG:4326")
                             let rightTop = transform(corrdinates[0][2], "EPSG:3857", "EPSG:4326")
-                            // this.globalNum_visible_extent = [leftBottom[0],leftBottom[1],rightTop[0],rightTop[1]]
+                          // this.globalNum_visible_extent = [leftBottom[0],leftBottom[1],rightTop[0],rightTop[1]]
                             globalNumThis.globalNum_visible_extent = [corrdinates[0][0][0], corrdinates[0][0][1], corrdinates[0][2][0], corrdinates[0][2][1]];
-                            globalNumThis.addPngImageGlobalNumerical(pngUrl, globalNumThis.globalNum_visible_extent);
+                            globalNumThis.addPngImageGlobalNumerical(globalNumThis.globalNum_current_png.pngUrl, globalNumThis.globalNum_visible_extent);
 
                             globalBus.$emit('fillGlobalNumLonlatInput', leftBottom, rightTop)
                             globalNumThis.map.removeInteraction(globalNumThis.globalNum_draw)
@@ -1689,6 +1688,11 @@
             globalNumericalZoomChange(viewExtent) {
                 let currentZoom = parseInt(this.map.getView().getZoom())
                 let newPngUrl = '';
+                if (this.globalNum_current_png.pngUrl.indexOf('_D') != -1){
+                  let tempPngUrl = this.globalNum_current_png.pngUrl
+                  this.globalNum_current_png.pngUrl = tempPngUrl.substr(0,tempPngUrl.indexOf('_D') )
+                          + tempPngUrl.substr(tempPngUrl.indexOf('_D')+3)
+                }
                 if (this.globalNum_current_png.type == '3') {
                     if (currentZoom >= 2 && currentZoom <= 4) {
                         newPngUrl = this.globalNum_current_png.pngUrl.replace('.png', '_D0.png')
@@ -1708,7 +1712,8 @@
                 }
                 if (this.globalNum_current_png.pngUrl == newPngUrl)
                     return
-                this.addPngImageGlobalNumerical(newPngUrl, viewExtent);
+              this.globalNum_current_png.pngUrl = newPngUrl
+              this.addPngImageGlobalNumerical(newPngUrl, viewExtent);
             },
             globalNumericalAddImage() {
                 globalBus.$on('addPngImageGlobalNum', (pngUrl, globalNumType, viewExtent) => {
@@ -1744,46 +1749,6 @@
                             this.globalNumericalZoomChange(this.globalNum_visible_extent)
                             break;
                     }
-
-                    /*return
-                    let mapProjection = this.map.getView().getProjection()
-                    let mapExtent = this.map.getView().getProjection().getExtent()
-                    let lonLat =  [0,90,360,90];
-                    let rightSide1 = fromLonLat([0,-85]);
-                    let rightSide2 = fromLonLat([360,85]);
-                    var rightSideExtent = [rightSide1[0], rightSide1[1], rightSide2[0], rightSide2[1]];
-                    var projection = new Projection({
-                      code: 'EPSG:3857',
-                      extent: mapExtent,
-                    });
-                    var imageExtent = [0,
-                                    -20037508.342789244,
-                                    20037508.342789244*2,
-                                    20037508.342789244];
-                    this.globalNum_imgLayer = new ImageLayer({
-                      source: new ImageStaticSource({
-                        url: pngUrl,
-                        projection: projection,
-                        imageExtent: rightSideExtent,
-                        crossOrigin: '',
-                      }),
-                    });
-                    console.log(this.globalNum_imgLayer)
-                    this.globalNum_imgLayer.setOpacity(0.6)
-                    this.map.addLayer(this.globalNum_imgLayer);
-                    let leftSide1 = fromLonLat([-360,-85]);
-                    let leftSide2 = fromLonLat([0,85]);
-                    var leftSideExtent = [leftSide1[0], leftSide1[1], leftSide2[0], leftSide2[1]];
-                    this.globalNum_imgLayer = new ImageLayer({
-                      source: new ImageStaticSource({
-                        url: pngUrl,
-                        projection: projection,
-                        imageExtent: leftSideExtent,
-                        crossOrigin: '',
-                      }),
-                    });
-                    this.globalNum_imgLayer.setOpacity(0.6)
-                    this.map.addLayer(this.globalNum_imgLayer);*/
 
                 })
             },

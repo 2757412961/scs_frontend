@@ -62,7 +62,7 @@
                   <el-input
                     placeholder="上"
                     :disabled="inputDisabled"
-                    v-model="northInput" size="mini" class="globalNumInput"
+                    v-model="parseFloat(northInput).toFixed(2)" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
@@ -72,14 +72,14 @@
                   <el-input
                     placeholder="左"
                     :disabled="inputDisabled"
-                    v-model="westInput" size="mini" class="globalNumInput"
+                    v-model="parseFloat(westInput).toFixed(2)" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
                   <el-input
                     placeholder="右"
                     :disabled="inputDisabled"
-                    v-model="eastInput" size="mini" class="globalNumInput"
+                    v-model="parseFloat(eastInput).toFixed(2)" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
@@ -90,7 +90,7 @@
                   <el-input
                     placeholder="下"
                     :disabled="inputDisabled"
-                    v-model="southInput" size="mini" class="globalNumInput"
+                    v-model="parseFloat(southInput).toFixed(2)" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
@@ -220,10 +220,10 @@
         windTimeSelectedTime: '', //气象选中的值 yyyymmddhh
         windForecastStart: '加载中...',
         waveForecastStart: '加载中...',
-        northInput: '',
-        southInput: '',
-        eastInput: '',
-        westInput: '',
+        northInput: '90.0',
+        southInput: '-90.0',
+        eastInput: '180.0',
+        westInput: '-180.0',
         rightIsHide: false,
         btnIconData: 'el-icon-d-arrow-right',//按钮图标
         activeNames: ['rightSide'],

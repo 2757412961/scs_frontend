@@ -4,20 +4,15 @@
          v-model="predictionModal"
          title="海区环境预报单" @on-ok="predictionModal=false"
          @on-cancel="loading=true">
+
     <div class="predictionContent_class">
 
-      <div id="seaAreaPrediction" class="seaAreaPrediction">
-        <div class="prediction_title">
-          <span style="">海区预报单</span>
-        </div>
-
-        <div class="predictDivBtn_class" @click="seaAreaLoadFile">
-          <span>加载</span>
-        </div>
-
-        <div class="predictionLeftSel">
-          <span>年：</span>
-          <el-select class="forecastPaperSel" v-model="seaAreaSelectedYear" placeholder="请选择" size="mini" @change="seaAreaYearChange">
+      <el-divider content-position="left" >
+        <span style="font-size: 16px; line-height: 1.6; font-weight: bold;">海区预报单</span>
+      </el-divider>
+      <el-form :inline="true" class="prediction-form-inline" size="mini">
+        <el-form-item label="年">
+          <el-select v-model="seaAreaSelectedYear" style="width:80px" @change="seaAreaYearChange">
             <el-option
               v-for="(item,index) in seaAreaYear"
               :key="index"
@@ -25,11 +20,9 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionRightSel">
-          <span>月：</span>
-          <el-select class="forecastPaperSel" v-model="seaAreaSelectedMonth" placeholder="请选择" size="mini" @change="seaAreaMonthChange">
+        </el-form-item>
+        <el-form-item label="月" style="margin-left: 10px;">
+          <el-select v-model="seaAreaSelectedMonth" style="width:60px;"  @change="seaAreaMonthChange">
             <el-option
               v-for="(item,index)  in seaAreaMonth"
               :key="index"
@@ -37,11 +30,9 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionLeftSel">
-          <span>日：</span>
-          <el-select class="forecastPaperSel" v-model="seaAreaSelectedDay" placeholder="请选择" size="mini">
+        </el-form-item>
+        <el-form-item label="日" style="margin-left: 10px;">
+          <el-select v-model="seaAreaSelectedDay" style="width:60px" @change="">
             <el-option
               v-for="(item,index)  in seaAreaDay"
               :key="index"
@@ -49,28 +40,27 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
+        </el-form-item>
+        <el-form-item label="时" style="margin-left: 10px;">
+          <el-select v-model="seaAreaHourDefault" style="width:60px">
+            <el-option
+              label="20"
+              :value="20">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item style="margin-left: 10px;">
+          <el-button type="primary" @click="seaAreaLoadFile">查询</el-button>
+        </el-form-item>
+      </el-form>
 
-        <div class="predictionRightSel">
-          <span style="">20时</span>
-          <div style=" display: inline-block;" class="forecastPaperSel">
-          </div>
-        </div>
 
-      </div>
-
-      <div id="lawAreaPrediction" class="seaAreaPrediction">
-        <div class="prediction_title">
-          <span style="">执法预报单</span>
-        </div>
-
-        <div class="predictDivBtn_class" @click="lawAreaLoadFile">
-          <span>加载</span>
-        </div>
-
-        <div class="predictionLeftSel">
-          <span>年：</span>
-          <el-select class="forecastPaperSel" v-model="lawAreaSelectedYear" placeholder="请选择" size="mini"  @change="lawAreaYearChange">
+      <el-divider content-position="left" >
+        <span style="font-size: 16px; line-height: 1.6; font-weight: bold;">执法预报单</span>
+      </el-divider>
+      <el-form :inline="true" class="prediction-form-inline" size="mini">
+        <el-form-item label="年">
+          <el-select v-model="lawAreaSelectedYear" style="width:80px" @change="lawAreaYearChange">
             <el-option
               v-for="(item,index) in lawAreaYear"
               :key="index"
@@ -78,11 +68,9 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionRightSel">
-          <span>月：</span>
-          <el-select class="forecastPaperSel" v-model="lawAreaSelectedMonth" placeholder="请选择" size="mini"  @change="lawAreaMonthChange">
+        </el-form-item>
+        <el-form-item label="月" style="margin-left: 10px;">
+          <el-select v-model="lawAreaSelectedMonth" style="width:60px"  @change="lawAreaMonthChange">
             <el-option
               v-for="(item,index) in lawAreaMonth"
               :key="index"
@@ -90,11 +78,9 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionLeftSel">
-          <span >日：</span>
-          <el-select class="forecastPaperSel" v-model="lawAreaSelectedDay" placeholder="请选择" size="mini" @change="lawAreaDayChange">
+        </el-form-item>
+        <el-form-item label="日" style="margin-left: 10px;">
+          <el-select v-model="lawAreaSelectedDay" style="width:60px" @change="lawAreaDayChange">
             <el-option
               v-for="(item,index) in lawAreaDay"
               :key="index"
@@ -102,11 +88,9 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionRightSel">
-          <span>时：</span>
-          <el-select class="forecastPaperSel" v-model="lawAreaSelectedHour" placeholder="请选择" size="mini">
+        </el-form-item>
+        <el-form-item label="时" style="margin-left: 10px;">
+          <el-select v-model="lawAreaSelectedHour" style="width:60px">
             <el-option
               v-for="(item,index) in lawAreaHour"
               :key="index"
@@ -114,21 +98,19 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-      </div>
+        </el-form-item>
+        <el-form-item style="margin-left: 10px;">
+          <el-button type="primary" @click="lawAreaLoadFile">查询</el-button>
+        </el-form-item>
+      </el-form>
 
-      <div id="typhoonPrediction" class="seaAreaPrediction">
-        <div class="prediction_title">
-          <span style="">台风预报单</span>
-        </div>
 
-        <div class="predictDivBtn_class" @click="typhoonLoadFile">
-          <span>加载</span>
-        </div>
-
-        <div class="predictionLeftSel" style="width: 90%">
-          <span style="">台风编号：</span>
-          <el-select style="width: 60%" v-model="typhoonSelectedNum" placeholder="请选择" size="mini" @change="typhoonNumChange">
+      <el-divider content-position="left" >
+        <span style="font-size: 16px; line-height: 1.6; font-weight: bold;">台风预报单</span>
+      </el-divider>
+      <el-form :inline="true" class="prediction-form-inline" size="mini">
+        <el-form-item label="编号">
+          <el-select v-model="typhoonSelectedNum" style="width:95px" @change="typhoonNumChange">
             <el-option
               v-for="(item,index)  in typhoonNum"
               :key="index"
@@ -136,11 +118,9 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionRightSel"  style="width: 90%">
-          <span style="">预报次数：</span>
-          <el-select style="width: 60%" v-model="typhoonSelectedReleaseNum" placeholder="请选择" size="mini" @change="typhoonReleaseNumChange">
+        </el-form-item>
+        <el-form-item label="预报时次" style="margin-left: 10px;">
+          <el-select v-model="typhoonSelectedReleaseNum" style="width:60px"  @change="typhoonReleaseNumChange">
             <el-option
               v-for="(item,index)  in typhoonReleaseNum"
               :key="index"
@@ -148,11 +128,9 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionLeftSel"  style="width: 90%">
-          <span style="">发布时间：</span>
-          <el-select style="width: 60%" v-model="typhoonSelectedReleaseDate" placeholder="请选择" size="mini">
+        </el-form-item>
+        <el-form-item label="发布时间" style="margin-left: 10px;">
+          <el-select v-model="typhoonSelectedReleaseDate" style="width:120px" @change="lawAreaDayChange">
             <el-option
               v-for="(item,index)  in typhoonReleaseDate"
               :key="index"
@@ -160,21 +138,19 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-      </div>
+        </el-form-item>
+        <el-form-item style="margin-left: 10px;">
+          <el-button type="primary" @click="typhoonLoadFile">查询</el-button>
+        </el-form-item>
+      </el-form>
 
-      <div id="tropicsPrediction" class="seaAreaPrediction">
-        <div class="prediction_title">
-          <span style="">热带低压消息</span>
-        </div>
 
-        <div class="predictDivBtn_class" @click="tropicsLoadFile">
-          <span>加载</span>
-        </div>
-
-        <div class="predictionLeftSel" style="width: 90%">
-          <span style="">编号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-          <el-select style="width: 60%" v-model="tropicsSelectedNum" placeholder="请选择" size="mini" @change="tropicsNumChange">
+      <el-divider content-position="left" >
+        <span style="font-size: 16px; line-height: 1.6; font-weight: bold;">热带低压消息</span>
+      </el-divider>
+      <el-form :inline="true" class="prediction-form-inline" size="mini">
+        <el-form-item label="编号">
+          <el-select v-model="tropicsSelectedNum" style="width:95px" @change="tropicsNumChange">
             <el-option
               v-for="(item,index)  in tropicsNum"
               :key="index"
@@ -182,11 +158,9 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionRightSel"  style="width: 90%">
-          <span style="">预报次数：</span>
-          <el-select style="width: 60%" v-model="tropicsSelectedReleaseNum" placeholder="请选择" size="mini" @change="tropicsReleaseNumChange">
+        </el-form-item>
+        <el-form-item label="预报时次" style="margin-left: 10px;">
+          <el-select v-model="tropicsSelectedReleaseNum" style="width:65px"  @change="tropicsReleaseNumChange">
             <el-option
               v-for="(item,index)  in tropicsReleaseNum"
               :key="index"
@@ -194,11 +168,9 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionLeftSel"  style="width: 90%">
-          <span style="">发布时间：</span>
-          <el-select style="width: 60%" v-model="tropicsSelectedReleaseDate" placeholder="请选择" size="mini">
+        </el-form-item>
+        <el-form-item label="发布时间" style="margin-left: 10px;">
+          <el-select v-model="tropicsSelectedReleaseDate" style="width:120px">
             <el-option
               v-for="(item,index)  in tropicsReleaseDate"
               :key="index"
@@ -206,21 +178,18 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-      </div>
+        </el-form-item>
+        <el-form-item style="margin-left: 10px;">
+          <el-button type="primary" @click="tropicsLoadFile">查询</el-button>
+        </el-form-item>
+      </el-form>
 
-      <div id="tenDaysPrediction" class="seaAreaPrediction">
-        <div class="prediction_title">
-          <span style="">未来十天预报单</span>
-        </div>
-
-        <div class="predictDivBtn_class" @click="nextTenDaysLoadFile">
-          <span>加载</span>
-        </div>
-
-        <div class="predictionLeftSel">
-          <span>年：</span>
-          <el-select class="forecastPaperSel" v-model="nextTenDaysSelectedYear" placeholder="请选择" size="mini" @change="nextTenDaysYearChange">
+      <el-divider content-position="left" >
+        <span style="font-size: 16px; line-height: 1.6; font-weight: bold;">未来十天预报单</span>
+      </el-divider>
+      <el-form :inline="true" class="prediction-form-inline" size="mini">
+        <el-form-item label="年">
+          <el-select v-model="nextTenDaysSelectedYear" style="width:80px" @change="nextTenDaysYearChange">
             <el-option
               v-for="(item,index) in nextTenDaysYear"
               :key="index"
@@ -228,51 +197,38 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionRightSel">
-          <span>月：</span>
-          <el-select class="forecastPaperSel" v-model="nextTenDaysSelectedMonth" placeholder="请选择" size="mini" @change="nextTenDaysMonthChange">
+        </el-form-item>
+        <el-form-item label="月" style="margin-left: 10px;">
+          <el-select v-model="nextTenDaysSelectedMonth" style="width:60px"  @change="nextTenDaysMonthChange">
             <el-option
-              v-for="(item,index) in nextTenDaysMonth"
+              v-for="(item,index)  in nextTenDaysMonth"
               :key="index"
               :label="item"
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionLeftSel">
-          <span>日：</span>
-          <el-select class="forecastPaperSel" v-model="nextTenDaysSelectedDay" placeholder="请选择" size="mini">
+        </el-form-item>
+        <el-form-item label="日" style="margin-left: 10px;">
+          <el-select v-model="nextTenDaysSelectedDay" style="width:60px" @change="lawAreaDayChange">
             <el-option
-              v-for="(item,index) in nextTenDaysDay"
+              v-for="(item,index)  in nextTenDaysDay"
               :key="index"
               :label="item"
               :value="item">
             </el-option>
           </el-select>
-        </div>
+        </el-form-item>
+        <el-form-item style="margin-left: 10px;">
+          <el-button type="primary" @click="nextTenDaysLoadFile">查询</el-button>
+        </el-form-item>
+      </el-form>
 
-        <div class="predictionRightSel">
-          <span></span>
-          <div style="display: inline-block;" class="forecastPaperSel">
-          </div>
-        </div>
-      </div>
-
-      <div id="icePrediction" class="seaAreaPrediction">
-        <div class="prediction_title">
-          <span style="">海冰预报单</span>
-        </div>
-
-        <div class="predictDivBtn_class" @click="seaIceLoadFile">
-          <span>加载</span>
-        </div>
-
-        <div class="predictionLeftSel">
-          <span>年：&nbsp;&nbsp;&nbsp;&nbsp;</span>
-          <el-select class="forecastPaperSel" v-model="seaIceSelectedYear" placeholder="请选择" size="mini" @change="seaIceYearChange">
+      <el-divider content-position="left" >
+        <span style="font-size: 16px; line-height: 1.6; font-weight: bold;">海冰预报单</span>
+      </el-divider>
+      <el-form :inline="true" class="prediction-form-inline" size="mini">
+        <el-form-item label="年">
+          <el-select v-model="seaIceSelectedYear" style="width:80px" @change="seaIceYearChange">
             <el-option
               v-for="(item,index) in seaIceYear"
               :key="index"
@@ -280,23 +236,19 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionRightSel">
-          <span>编号：</span>
-          <el-select style="width: 65%" v-model="seaIceSelectedNum" placeholder="请选择" size="mini" @change="seaIceNumChange">
+        </el-form-item>
+        <el-form-item label="编号" style="margin-left: 10px;">
+          <el-select v-model="seaIceSelectedNum" style="width:60px"  @change="seaIceNumChange">
             <el-option
-              v-for="(item,index) in seaIceNum"
+              v-for="(item,index)  in seaIceNum"
               :key="index"
               :label="item"
               :value="item">
             </el-option>
           </el-select>
-        </div>
-
-        <div class="predictionRightSel"  style="width: 90%">
-          <span>周期：</span>
-          <el-select style="width: 60%" v-model="seaIceSelectedCycle" placeholder="请选择" size="mini">
+        </el-form-item>
+        <el-form-item label="周期" style="margin-left: 10px;">
+          <el-select v-model="seaIceSelectedCycle" style="width:90px">
             <el-option
               v-for="(item,index)  in seaIceCycle"
               :key="index"
@@ -304,9 +256,12 @@
               :value="item">
             </el-option>
           </el-select>
-        </div>
+        </el-form-item>
+        <el-form-item style="margin-left: 10px;">
+          <el-button type="primary" @click="seaIceLoadFile">查询</el-button>
+        </el-form-item>
+      </el-form>
 
-      </div>
 
     </div>
   </modal>
@@ -325,6 +280,7 @@
         seaAreaYear: {},
         seaAreaMonth: {},
         seaAreaDay: {},
+        seaAreaHourDefault: '20',
         seaAreaSelectedYear: '',
         seaAreaSelectedMonth: '',
         seaAreaSelectedDay: '',
@@ -377,14 +333,6 @@
       }
 
     },
-    /*created() {
-      this.getSeaAreaForecastConditon("","","");
-      this.getLawAreaForecastConditon("","","", "")
-      this.getTyphoonForecastConditon("","","")
-      this.getTropicsForecastConditon("","","")
-      this.getNextTenDaysForecastConditon("","","");
-      this.getSeaIceForecastConditon("","","");
-    },*/
     watch: {
       // 监听近海海区预报pdf
       seaAreaPaperFileName(val){
@@ -733,14 +681,16 @@
   }
 </script>
 
+<style scoped>
+  .prediction-form-inline{
+    margin-left:3%;
+  }
+</style>
+
 <style>
 
   #pdfDialog .el-dialog__body{
     padding: 10px;
-  }
-
-  .forecastPaperSel {
-    width: 70%;
   }
 
   .predictionContent_class {
@@ -748,80 +698,9 @@
     overflow-y: scroll;
   }
 
-  .predictDivBtn_class {
-    width: 5%;
-    float: right;
-    margin: 2%;
-    margin-right: 10%;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 1.6;
-    font-weight: bold;
-  }
-  .predictDivBtn_class:hover {
-    background-color: #99b3cc;
-  }
-
-  .prediction_title {
-    width: 46%;
-    margin: 2%;
-    float: left;
-    font-size: 16px;
-    line-height: 1.6;
-    font-weight: bold;
-  }
-
-  .predictionLeftSel {
-    width: 46%;
-    margin: 2%;
-    float: left;
-  }
-
-  .predictionRightSel {
-    width: 46%;
-    margin: 2%;
-    float: left;
-  }
-
-  .seaAreaPrediction {
-    width: 96%;
-    border: 1px solid #3681aa;
-    margin: 2%;
-    border-radius: 7px;
-    display: inline-block;
-  }
-
-  .predictPaper_title {
-    width: 96%;
-    font-size: 20px;
-    line-height: 1.7;
-    font-weight: bold;
-    border: 2px solid #3681aa;
-    margin: 2%;
-    border-radius: 7px;
-  }
-
-  .seaAreaTableDiv {
-    height: calc(70vh);
-    overflow-y: scroll;
-  }
 
   #rightBtn .el-button {
     font-size: 30px;
-  }
-
-  .predictBtn_class {
-    margin-left: 74%;
-    margin-top: 15%;
-    position: fixed;
-  }
-
-  .predictPaper_class {
-    margin-left: 78%;
-    margin-top: 1%;
-    width: 21%;
-    position: fixed;
-    border: 0;
   }
 
   #rightBar .el-collapse-item__header {
@@ -889,7 +768,7 @@
   .predictionContent_class::-webkit-scrollbar-thumb {
     /*滚动条里面小方块*/
     border-radius   : 10px;
-    background-color: #99d2f1;
+    background-color: #c2d1e0;
     background-image: -webkit-linear-gradient(
       45deg,
       rgba(255, 255, 255, 0.2) 25%,

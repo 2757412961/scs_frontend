@@ -12,11 +12,15 @@
       <el-collapse-item id="rightBar" style="border: 4px solid rgb(28, 94, 133);border-radius: 9px;"
                         name="rightSide"
                         :class="[this.lawRightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
-        <div class="lawAreaBarTitle">执法海域</div>
+        <div class="lawAreaBarTitle">
+          <div>执法海域</div>
+        </div>
         <div class="lawAreaBarTitle">
           <el-switch v-model="isShowLayer" active-text="显示执法海域"></el-switch>
         </div>
-        <div class="lawAreaBarTitle" style="font-weight: initial;">{{ this.lawAreaName }}</div>
+        <div class="lawAreaBarTitle" style="font-weight: initial;font-size: 16px; margin-bottom: 0">
+          海域预报：{{ this.lawAreaName }}
+        </div>
 
         <div class="lawAreaTableDiv">
           <div v-for="data in lawAreaForecastData">
@@ -212,6 +216,8 @@
   .lawAreaTableDiv {
     height: calc(64vh);
     overflow-y: scroll;
+    width: 98%;
+    margin-left: 2%;
   }
 
   #rightBtn .el-button {
@@ -298,7 +304,7 @@
   /*滚动条里面小方块*/
   .lawAreaTableDiv::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    background-color: #99d2f1;
+    background-color: #c2d1e0;
     background-image: -webkit-linear-gradient(
       45deg,
       rgba(255, 255, 255, 0.2) 25%,
@@ -316,6 +322,7 @@
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
     background: #ededed;
     border-radius: 10px;
+    margin-top: 16px;
   }
 
   /* 表格样式 */
@@ -325,8 +332,9 @@
     color: #333333;
     border-width: 1px;
     border-color: #a9c6c9;
-    border-collapse: collapse;
-    margin-bottom: 8%;
+    border-collapse: separate;
+    margin-top: 16px;
+    border-radius: 5px;
   }
 
   table.altrowstable th {
@@ -351,13 +359,15 @@
   }
 
   .oddrowcolor {
-    background-color: #f2faff;
+    /*background-color: #f2faff;*/
   }
 
   .evenrowcolor {
-    background-color: #6B8FB7;
+    /*background-color: #6B8FB7;*/
     opacity: 0.7;
-    color: white;
+    color: black;
+    font-size: 13px;
+    font-weight: bolder;
   }
 
 </style>

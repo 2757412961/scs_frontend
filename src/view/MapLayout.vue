@@ -567,8 +567,9 @@
                 this.oldZoom = zoom;
 
                 // zoom有变化，globalNumericalLayer贴图变化
+              if ((this.$route.path).indexOf('globalNumerical') != -1){
                 this.globalNumericalZoomChange(this.globalNum_visible_extent);
-
+              }
                 //判断是否有数据产品图层，若无则返回
                 //若有数据产品图层，则更新数据产品层级
             },

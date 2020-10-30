@@ -18,7 +18,7 @@
           </div>
 
           <div class="globalNumPanelBody_div">
-            <div style="font-weight: normal;font-size:18px;margin-top: 2%; margin-bottom: -6%">
+            <div style="font-weight: normal;font-size:16px;margin-top: 2%; margin-bottom: -6%">
               中国近海风浪预报查询
             </div>
             <div style="height: 53vh;">

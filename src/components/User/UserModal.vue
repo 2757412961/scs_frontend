@@ -13,7 +13,7 @@
 
       <el-table
         :data="tableData"
-        max-height="500"
+        max-height="400"
         style="width: 100%;margin-top: 15px">
         <el-table-column
           label="姓名"

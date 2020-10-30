@@ -47,6 +47,9 @@ export default {
     },
   },
 
+  // 国家列表
+  countryList: ["China", "Europe", "USA", "Japan", "Korea", "Taiwan", "HongKong", "TEPO"],
+
   // 台风预报颜色变量
   colorTyphForecast: {
     "Center": {
@@ -63,7 +66,7 @@ export default {
     },
     "Europe": {
       CN_Name: "欧洲",
-      color: "#E7F350"
+      color: "#f3db1a"
     },
     "USA": {
       CN_Name: "美国",

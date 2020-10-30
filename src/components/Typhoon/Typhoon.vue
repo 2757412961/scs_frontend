@@ -125,63 +125,55 @@
                 sortable>
               </el-table-column>
             </el-table>
-
           </div>
-
         </el-collapse-item>
-
       </el-collapse>
     </div>
 
-    <!--<div id="forecastPanel">
-      <div class="forecastPanel">
-        <el-collapse-transition>
-          <div v-show="show3">
-            <el-checkbox-group v-model="forecastCheckList" class="foreCheck">
-              <el-checkbox label="中央"></el-checkbox>
-              <el-checkbox label="美国"></el-checkbox>
-              <el-checkbox label="欧洲"></el-checkbox>
-              <el-checkbox label="TEPO"></el-checkbox>
+    <div class="legendPanel">
+      <transition name="el-zoom-in-center">
+        <div v-show="showLegend" class="transition-box">
+          <!--          <div>-->
+          <!--            <img style="border: 4px solid rgba(255, 255, 255,0.7);border-radius: 8px;"-->
+          <!--                 src="../../assets/legend/typhoon.png"></img>-->
+          <!--          </div>-->
+          <div class="foreCheck">
+            <h3>台风风图：</h3>
+            <el-row>
+              <el-col :span="8" v-for="kts in ['30KTS', '50KTS', '64KTS']" :key="kts">
+                <div style="float: right">
+                  {{ colorTyphWind[kts].CN_Name }}风速：
+                  <i class="fa fa-circle-o fa-lg" :style="{color: colorTyphWind[kts].color}"/>
+                </div>
+              </el-col>
+            </el-row>
+
+            <h3>气压带：</h3>
+            <el-row>
+              <el-col :span="8" v-for="ts in ['TD', 'TS', 'STS', 'TY', 'STY', 'SUPERTY']" :key="ts">
+                <div style="float: right">
+                  {{ colorTyphStrength[ts].CN_Name }}：
+                  <i class="fa fa-circle fa-lg" :style="{color: colorTyphStrength[ts].color}"/>
+                </div>
+              </el-col>
+            </el-row>
+
+            <h3>预报中心：</h3>
+            <el-checkbox-group v-model="forecastCheckList">
+              <el-checkbox v-for="country in countryList" :label="country" :key="country">
+                <div :style="{color:countryInfo[country].color}">
+                  {{countryInfo[country].CN_Name}} - - -
+                </div>
+              </el-checkbox>
             </el-checkbox-group>
           </div>
-        </el-collapse-transition>
-      </div>
-      <div @click="show3 = !show3" class="forecastPanel"
-           style="bottom:12%; height: 2%">
-        <el-button type="info" size="small" style="background: rgba(28, 94, 133,0.7)" round>机构</el-button>
-      </div>
-    </div>-->
-    <div id="legendImgPanel">
-      <div class="legendPanel">
-        <div class="legendImg">
-          <transition name="el-zoom-in-center">
-            <div v-show="showLegend" class="transition-box">
-              <div>
-                <img style="border: 4px solid rgba(255, 255, 255,0.7);border-radius: 8px;"
-                     src="../../assets/legend/typhoon.png"></img>
-              </div>
-              <div class="foreCheck">
-                <el-checkbox-group v-model="forecastCheckList"  fill="#FFCCFF">
-                  <el-checkbox label="China">中国</el-checkbox>
-                  <el-checkbox label="Japan">日本</el-checkbox>
-                  <el-checkbox label="Europe">欧洲</el-checkbox>
-                  <el-checkbox label="USA">美国</el-checkbox>
-                  <el-checkbox label="Korea">韩国</el-checkbox>
-                  <el-checkbox label="Taiwan">台湾</el-checkbox>
-                  <el-checkbox label="HongKong">香港</el-checkbox>
-                  <el-checkbox label="TEPO">TEPO</el-checkbox>
-                </el-checkbox-group>
-              </div>
-            </div>
-          </transition>
         </div>
-      </div>
-      <div @click="showLegend = !showLegend" class="legendPanel"
-           style="bottom:10%; height: 2%">
-        <el-button type="info" size="small" style="background: rgba(28, 94, 133,0.8)" round>
-          {{this.showLegend?'收起':'展开'}}
-        </el-button>
-      </div>
+      </transition>
+    </div>
+    <div @click="showLegend = !showLegend" class="legendPanel" style="bottom:75px; height: 2%">
+      <el-button type="info" size="small" style="background: rgba(28, 94, 133,0.8)" round>
+        {{this.showLegend?'收起':'展开'}}
+      </el-button>
     </div>
 
   </div>
@@ -195,6 +187,10 @@
         data() {
             return {
                 showLegend: true,
+                countryList: this.$globalConstant.countryList.slice(),
+                colorTyphStrength: this.$globalConstant.colorTyphStrength,
+                colorTyphWind: this.$globalConstant.colorTyphWind,
+                countryInfo: this.$globalConstant.colorTyphForecast,
                 forecastCheckList: ["China", "Japan", "Europe", "USA", "TEPO", "Korea", "Taiwan", "HongKong"],
                 activeName: '1',
                 foreCheckActive: '1',
@@ -501,7 +497,7 @@
     position: fixed;
     /*width: 40%;*/
     left: 1.3%;
-    bottom: 20%;
+    bottom: 190px;
   }
 
   .transition-box {
@@ -525,10 +521,17 @@
   }
 
   .foreCheck {
-    width: 380px;
-    background: rgba(255, 255, 255, 0.7);
+    width: 355px;
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 12px;
+    /*font-family: 楷体;*/
+    background: rgba(255, 255, 255, 0.8);
     border-radius: 8px;
-    padding-left: 35px;
+    padding: 15px;
+  }
+
+  h3 {
+    font-family: 楷体;
   }
 
   .forecastPanel {

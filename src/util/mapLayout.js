@@ -2,98 +2,345 @@ import echarts from 'echarts/lib/echarts';
 import utils from './util'
 
 export default {
-  // 台风颜色变量
-  colorTyphStrength: {
-    "TD": {
-      CN_Name: "热带低压",
-      color: "#00F806"
-    },
-    "TS": {
-      CN_Name: "热带风暴",
-      color: "#0062FF"
-    },
-    "STS": {
-      CN_Name: "强热带风暴",
-      color: "#FFF500"
-    },
-    "TY": {
-      CN_Name: "台风",
-      color: "#F8AD09"
-    },
-    "STY": {
-      CN_Name: "强台风",
-      color: "#F56CF0"
-    },
-    "SUPERTY": {
-      CN_Name: "超强台风",
-      color: "#FA020b"
-    },
-  },
+  typh_forecast_feature: null, // 预报起点的 Feature
 
-  // 台风风圈颜色变量
-  colorTyphWind: {
-    "30KTS": {
-      CN_Name: "7级",
-      color: "#20fa5a"
-    },
-    "8": {
-      CN_Name: "8级",
-      color: "#53D5CD"
-    },
-    "50KTS": {
-      CN_Name: "10级",
-      color: "#ffd82b"
-    },
-    "64KTS": {
-      CN_Name: "12级",
-      color: "#ff350e"
-    },
-  },
-
-  // 台风预报颜色变量
-  colorTyphForecast: {
-    "Center": {
-      CN_Name: "中心",
-      color: "#C9172C"
-    },
-    "China": {
-      CN_Name: "中国",
-      color: "#0066CC"
-    },
-    "Japan": {
-      CN_Name: "日本",
-      color: "#050505"
-    },
-    "Europe": {
-      CN_Name: "欧洲",
-      color: "#E7F350"
-    },
-    "USA": {
-      CN_Name: "美国",
-      color: "#00f81f"
-    },
-    "TEPO": {
-      CN_Name: "TEPO",
-      color: "#009999"
-    },
-    "Korea": {
-      CN_Name: "韩国",
-      color: "#ba1d2a"
-    },
-    "Taiwan": {
-      CN_Name: "台湾",
-      color: "#FF9900"
-    },
-    "HongKong": {
-      CN_Name: "香港",
-      color: "#666699"
-    },
-  },
 
   // 台风绘图
   drawTyph(data,) {
 
   },
+  // 从mapLayout中转移
+  typhChinaForecastDraw(countryLayer) {
+    if (this.typh_forecast_feature == null) return;
+    countryLayer.getSource().clear();
+
+    let typhRouteInfo = this.typh_forecast_feature.get('data');
+    let typhNum = typhRouteInfo.typhNum;
+    let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
+    let typhTime = typhRouteInfo.routeTime;
+    let cenX = typhRouteInfo.lon;
+    let cenY = typhRouteInfo.lat;
+
+    // function drawChinaJapan()
+    this.$axios
+      .get(`/api/SCSServices/getTyphForecastChinaJapan.action`, {
+        params: {
+          typhNum: typhNum,
+          staTime: typhTime
+        }
+      })
+      .then((res) => {
+        console.log(res);
+        let data = res.data;
+        let lastPoint = fromLonLat([cenX, cenY]);
+
+        for (let i = 0; i < data.length; i++) {
+          let type = 'China';
+          let nowPoint = fromLonLat([data[i]['lon'], data[i]['lat']]);
+
+          this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, data[i]['strength'], countryLayer);
+          lastPoint = nowPoint;
+        }
+      })
+      .catch((res) => {
+        this.$confirm('服务器失联！typhForecastDraw drawChinaJapan ', '提示', {
+          confirmButtonText: '确定',
+          type: 'warning'
+        })
+      });
+  },
+  typhUSAEuropeForecastDraw(countryLayer) {
+    if (this.typh_forecast_feature == null) return;
+    countryLayer.getSource().clear();
+
+    let typhRouteInfo = this.typh_forecast_feature.get('data');
+    let typhNum = typhRouteInfo.typhNum;
+    let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
+    let typhTime = typhRouteInfo.routeTime;
+    let cenX = typhRouteInfo.lon;
+    let cenY = typhRouteInfo.lat;
+
+    // function drawUSAEurope() USA
+    this.$axios
+      .get(`/api/SCSServices/getTyphForecastUSAEurope.action`, {
+        params: {
+          typhNum: typhModelNum,
+          staTime: typhTime,
+          modelType: 'ENS'
+        }
+      })
+      .then((res) => {
+        console.log(res);
+        let data = res.data;
+        let lastPoint = fromLonLat([cenX, cenY]);
+
+        for (let i = 0; i < data.length; i++) {
+          let type = 'USA';
+          let strength = this.calStrengthBySpeed(data[i]['speed']);
+          let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
+
+          this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength, countryLayer);
+          lastPoint = nowPoint;
+        }
+      })
+      .catch((res) => {
+        this.$confirm('服务器失联！typhForecastDraw drawUSAEurope USA ', '提示', {
+          confirmButtonText: '确定',
+          type: 'warning'
+        })
+      });
+  },
+  typhEuropeForecastDraw(countryLayer) {
+    if (this.typh_forecast_feature == null) return;
+    countryLayer.getSource().clear();
+
+    let typhRouteInfo = this.typh_forecast_feature.get('data');
+    let typhNum = typhRouteInfo.typhNum;
+    let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
+    let typhTime = typhRouteInfo.routeTime;
+    let cenX = typhRouteInfo.lon;
+    let cenY = typhRouteInfo.lat;
+
+    // function drawUSAEurope() Europe
+    this.$axios
+      .get(`/api/SCSServices/getTyphForecastUSAEurope.action`, {
+        params: {
+          typhNum: typhModelNum,
+          staTime: typhTime,
+          modelType: 'EENS'
+        }
+      })
+      .then((res) => {
+        console.log(res);
+        let data = res.data;
+        let lastPoint = fromLonLat([cenX, cenY]);
+
+        for (let i = 0; i < data.length; i++) {
+          let type = 'Europe';
+          let strength = this.calStrengthBySpeed(data[i]['speed']);
+          let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
+
+          this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength, countryLayer);
+          lastPoint = nowPoint;
+        }
+      })
+      .catch((res) => {
+        this.$confirm('服务器失联！typhForecastDraw drawUSAEurope Europe ', '提示', {
+          confirmButtonText: '确定',
+          type: 'warning'
+        })
+      });
+  },
+  typhTEPOForecastDraw(countryLayer) {
+    if (this.typh_forecast_feature == null) return;
+    countryLayer.getSource().clear();
+
+    let typhRouteInfo = this.typh_forecast_feature.get('data');
+    let typhNum = typhRouteInfo.typhNum;
+    let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
+    let typhTime = typhRouteInfo.routeTime;
+    let cenX = typhRouteInfo.lon;
+    let cenY = typhRouteInfo.lat;
+
+    // function drawTEPO()
+    this.$axios
+      .get(`/api/SCSServices/getTyphForecastTEPO.action`, {
+        params: {
+          typhNum: typhModelNum,
+          staTime: typhTime
+        }
+      })
+      .then((res) => {
+        console.log(res);
+        let data = res.data;
+        let lastPoint = fromLonLat([cenX, cenY]);
+
+        for (let i = 0; i < data.length; i++) {
+          let type = 'TEPO';
+          let strength = this.calStrengthBySpeed(data[i]['speed']);
+          let nowPoint = fromLonLat([data[i]['lng'], data[i]['lat']]);
+
+          this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, strength, countryLayer);
+          lastPoint = nowPoint;
+        }
+      })
+      .catch((res) => {
+        this.$confirm('服务器失联！typhForecastDraw drawUSAEurope TEPO ', '提示', {
+          confirmButtonText: '确定',
+          type: 'warning'
+        })
+      });
+  },
+  typhJapanForecastDraw(countryLayer) {
+    if (this.typh_forecast_feature == null) return;
+    countryLayer.getSource().clear();
+
+    let typhRouteInfo = this.typh_forecast_feature.get('data');
+    let typhNum = typhRouteInfo.typhNum;
+    let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
+    let typhTime = typhRouteInfo.routeTime;
+    let cenX = typhRouteInfo.lon;
+    let cenY = typhRouteInfo.lat;
+
+    // function drawChinaJapan()
+    this.$axios
+      .get(`/api/SCSServices/getTyphForecastJapan.action`, {
+        params: {
+          typhNum: typhNum,
+          staTime: typhTime
+        }
+      })
+      .then((res) => {
+        console.log(res);
+        let data = res.data;
+        let lastPoint = fromLonLat([cenX, cenY]);
+
+        for (let i = 0; i < data.length; i++) {
+          let type = 'Japan';
+          let nowPoint = fromLonLat([data[i]['lon'], data[i]['lat']]);
+
+          this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, data[i]['strength'], countryLayer);
+          lastPoint = nowPoint;
+        }
+      })
+      .catch((res) => {
+        this.$confirm('服务器失联！typhForecastDraw drawJapan ', '提示', {
+          confirmButtonText: '确定',
+          type: 'warning'
+        })
+      });
+  },
+  typhKoreaForecastDraw(countryLayer) {
+    if (this.typh_forecast_feature == null) return;
+    countryLayer.getSource().clear();
+
+    let typhRouteInfo = this.typh_forecast_feature.get('data');
+    let typhNum = typhRouteInfo.typhNum;
+    let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
+    let typhTime = typhRouteInfo.routeTime;
+    let cenX = typhRouteInfo.lon;
+    let cenY = typhRouteInfo.lat;
+
+    // function drawChinaJapan()
+    this.$axios
+      .get(`/api/SCSServices/getTyphForecastKorea.action`, {
+        params: {
+          typhNum: typhNum,
+          staTime: typhTime
+        }
+      })
+      .then((res) => {
+        console.log(res);
+        let data = res.data;
+        let lastPoint = fromLonLat([cenX, cenY]);
+
+        for (let i = 0; i < data.length; i++) {
+          let type = 'Korea';
+          let nowPoint = fromLonLat([data[i]['lon'], data[i]['lat']]);
+
+          this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, data[i]['strength'], countryLayer);
+          lastPoint = nowPoint;
+        }
+      })
+      .catch((res) => {
+        this.$confirm('服务器失联！typhForecastDraw drawKorea ', '提示', {
+          confirmButtonText: '确定',
+          type: 'warning'
+        })
+      });
+  },
+  typhHongKongForecastDraw(countryLayer) {
+    if (this.typh_forecast_feature == null) return;
+    countryLayer.getSource().clear();
+
+    let typhRouteInfo = this.typh_forecast_feature.get('data');
+    let typhNum = typhRouteInfo.typhNum;
+    let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
+    let typhTime = typhRouteInfo.routeTime;
+    let cenX = typhRouteInfo.lon;
+    let cenY = typhRouteInfo.lat;
+
+    // function drawChinaJapan()
+    this.$axios
+      .get(`/api/SCSServices/getTyphForecastHongKong.action`, {
+        params: {
+          typhNum: typhNum,
+          staTime: typhTime
+        }
+      })
+      .then((res) => {
+        console.log(res);
+        let data = res.data;
+        let lastPoint = fromLonLat([cenX, cenY]);
+
+        for (let i = 0; i < data.length; i++) {
+          let type = 'HongKong';
+          let nowPoint = fromLonLat([data[i]['lon'], data[i]['lat']]);
+
+          this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, data[i]['strength'], countryLayer);
+          lastPoint = nowPoint;
+        }
+      })
+      .catch((res) => {
+        this.$confirm('服务器失联！typhForecastDraw drawHongKong ', '提示', {
+          confirmButtonText: '确定',
+          type: 'warning'
+        })
+      });
+  },
+  typhTaiwanForecastDraw(countryLayer) {
+    if (this.typh_forecast_feature == null) return;
+    countryLayer.getSource().clear();
+
+    let typhRouteInfo = this.typh_forecast_feature.get('data');
+    let typhNum = typhRouteInfo.typhNum;
+    let typhModelNum = this.typh_forecast_feature.get('typhModelNum');
+    let typhTime = typhRouteInfo.routeTime;
+    let cenX = typhRouteInfo.lon;
+    let cenY = typhRouteInfo.lat;
+
+    // function drawChinaJapan()
+    this.$axios
+      .get(`/api/SCSServices/getTyphForecastTaiwan.action`, {
+        params: {
+          typhNum: typhNum,
+          staTime: typhTime
+        }
+      })
+      .then((res) => {
+        console.log(res);
+        let data = res.data;
+        let lastPoint = fromLonLat([cenX, cenY]);
+
+        for (let i = 0; i < data.length; i++) {
+          let type = 'Taiwan';
+          let nowPoint = fromLonLat([data[i]['lon'], data[i]['lat']]);
+
+          this.drawTyphForecastFeature(data[i], type, lastPoint, nowPoint, data[i]['strength'], countryLayer);
+          lastPoint = nowPoint;
+        }
+      })
+      .catch((res) => {
+        this.$confirm('服务器失联！typhForecastDraw drawTaiwan ', '提示', {
+          confirmButtonText: '确定',
+          type: 'warning'
+        })
+      });
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

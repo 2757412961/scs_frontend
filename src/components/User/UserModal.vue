@@ -1,8 +1,9 @@
 <template>
   <modal width="800"
-    v-model="user_modal"
-    title="用户管理">
-    <div style="width: 80%;margin:0 auto">
+         v-model="user_modal"
+         draggable
+         title="用户管理">
+    <div style="width: 80%; margin:0 auto">
       <el-row>
         <el-button
           size="mini"
@@ -12,18 +13,22 @@
 
       <el-table
         :data="tableData"
+        max-height="500"
         style="width: 100%;margin-top: 15px">
         <el-table-column
           label="姓名"
-          prop="username">
+          prop="username"
+          sortable>
         </el-table-column>
         <el-table-column
           label="密码"
-          prop="password">
+          prop="password"
+          sortable>
         </el-table-column>
         <el-table-column
           label="权限"
-          prop="groupId">
+          prop="groupId"
+          sortable>
         </el-table-column>
         <el-table-column
           label="编辑"
@@ -92,7 +97,7 @@
           var api=`/api/SCSServices/AllUsers.action`;
           this.$axios.get(api)
             .then((response)=> {
-              console.log(response.data);//成功回调
+              console.log(response.data); //成功回调
               this.tableData=response.data;
             })
             .catch((response)=>{

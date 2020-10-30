@@ -10,14 +10,14 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css';
 
 
-import echarts from 'echarts'
-
 import App from './App'
 import {routers} from './router'
 
-
 import store from './store'
-import axios from 'axios';
+import axios from 'axios'
+import echarts from 'echarts'
+import globalConstant from './util/globalConstant'
+import globalURL from './util/globalURL'
 
 // 解决ElementUI导航栏中的vue-router在3.0版本以上重复点菜单报错问题
 const originalPush = VueRouter.prototype.push
@@ -31,8 +31,10 @@ Vue.use(ElementUI);
 Vue.use(iView)
 
 Vue.prototype.$store = store
-Vue.prototype.$axios = axios;
+Vue.prototype.$axios = axios
 Vue.prototype.$echarts = echarts
+Vue.prototype.$globalConstant = globalConstant
+Vue.prototype.$globalURL = globalURL
 
 
 //Font-awesome icon 插件

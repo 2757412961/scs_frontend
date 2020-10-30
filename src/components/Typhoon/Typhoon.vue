@@ -161,7 +161,7 @@
                      src="../../assets/legend/typhoon.png"></img>
               </div>
               <div class="foreCheck">
-                <el-checkbox-group v-model="forecastCheckList">
+                <el-checkbox-group v-model="forecastCheckList"  fill="#FFCCFF">
                   <el-checkbox label="China">中国</el-checkbox>
                   <el-checkbox label="Japan">日本</el-checkbox>
                   <el-checkbox label="Europe">欧洲</el-checkbox>

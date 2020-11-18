@@ -2,6 +2,8 @@
   <modal width="400"
          v-model="editUser_modal"
          @on-ok="editUser"
+         draggable
+         :transfer=false
          title="编辑用户">
     <el-row  style="margin-top:10px">
       <label style="font-size: 14px;float:left;line-height:2;font-weight:bold">用户名：</label>

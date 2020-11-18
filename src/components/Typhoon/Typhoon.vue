@@ -187,10 +187,10 @@
         data() {
             return {
                 showLegend: true,
-                countryList: this.$globalConstant.countryList.slice(),
-                colorTyphStrength: this.$globalConstant.colorTyphStrength,
-                colorTyphWind: this.$globalConstant.colorTyphWind,
-                countryInfo: this.$globalConstant.colorTyphForecast,
+                countryList: this.Constant.countryList.slice(),
+                colorTyphStrength: this.Constant.colorTyphStrength,
+                colorTyphWind: this.Constant.colorTyphWind,
+                countryInfo: this.Constant.colorTyphForecast,
                 forecastCheckList: ["China", "Japan", "Europe", "USA", "TEPO", "Korea", "Taiwan", "HongKong"],
                 activeName: '1',
                 foreCheckActive: '1',

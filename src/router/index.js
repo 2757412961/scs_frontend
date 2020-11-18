@@ -15,70 +15,80 @@ export const loginRouter = {
     title: '登录'
   },
   component: Login
-}
+};
+
 export const moduleRouter = [
   {
     path: '/typhoon',
     name: 'typhoon',
     meta: {
-      title: '台风警报'
+      title: '台风警报',
+      needGuard: true
     },
     component: Typhoon,
   }, {
     path: '/seaArea',
     name: 'seaArea',
     meta: {
-      title: '近海海区'
+      title: '近海海区',
+      needGuard: true
     },
     component: SeaArea,
   }, {
     path: '/observation',
     name: 'observation',
     meta: {
-      title: '观测实况'
+      title: '观测实况',
+      needGuard: true
     },
     component: Observation,
   }, {
     path: '/lawArea',
     name: 'lawArea',
     meta: {
-      title: '执法海域'
+      title: '执法海域',
+      needGuard: true
     },
     component: LawArea,
   }, {
     path: '/predictionPaper',
     name: 'predictionPaper',
     meta: {
-      title: '预报单'
+      title: '预报单',
+      needGuard: true
     },
     component: PredictionPaper,
   }, {
     path: '/regionNumerical',
     name: 'regionNumerical',
     meta: {
-      title: '数值预报—区域模式'
+      title: '数值预报—区域模式',
+      needGuard: true
     },
     component: RegionNumerical,
   }, {
     path: '/globalNumerical',
     name: 'globalNumerical',
     meta: {
-      title: '数值预报—全球模式'
+      title: '数值预报—全球模式',
+      needGuard: true
     },
     component: GlobalNumerical,
   },
 
+];
 
-]
 export const mainRouter = {
   path: '/home',
   name: 'home',
   meta: {
-    title: 'Home'
+    title: 'Home',
+    needGuard: true
   },
   component: Home,
   children: moduleRouter
-}
+};
+
 export const routers = [
   loginRouter,
   mainRouter,
@@ -86,4 +96,4 @@ export const routers = [
   // catch all redirect
   {path: '*', redirect: '/typhoon'}
 
-]
+];

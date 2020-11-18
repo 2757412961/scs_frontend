@@ -665,7 +665,7 @@
                     //     "<tr><td align='left'>中心压强：</td><td align='left'>" + typhRouteInfo.centPres +" hpa" + "</td></tr>" +
                     //     "<tr><td align='left'>强度：</td><td align='left'>" +"("+ typhRouteInfo.strength +")"+ "</td></tr>" +
                     //     "</table>";
-                    var strength_CNName = this.$globalConstant.colorTyphStrength[typhRouteInfo.strength].CN_Name;
+                    var strength_CNName = this.Constant.colorTyphStrength[typhRouteInfo.strength].CN_Name;
                     var html = `
                         <table>
                           <tr><td align='left'>路径时间：</td><td align='left'>${typhRouteInfo.routeTime}</td></tr>
@@ -690,8 +690,8 @@
                 let typhForecastType = feature.get('type');
                 let typhForecastStre = feature.get('strength');
 
-                let colorTyphStrength = this.$globalConstant.colorTyphStrength;
-                let colorTyphForecast = this.$globalConstant.colorTyphForecast;
+                let colorTyphStrength = this.Constant.colorTyphStrength;
+                let colorTyphForecast = this.Constant.colorTyphForecast;
 
                 //构建Popup_title文字内容
                 this.ol_popup_min_width = "250px";
@@ -811,7 +811,7 @@
             typhWindDraw(typhRouteInfo, scale) {
                 this.typh_wind_layer.getSource().clear();
 
-                let colorTyphWind = this.$globalConstant.colorTyphWind;
+                let colorTyphWind = this.Constant.colorTyphWind;
                 let cenX = typhRouteInfo.lon;
                 let cenY = typhRouteInfo.lat;
                 let radiusJSON = JSON.parse(typhRouteInfo.radiusJson);
@@ -995,8 +995,8 @@
                     });
             },
             drawTyphForecastFeature(dataVal, type, lastPoint, nowPoint, strength, countryLayer) {
-                let colorTyphStrength = this.$globalConstant.colorTyphStrength;
-                let colorTyphForecast = this.$globalConstant.colorTyphForecast;
+                let colorTyphStrength = this.Constant.colorTyphStrength;
+                let colorTyphForecast = this.Constant.colorTyphForecast;
 
                 // 绘制点
                 let pointFeature = new Feature(new Point(nowPoint));
@@ -1157,7 +1157,7 @@
             },
             typhRouteDraw(that, val, typhModelNum, typhName) {
                 // 颜色
-                let colorTyphStrength = this.$globalConstant.colorTyphStrength
+                let colorTyphStrength = this.Constant.colorTyphStrength
 
                 // 初始点-------------------------------------------------------------------------------------------
                 var iconStyle = new Style({

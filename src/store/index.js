@@ -1,17 +1,17 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-Vue.use(Vuex)
+Vue.use(Vuex);
 // 这里定义初始值
 let state = {
   title:"海警执法海洋环境预报综合信息服务平台",
-  name:"",
+  userName:"",
   category:"",//管理员1普通用户0
   serverIP:"202.108.199.48",//产品及数据发布IP
 };
 
 const mutations = {
-  setName(state,msg){
-    state.name = msg;
+  setUserName(state,msg){
+    state.userName = msg;
   },
   setCategory(state,msg){
     state.category = msg;

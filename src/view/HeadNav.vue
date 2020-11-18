@@ -51,7 +51,7 @@
       <user-modal ref="userModal"></user-modal>
       <roll-modal ref="rollModal"></roll-modal>
       <ProductImgsModal ref="productImgsModal"></ProductImgsModal>
-      <predictionPaper-modal  ref="predictionPaperModal"></predictionPaper-modal>
+      <predictionPaper-modal ref="predictionPaperModal"></predictionPaper-modal>
       <!--</div>-->
     </el-main>
   </el-container>
@@ -65,15 +65,15 @@
 
     export default {
         name: "HeadNav",
-        components: {UserModal, RollModal, ProductImgsModal,PredictionPaperModal},
+        components: {UserModal, RollModal, ProductImgsModal, PredictionPaperModal},
         data() {
             return {
-                active: 'dataSearch'
+                active: 'dataSearch',
             }
         },
         computed: {
             user() {
-                return this.$store.state.name
+                return this.$store.state.userName
             }
         },
         methods: {
@@ -93,8 +93,8 @@
                         break;
                     //如果是弹出窗口，则打开对应Modal
                     case "predictionPaper":
-                      this.$refs.predictionPaperModal.openPredictionModal();
-                      break;
+                        this.$refs.predictionPaperModal.openPredictionModal();
+                        break;
                     case "fullScreenSesArea":  //滚动预报-近海海区 false
                         this.$refs.rollModal.openRollForecastModal(false);
                         break;
@@ -118,7 +118,6 @@
                             var api = `/api/SCSServices/AllUsers.action`;
                             this.$axios.get(api)
                                 .then((response) => {
-                                    console.log(response.data);//成功回调
                                     this.$refs.userModal.openUserModal(response.data)
                                 })
                                 .catch((response) => {
@@ -129,6 +128,11 @@
                                     });
                                 })
 
+                        } else {
+                            this.$confirm('普通用户没有权限', '提示', {
+                                confirmButtonText: '确定',
+                                type: 'warning'
+                            });
                         }
                         break;
 

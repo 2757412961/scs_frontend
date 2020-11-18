@@ -2,6 +2,8 @@
   <modal width="400"
          v-model="addUser_modal"
          @on-ok="addUser"
+         draggable
+         :transfer=false
          title="添加用户">
     <el-row  style="margin-top:10px">
       <label style="font-size: 14px;float:left;line-height:2;font-weight:bold">用户名：</label>

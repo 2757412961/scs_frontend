@@ -54,6 +54,16 @@
       <predictionPaper-modal ref="predictionPaperModal"></predictionPaper-modal>
       <!--</div>-->
     </el-main>
+
+    <el-row style="width: 300px">
+      <el-col :span="18">
+        <h2 style="font-family: 'Microsoft YaHei'; color: #e6fdff; float: right;">{{username}} 你好！</h2>
+      </el-col>
+      <el-col :span="6">
+        <Button type="text"><Icon type="md-exit" size="40" color="#e6fdff" @click="signOut">登出</Icon></Button>
+      </el-col>
+    </el-row>
+
   </el-container>
 </template>
 
@@ -72,7 +82,7 @@
             }
         },
         computed: {
-            user() {
+            username() {
                 return this.$store.state.userName
             }
         },
@@ -115,8 +125,7 @@
                         break;
                     case "userManager":
                         if (this.$store.state.category == 1) {
-                            var api = `/api/SCSServices/AllUsers.action`;
-                            this.$axios.get(api)
+                            this.$axios.get(`/api/SCSServices/AllUsers.action`)
                                 .then((response) => {
                                     this.$refs.userModal.openUserModal(response.data)
                                 })
@@ -129,30 +138,46 @@
                                 })
 
                         } else {
-                            this.$confirm('普通用户没有权限', '提示', {
-                                confirmButtonText: '确定',
-                                type: 'warning'
+                            this.$message({
+                                type: 'warning',
+                                message: '您不是管理员!'
                             });
                         }
                         break;
 
                 }
-
             },
-            signOutAlert() {
+            signOut() {
+                let that = this;
                 this.$confirm('此操作将退出当前账号, 是否继续?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    //跳转到登录界面
-                    this.$store.commit('setName', "");
-                    this.$store.commit('setCategory', "");
-                    this.$message({
-                        type: 'success',
-                        message: '退出登录成功！'
-                    });
-
+                    this.$axios(`/api/SCSServices/logout.action`)
+                        .then((res)=>{
+                            if (res.data){
+                                //跳转到登录界面
+                                that.$store.commit('setUserName', "");
+                                that.$store.commit('setCategory', "");
+                                that.$router.push({name:'login'});
+                                this.$message({
+                                    type: 'success',
+                                    message: '退出登录成功！'
+                                });
+                            } else {
+                                this.$message({
+                                    type: 'error',
+                                    message: '退出登陆失败！'
+                                });
+                            }
+                        })
+                        .catch((err)=>{
+                            this.$message({
+                                type: 'error',
+                                message: '退出异常！'
+                            });
+                        })
                 }).catch(() => {
                     this.$message({
                         type: 'info',

@@ -103,7 +103,7 @@ function guardRoute(to, from, next) {
   let userValue = getCookie(userKey);
 
   if (userValue !== "") {
-    store.commit('setUserName', userValue);
+    store.commit('setUserName', userValue); // 其实没必要加. Login.Vue
     next()
   } else {
     next({path: '/login'});

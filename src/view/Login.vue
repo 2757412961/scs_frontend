@@ -1,7 +1,7 @@
 <template>
   <div id="login_vue">
-    <el-card id="login_card" class="box-card">
-      <div slot="header" class="clearfix">
+    <el-card id="login_card">
+      <div slot="header">
         <h2>{{this.$store.state.title}}</h2>
       </div>
       <div style="margin:0 40px 0 40px">
@@ -17,15 +17,24 @@
             <Input v-model="password" type="password" icon="md-lock" placeholder="请输入密码"/>
           </el-col>
         </el-row>
-        <el-row style="padding:15px;height:50px">
-          <Button type="info" style="width:80px;position:absolute;" v-on:click="btn_login_click">登录</Button>
+        <el-row style="padding:15px; height:50px">
+          <el-col :span="4"></el-col>
+          <el-col :span="20">
+            <Button type="info" style="width:80px;position:absolute;" v-on:click="btn_login_click">登录</Button>
+          </el-col>
         </el-row>
+        <div style="float: left; margin:0 0 0 -40px">
+          <el-button type="text" @click="signUP">没有账号？立即注册</el-button>
+        </div>
       </div>
     </el-card>
+    <SignUpForm ref="signUpForm"></SignUpForm>
   </div>
 </template>
 
 <script>
+    import SignUpForm from "../components/User/SignUpForm";
+
     export default {
         name: "login",
         data() {
@@ -34,12 +43,18 @@
                 password: "nmefc1123"
             }
         },
+        components: {
+            SignUpForm
+        },
         computed: {
             shaPassword: function () {
                 return this.$sha256(this.password);
             }
         },
         methods: {
+            signUP: function () {
+                this.$refs.signUpForm.showDialog();
+            },
             btn_login_click: function (event) {
                 //发起ajax请求
                 var that = this;
@@ -51,17 +66,14 @@
                         }
                     })
                     .then((res) => {
-                        // console.log(res.data);//成功回调
                         if (res.data != -1) {
                             // 若登录成功，则跳转home页面，并修改全局user变量
                             that.$store.commit('setUserName', this.userName);
                             // 添加权限
                             that.$store.commit('setCategory', res.data);
-                            // 设置session变量，储存
+                            // 设置 session 变量，储存
+                            // 不使用 sessionStorage
                             // sessionStorage.setItem('store', JSON.stringify(this.$store.state));
-
-                            // let userKey = this.Constant.userKey;
-                            // sessionStorage.setItem(userKey, this.userName);
 
                             // 跳转路由
                             that.$router.push({
@@ -101,7 +113,7 @@
   #login_card {
     position: absolute;
     width: 400px;
-    height: 260px;
+    height: 280px;
     background-color: rgba(255, 255, 255, 0.6);
     top: 0;
     left: 0;

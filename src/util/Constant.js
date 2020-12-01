@@ -27,6 +27,10 @@ export default {
       CN_Name: "超强台风",
       color: "#FA020b"
     },
+    "SuperTY": {
+      CN_Name: "超强台风",
+      color: "#FA020b"
+    },
   },
 
   // 台风风圈颜色变量

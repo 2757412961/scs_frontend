@@ -345,7 +345,7 @@
 
                         if (response.data != null) {
 
-                            this.selectedTyph = response.data['modelNum'];
+                            this.selectedTyph = response.data['typhNum'];
 
                         } else {
                             // 若不成功，则弹出警告框

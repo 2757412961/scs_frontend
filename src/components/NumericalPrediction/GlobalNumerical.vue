@@ -134,7 +134,7 @@
           <transition name="el-zoom-in-center">
             <div v-show="showForecastRate" class="transition-box">
               <div class="gloNum_foreCheck">
-                  <el-checkbox  :disabled="(this.globalNumRadio==2 || this.globalNumRadio==4)?true:false" label="101" v-model="gloNum_checkRadio" class="gloNum_elRadio_forecastRate">
+                  <el-checkbox :disabled="(this.globalNumRadio==2 || this.globalNumRadio==4)?true:false" label="101" v-model="gloNum_checkRadio" class="gloNum_elRadio_forecastRate" @click.native.prevent>
                     气象起报时间：{{windForecastStart}}
                       <el-select  :disabled="(this.globalNumRadio==2 || this.globalNumRadio==4)?true:false"
                                   v-model="windTimeSelectedTime" placeholder="请选择" size="mini" style="width: 30%;opacity: 0.7;" @change="addPngChangeHandler">
@@ -146,7 +146,7 @@
                         </el-option>
                       </el-select>
                   </el-checkbox >
-                  <el-checkbox  :disabled="(this.globalNumRadio==1 || this.globalNumRadio==3)?true:false" :selected="true" label="102" v-model="gloNum_checkRadio"  class="gloNum_elRadio_forecastRate">
+                  <el-checkbox  :disabled="(this.globalNumRadio==1 || this.globalNumRadio==3)?true:false" :selected="true" label="102" v-model="gloNum_checkRadio"  class="gloNum_elRadio_forecastRate" @click.native.prevent>
                     海浪起报时间：{{waveForecastStart}}
                       <el-select  :disabled="(this.globalNumRadio==1 || this.globalNumRadio==3)?true:false"
                                   v-model="waveTimeSelectedTime" placeholder="请选择" size="mini" style="width: 30%;opacity: 0.7;" @change="addPngChangeHandler">
@@ -347,7 +347,7 @@
       },
       // 发送 xml 获取请求的方法
       getXmlByurl(suffix) {
-        this.$axios.get('http://' + this.$store.state.serverIP + suffix)
+        this.$axios.get('/ecmwfxml' + suffix)  //'http://' + this.$store.state.serverIP + suffix
           .then(response => {
             let xmlText = response.data;
             let jsText = (new xml2js()).xml2js(xmlText);

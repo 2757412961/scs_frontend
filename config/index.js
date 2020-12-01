@@ -1,7 +1,6 @@
 'use strict'
 // Template version: 1.3.1
 // see http://vuejs-templates.github.io/webpack for documentation.
-
 const path = require('path')
 
 module.exports = {
@@ -24,6 +23,13 @@ module.exports = {
         changeOrigin:true,
         pathRewrite:{
           '^/proapi': ''
+        },
+      },
+      '/ecmwfxml':{
+        target:'http://202.108.199.48/',
+        changeOrigin:true,
+        pathRewrite:{
+          '^/ecmwfxml': ''
         },
       }
     },

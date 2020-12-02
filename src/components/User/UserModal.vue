@@ -17,7 +17,7 @@
       <el-table :data="tableData" max-height="400" style="width: 100%; margin-top: 5px">
         <el-table-column label="姓名" prop="username" sortable></el-table-column>
         <el-table-column label="密码" prop="password" sortable></el-table-column>
-        <el-table-column label="权限" prop="groupId" sortable></el-table-column>
+        <el-table-column label="权限" prop="grants" sortable></el-table-column>
         <el-table-column label="编辑" prop="id">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -51,7 +51,7 @@
                 this.user_modal = true;
             },
             handleEdit(index, row) {
-                this.$refs.editUserModal.openEditUserModal(row.username, row.password, row.groupId)
+                this.$refs.editUserModal.openEditUserModal(row.username, row.password, row.grants);
             },
             handleDelete(index, row) {
                 console.log(row);

@@ -565,9 +565,9 @@
                 this.oldZoom = zoom;
 
                 // zoom有变化，globalNumericalLayer贴图变化
-              if ((this.$route.path).indexOf('globalNumerical') != -1){
-                this.globalNumericalZoomChange(this.globalNum_visible_extent);
-              }
+                if ((this.$route.path).indexOf('globalNumerical') != -1) {
+                    this.globalNumericalZoomChange(this.globalNum_visible_extent);
+                }
                 //判断是否有数据产品图层，若无则返回
                 //若有数据产品图层，则更新数据产品层级
             },
@@ -640,6 +640,17 @@
             },
 
             /**
+             * 判断是否为null，是返回 0
+             */
+            isnull(val) {
+                if (val == null) {
+                    return 0;
+                }
+
+                return val;
+            },
+
+            /**
              * 台风 点 popup
              */
             typhPointPopup(feature) {
@@ -671,10 +682,10 @@
                           <tr><td align='left'>路径时间：</td><td align='left'>${typhRouteInfo.routeTime}</td></tr>
                           <tr><td align='left'>中心位置：</td><td align='left'>${typhRouteInfo.lon}°E, ${typhRouteInfo.lat}°N</td></tr>
                           <tr><td align='left'>风速：</td><td align='left'>${typhRouteInfo.windSpeed} 米/秒</td></tr>
-                          <tr><td align='left'>七级风圈半径：</td><td align='left'>${typhRouteInfo.radius7} 公里</td></tr>
-                          <tr><td align='left'>十级风圈半径：</td><td align='left'>${typhRouteInfo.radius10} 公里</td></tr>
-<!--                          <tr><td align='left'>十二级风圈半径：</td><td align='left'>${typhRouteInfo.radius12} 公里</td></tr>-->
-                          <tr><td align='left'>中心压强：</td><td align='left'>${typhRouteInfo.centPres} hpa</td></tr>
+                          <tr><td align='left'>七级风圈半径：</td><td align='left'>${this.isnull(typhRouteInfo.radius7)} 公里</td></tr>
+                          <tr><td align='left'>十级风圈半径：</td><td align='left'>${this.isnull(typhRouteInfo.radius10)} 公里</td></tr>
+<!--                          <tr><td align='left'>十二级风圈半径：</td><td align='left'>${this.isnull(typhRouteInfo.radius12)} 公里</td></tr>-->
+                          <tr><td align='left'>中心压强：</td><td align='left'>${this.isnull(typhRouteInfo.centPres)} hpa</td></tr>
                           <tr><td align='left'>强度：</td><td align='left'>${strength_CNName}(${typhRouteInfo.strength})</td></tr>
                         </table>
                     `.trim();
@@ -707,9 +718,9 @@
                           <tr><td align='left'>起报时间：</td><td align='left'>${util.formatDateTime(new Date(typhForecastInfo.qbsj))}</td></tr>
                           <tr><td align='left'>预报时间：</td><td align='left'>${util.formatDateTime(new Date(typhForecastInfo.ybsj))}</td></tr>
                           <tr><td align='left'>中心位置：</td><td align='left'>${typhForecastInfo.lon}°E, ${typhForecastInfo.lat}°N</td></tr>
-                          <tr><td align='left'>七级风圈半径：</td><td align='left'>${typhForecastInfo.radius_7} 公里</td></tr>
-                          <tr><td align='left'>十级风圈半径：</td><td align='left'>${typhForecastInfo.radius_10} 公里</td></tr>
-                          <tr><td align='left'>中心压强：</td><td align='left'>${typhForecastInfo.centPres} hpa</td></tr>
+                          <tr><td align='left'>七级风圈半径：</td><td align='left'>${this.isnull(typhForecastInfo.radius_7)} 公里</td></tr>
+                          <tr><td align='left'>十级风圈半径：</td><td align='left'>${this.isnull(typhForecastInfo.radius_10)} 公里</td></tr>
+                          <tr><td align='left'>中心压强：</td><td align='left'>${this.isnull(typhForecastInfo.centPres)} hpa</td></tr>
                           <tr><td align='left'>强度：</td><td align='left'>${strength_CNName}(${typhForecastStre})</td></tr>
                           <tr><td align='left'>预报单位：</td><td align='left'>${colorTyphForecast[typhForecastType].CN_Name}</td></tr>
                         </table>
@@ -723,8 +734,8 @@
                           <tr><td align='left'>起报时间：</td><td align='left'>${typhForecastInfo.stTime}</td></tr>
                           <tr><td align='left'>预报时间：</td><td align='left'>${typhForecastInfo.location}</td></tr>
                           <tr><td align='left'>中心位置：</td><td align='left'>${typhForecastInfo.lng}°E, ${typhForecastInfo.lat}°N</td></tr>
-                          <tr><td align='left'>风速：</td><td align='left'>${typhForecastInfo.speed} 米/秒</td></tr>
-                          <tr><td align='left'>中心压强：</td><td align='left'>${typhForecastInfo.presure} hpa</td></tr>
+                          <tr><td align='left'>风速：</td><td align='left'>${this.isnull(typhForecastInfo.speed)} 米/秒</td></tr>
+                          <tr><td align='left'>中心压强：</td><td align='left'>${this.isnull(typhForecastInfo.presure)} hpa</td></tr>
                           <tr><td align='left'>强度：</td><td align='left'>${strength_CNName}(${typhForecastStre})</td></tr>
                           <tr><td align='left'>预报单位：</td><td align='left'>${colorTyphForecast[typhForecastType].CN_Name}</td></tr>
                         </table>
@@ -1219,7 +1230,9 @@
                         clearInterval(that.typh_move_setTime);
 
                         // 绘制最后一个点的预报
-                        that.typhForecastDraw(that.typh_move_layer.getSource().getFeatures()[0].get("data"), typhModelNum);
+                        let typhRouteInfo = that.typh_move_layer.getSource().getFeatures()[0].get("data");
+                        that.typhForecastDraw(typhRouteInfo, typhModelNum);
+                        that.typhWindDraw(typhRouteInfo, 0.01);
                         return;
                     }
 

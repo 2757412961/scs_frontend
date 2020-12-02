@@ -62,7 +62,7 @@
           this.addUser_modal=true
         },
         addUser(){
-          var api=`/api/SCSServices/addUser.action?username=${this.userName_add}&password=${this.password_add}&groupId=${this.category_add}`;
+          var api=`/api/SCSServices/addUser.action?username=${this.userName_add}&password=${this.password_add}&grants=${this.category_add}`;
           this.$axios.get(api)
             .then((response)=> {
               console.log(response.data);//成功回调

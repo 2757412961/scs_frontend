@@ -60,7 +60,9 @@
         <h2 style="font-family: 'Microsoft YaHei'; color: #e6fdff; float: right;">{{username}} 你好！</h2>
       </el-col>
       <el-col :span="6">
-        <Button type="text"><Icon type="md-exit" size="40" color="#e6fdff" @click="signOut">登出</Icon></Button>
+        <Button type="text">
+          <Icon type="md-exit" size="40" color="#e6fdff" @click="signOut">登出</Icon>
+        </Button>
       </el-col>
     </el-row>
 
@@ -88,8 +90,8 @@
         },
         methods: {
             selectMenu(key) {
-                if ( null!=key && key!='predictionPaper'){
-                  this.$emit('clearMap', '');
+                if (null != key && key != 'predictionPaper' && key != 'userManager') {
+                    this.$emit('clearMap', '');
                 }
                 switch (key) {
                     //如果是右侧sider，跳转router
@@ -157,12 +159,12 @@
                     type: 'warning'
                 }).then(() => {
                     this.$axios(`/api/SCSServices/logout.action`)
-                        .then((res)=>{
-                            if (res.data){
+                        .then((res) => {
+                            if (res.data) {
                                 //跳转到登录界面
                                 that.$store.commit('setUserName', "");
                                 that.$store.commit('setCategory', "");
-                                that.$router.push({name:'login'});
+                                that.$router.push({name: 'login'});
                                 this.$message({
                                     type: 'success',
                                     message: '退出登录成功！'
@@ -174,7 +176,7 @@
                                 });
                             }
                         })
-                        .catch((err)=>{
+                        .catch((err) => {
                             this.$message({
                                 type: 'error',
                                 message: '退出异常！'

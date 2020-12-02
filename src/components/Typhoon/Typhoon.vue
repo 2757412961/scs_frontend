@@ -113,7 +113,7 @@
             <el-table
               :data="routeList" height="50%" border
               style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 3%;margin-left: 1%"
-              @row-click="chooseTyph" :default-sort="{prop: 'time', order: 'descending'}">
+              @row-click="chooseTyphNum" :default-sort="{prop: 'time', order: 'descending'}">
               <el-table-column
                 prop="time"
                 label="时间"
@@ -344,9 +344,7 @@
                     .then((response) => {
 
                         if (response.data != null) {
-
                             this.selectedTyph = response.data['typhNum'];
-
                         } else {
                             // 若不成功，则弹出警告框
                             this.$confirm('无法获取正在进行的台风！', '提示', {
@@ -451,7 +449,13 @@
 
             chooseTyph(typhIndex) {
                 this.selectedTyph = typhIndex['typhNum'];
-            }
+            },
+
+            chooseTyphNum(typhIndex){
+                console.log(typhIndex);
+                let time = typhIndex['time'];
+            },
+
         },
 
         // 挂载到html后执行，发送台风数据查询并渲染

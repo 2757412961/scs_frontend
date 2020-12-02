@@ -1,16 +1,16 @@
 <template>
 
-  <el-container style="height:60px">
+  <el-container style="height:60px;background-color: #545c64;">
     <el-aside width="400px">
-      <a href="#/home">
+      <a href="#">
         <img
           id="img_logo"
-          src="~assets/nmefc.png"
+          src="~assets/nmefc_new.png"
         >
       </a>
-      <h2 id="h_title">
+      <h1 id="h_title">
         {{this.$store.state.title}}
-      </h2>
+      </h1>
     </el-aside>
     <el-main style="padding:0;position: relative;">
       <el-menu
@@ -88,7 +88,9 @@
         },
         methods: {
             selectMenu(key) {
-                this.$emit('clearMap', '');
+                if ( null!=key && key!='predictionPaper'){
+                  this.$emit('clearMap', '');
+                }
                 switch (key) {
                     //如果是右侧sider，跳转router
                     case "typhoon":

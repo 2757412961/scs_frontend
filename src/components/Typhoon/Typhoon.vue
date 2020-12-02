@@ -72,7 +72,7 @@
       <el-collapse id="typhoonForecast_panel" class="typhoonPanel_class"
                    v-model="activeNames" @change="rightBarHide">
 
-        <el-collapse-item id="rightBar" style="border: 4px solid rgb(28, 94, 133);border-radius: 9px;"
+        <el-collapse-item id="rightBar" style="border: 3px solid rgba(28, 94, 133, 0.5);border-radius: 9px;"
                           name="rightSide"
                           :class="[this.rightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
           <div class="typhoonBarTitle">

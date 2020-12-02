@@ -9,7 +9,7 @@
 
     <el-collapse id="predictPaper_panel" class="globalNumCollapse_class" v-model="activeNames" @change="rightBarHide">
       <el-collapse-item id="globalNumRightBar" name="rightSide"
-                        style="border: 4px solid rgb(28, 94, 133);border-radius: 9px;"
+                        style="border: 3px solid rgba(28, 94, 133,0.5);border-radius: 9px;"
                         :class="[this.rightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
 
         <div class="globalNumPanelBody">

@@ -22,7 +22,7 @@
         style="float:right;width: 75%;"
         v-model="grants" placeholder="请选择数据类型" size="small">
         <el-option
-          v-for="item in categorys"
+          v-for="item in categories"
           :key="item.value"
           :label="item.label"
           :value="item.value">
@@ -39,7 +39,7 @@
             return {
                 editUser_modal: false,
 
-                categorys: [{
+                categories: [{
                     value: 1,
                     label: '管理员'
                 }, {

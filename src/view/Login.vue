@@ -70,9 +70,11 @@
                             // 若登录成功，则跳转home页面，并修改全局user变量
                             that.$store.commit('setUserName', this.userName);
                             // 添加权限
-                            that.$store.commit('setCategory', res.data);
+                            that.$store.commit('setGrants', res.data);
+                            // 储存至 Cookie
+                            this.$cookies.setCookie(this.Constant.cookieGrants, res.data, 6 * 60 * 60);
+
                             // 设置 session 变量，储存
-                            // 不使用 sessionStorage
                             // sessionStorage.setItem('store', JSON.stringify(this.$store.state));
 
                             // 跳转路由

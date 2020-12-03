@@ -101,9 +101,11 @@ const router = new VueRouter(RouterConfig);
 function guardRoute(to, from, next) {
   let userKey = Constant.cookieUserKey;
   let userValue = getCookie(userKey);
+  let grants = getCookie(Constant.cookieGrants);
 
   if (userValue !== "") {
-    store.commit('setUserName', userValue); // 其实没必要加. Login.Vue
+    store.commit('setUserName', userValue); // 需要添加，vue更新后会重新赋值
+    store.commit('setGrants', grants); // 需要添加，vue更新后会重新赋值
     next()
   } else {
     next({path: '/login'});

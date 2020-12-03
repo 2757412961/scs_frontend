@@ -1,5 +1,6 @@
 export default {
   cookieUserKey: "cookieUseName",
+  cookieGrants: "cookieGrants",
 
   // 台风颜色变量
   colorTyphStrength: {

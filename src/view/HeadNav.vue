@@ -128,7 +128,7 @@
                     case "productImg":
                         break;
                     case "userManager":
-                        if (this.$store.state.category == 1) {
+                        if (this.$store.state.grants == 1) {
                             this.$axios.get(`/api/SCSServices/AllUsers.action`)
                                 .then((response) => {
                                     this.$refs.userModal.openUserModal(response.data)
@@ -163,7 +163,9 @@
                             if (res.data) {
                                 //跳转到登录界面
                                 that.$store.commit('setUserName', "");
-                                that.$store.commit('setCategory', "");
+                                that.$store.commit('setGrants', "");
+                                that.$cookies.delCookie(this.Constant.cookieGrants);
+
                                 that.$router.push({name: 'login'});
                                 this.$message({
                                     type: 'success',

@@ -4,17 +4,17 @@ Vue.use(Vuex);
 // 这里定义初始值
 let state = {
   title:"海洋环境预报综合保障平台",
+  serverIP:"202.108.199.48", //产品及数据发布IP
   userName:"",
-  category:"",//管理员1普通用户0
-  serverIP:"202.108.199.48",//产品及数据发布IP
+  grants:"", // 管理员1普通用户0
 };
 
 const mutations = {
   setUserName(state,msg){
     state.userName = msg;
   },
-  setCategory(state,msg){
-    state.category = msg;
+  setGrants(state,msg){
+    state.grants = msg;
   }
 };
 

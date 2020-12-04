@@ -66,7 +66,7 @@
             openProductImgsModal(weatherType) {
                 this.ProductImgsModal = true;
                 this.productType = weatherType;
-                this.productTitle = "天气现象——" + (this.productType === "xbt" ? "西北太" : "港珠澳");
+                this.productTitle = "天气现象——" + (this.productType === "xbt" ? "西北太" : "南海中北部");
                 this.getLastestDate();
             },
             getLastestDate() {

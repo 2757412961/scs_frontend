@@ -90,7 +90,8 @@
         },
         methods: {
             selectMenu(key) {
-                if (null != key && key != 'predictionPaper' && key != 'userManager') {
+                if (null != key && key != 'predictionPaper' && key != 'userManager'
+                    && key != 'fullScreenSesArea' && key != 'fullScreenLawArea') {
                     this.$emit('clearMap', '');
                 }
                 switch (key) {

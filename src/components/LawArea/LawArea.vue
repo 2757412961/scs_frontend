@@ -35,8 +35,8 @@
                 </th>
               </tr>
               <tr>
-                <td style="width: 45%;" class="evenrowcolor">天气情况</td>
-                <td>{{ data.tqqk }}</td>
+                <td style="width: 45%; height: 20px" class="evenrowcolor">天气情况</td>
+                <td style="width: 55%; height: 20px">{{ data.tqqk }}</td>
               </tr>
               <tr>
                 <td style="width: 45%;" class="evenrowcolor">风向</td>
@@ -366,8 +366,9 @@
     /*background-color: #6B8FB7;*/
     opacity: 0.7;
     color: black;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bolder;
+
   }
 
 </style>

@@ -1289,6 +1289,20 @@
                 drawTyph();
             },
 
+            /*
+
+             */
+
+            drawClickTyphRouteTablePopup() {
+                globalBus.$on('drawClickTyphRouteTablePopup', (feature) => {
+                    if (feature != null) {
+                        let typhRouteInfo = feature.get('data');
+                        this.typhPointPopup(feature);
+                        this.typhWindDraw(typhRouteInfo, 0.01);
+                        this.typhForecastDraw(typhRouteInfo, feature.get('typhModelNum'));
+                    }
+                })
+            },
 
             //  *****************************seaArea 近海预报  start******************************************
             seaAreaList2Polygon(ptArr) {
@@ -1561,6 +1575,7 @@
 
             this.typhRouteDrawLinePoint();
             this.syncForecastLayerState();
+            this.drawClickTyphRouteTablePopup();
 
             this.seaAreaDrawPolygon();
 

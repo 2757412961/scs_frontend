@@ -92,12 +92,18 @@
                   :value="item.value">
                 </el-option>
               </el-select>
+
+              <el-button type="text" size="small" @click="openDownloadDialog" style="margin-left: 80px">下载TEPO
+              </el-button>
             </div>
             <!-- 台风号、台风名表格-->
             <el-table
               :data="typhList" height="38%" border
               style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 3%;margin-left: 1%"
-              @row-click="chooseTyph" :default-sort="{prop: 'typhNum', order: 'descending'}">
+              @row-click="chooseTyph" :default-sort="{prop: 'typhNum', order: 'descending'}"
+              :row-style="{height:'40px'}"
+              :cell-style="{padding:'0px'}"
+            >
               <el-table-column
                 prop="typhNum"
                 label="台风号"
@@ -113,7 +119,10 @@
             <el-table
               :data="routeList" height="50%" border
               style="width: 98%;border: 1px solid #5b84cc; border-radius: 4px; margin-top: 3%;margin-left: 1%"
-              @row-click="chooseTyphNum" :default-sort="{prop: 'time', order: 'descending'}">
+              @row-click="chooseTyphNum" :default-sort="{prop: 'time', order: 'descending'}"
+              :row-style="{height:'40px'}"
+              :cell-style="{padding:'0px'}"
+            >
               <el-table-column
                 prop="time"
                 label="时间"
@@ -176,14 +185,23 @@
       </el-button>
     </div>
 
+    <DownloadTepoDialog ref="downloadTepoDialog"></DownloadTepoDialog>
   </div>
 </template>
 
 <script>
+    import {fromLonLat, getTransform} from 'ol/proj';
+    import Point from 'ol/geom/Point';
+    import Feature from 'ol/Feature';
+
     import {globalBus} from '../globalBus';
+    import DownloadTepoDialog from "../Dialog/DownloadTepoDialog";
 
     export default {
         name: "Typhoon",
+        components: {
+            DownloadTepoDialog
+        },
         data() {
             return {
                 showLegend: true,
@@ -264,6 +282,11 @@
                     this.btnIconData = 'el-icon-d-arrow-right'
                     this.activeNames = ['rightSide']
                 }
+            },
+
+            // 打开下载框
+            openDownloadDialog() {
+                this.$refs.downloadTepoDialog.openDialog();
             },
 
             // 获取特定年份的所有台风
@@ -424,7 +447,7 @@
                             confirmButtonText: '确定',
                             type: 'warning'
                         })
-                    })
+                    });
 
                 return 0;
             },
@@ -432,6 +455,7 @@
             // 把台风轨迹信息使用typhMonitor加载到轨迹表格中
             // 每加一条的同时修改typhMonitor，监听并在map中添加轨迹
             addToRouteTable() {
+                this.routeList = [];
 
                 for (var i = 0; i < this.typhMonitorList.length; i++) {
                     this.typhMonitor = this.typhMonitorList[i];
@@ -443,7 +467,6 @@
 
                     // 添加到第一条，表格时间倒序，最近的在最上面
                     this.routeList.unshift(object0);
-
                 }
             },
 
@@ -451,9 +474,46 @@
                 this.selectedTyph = typhIndex['typhNum'];
             },
 
-            chooseTyphNum(typhIndex){
+            chooseTyphNum(typhIndex) {
                 console.log(typhIndex);
-                let time = typhIndex['time'];
+                let routeTime = typhIndex['time'];
+                this.$axios
+                    .get(`/api/SCSServices/typhoonRouteTableClick.action`, {
+                        params: {
+                            typhNum: this.selectedTyph,
+                            routeTime: routeTime
+                        }
+                    })
+                    .then((res) => {
+                        if (res != null && res.data != null) {
+                            let jsonObject = res.data;
+                            console.log('jsonObject', jsonObject)
+
+                            let typhRouteInfo = jsonObject['typhMonitorWeb'];
+                            let typhInfo = jsonObject['typhInfo'];
+                            typhRouteInfo.routeTime = this.transferTime(typhRouteInfo.routeTime);
+
+                            var pointGeom = new Point(fromLonLat([typhRouteInfo.lon, typhRouteInfo.lat]));
+                            var pointFeature = new Feature(pointGeom);
+                            pointFeature.set('name', "typhPointFeature");
+                            pointFeature.set('data', typhRouteInfo);
+                            pointFeature.set('typhName', typhInfo.enName);
+                            pointFeature.set('typhModelNum', typhInfo.typhNum);
+
+                            globalBus.$emit('drawClickTyphRouteTablePopup', pointFeature);
+                        } else {
+                            this.$message({
+                                type: 'warning',
+                                message: '数据不存在！'
+                            });
+                        }
+                    })
+                    .catch((err) => {
+                        this.$message({
+                            type: 'error',
+                            message: '访问数据失败！'
+                        });
+                    });
             },
 
         },

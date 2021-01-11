@@ -122,9 +122,9 @@
                         this.productImageUrl = this.productImageUrl.replace(/\\/g, '/')
                     })
                     .catch((error) => {
-                        this.$confirm('服务器失联！updateImageUrl ', '提示', {
-                            confirmButtonText: '确定',
-                            type: 'warning'
+                        this.$message({
+                            type: 'error',
+                            message: '数据不存在！'
                         });
                         console.log(error);
                     })

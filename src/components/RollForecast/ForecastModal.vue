@@ -12,7 +12,7 @@
 
         <el-button size="medium" v-bind:icon="fullScreenIcon" circle @click="fullScreenFun"></el-button> <!--切换全屏-->
 
-        <el-button style="float: right" @click="forecastModal=false" size="medium" icon="el-icon-close" circle></el-button>
+        <el-button style="float: right" @click="closeModalAndFullScreen" size="medium" icon="el-icon-close" circle></el-button>
       </div>
     </div>
     <div class="inner-container" id="aniDiv" :style="[rollTime,playOrNot]">
@@ -262,13 +262,13 @@
     data() {
       return {
         fullScreenIcon: 'el-icon-full-screen',
-        iconData:'el-icon-caret-right', //是否播放
+        iconData:'el-icon-d-caret', //是否播放
         rateNum: 0.5, //播放速度控制
         rollTime:{
           'animation-duration':'30s'
         },
         playOrNot:{
-          'animation-play-state':'paused'
+          'animation-play-state':'running'
         },
         forecastType: false,  // true 执法海域  false 近海海区
         panelHeight: '550px',
@@ -401,6 +401,20 @@
           }
         }
       },
+      closeModalAndFullScreen(){
+        this.forecastModal=false;
+        this.isFullScreen = false;
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitCancelFullScreen) {
+          document.webkitCancelFullScreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+      }
+
     },
     watch:{
       isFullScreen: function (val) {

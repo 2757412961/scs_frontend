@@ -155,14 +155,28 @@
             },
             saveImg2local(imgUrl, fileName) {
                 if (imgUrl.length > 0) {
-                    fetch(imgUrl).then(res => res.blob().then(blob => {
-                        let a = document.createElement('a');
-                        let url = window.URL.createObjectURL(blob);
+                    // fetch(imgUrl).then(res => res.blob().then(blob => {
+                    //     let a = document.createElement('a');
+                    //     let url = window.URL.createObjectURL(blob);
+                    //     a.href = url;
+                    //     a.download = fileName || 'blank.png'; // 文件名，下载位置和浏览器设置有关
+                    //     a.click();
+                    //     window.URL.revokeObjectURL(url);
+                    // }));
+
+                    var x = new XMLHttpRequest();
+                    x.open("GET", imgUrl, true);
+                    x.responseType = 'blob';
+                    x.onload=function(e) {
+                        //会创建一个 DOMString，其中包含一个表示参数中给出的对象的URL。这个 URL 的生命周期和创建它的窗口中的 document 绑定。
+                        // 这个新的URL 对象表示指定的 File 对象或 Blob 对象。
+                        var url = window.URL.createObjectURL(x.response)
+                        var a = document.createElement('a');
                         a.href = url;
-                        a.download = fileName || 'blank.png'; // 文件名，下载位置和浏览器设置有关
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                    }))
+                        a.download = fileName;
+                        a.click()
+                    };
+                    x.send();
                 }
             }
 

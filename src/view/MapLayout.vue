@@ -1468,7 +1468,7 @@
                     url: pngUrl,
                     projection: projection,
                     imageExtent: rightSideExtent,
-                    crossOrigin: '',
+                    crossOrigin: 'anonymous',
                 });
                 let x1 = fromLonLat([-19.67, -17.91]);
                 let x2 = fromLonLat([29.02, 3.93]);  //左下角 右上角  成功
@@ -1489,7 +1489,7 @@
                     url: pngUrl,
                     projection: projection,
                     imageExtent: leftSideExtent,
-                    crossOrigin: '',
+                    crossOrigin: 'anonymous',
                 });
                 this.globalNum_left_imgLayer = new ImageLayer({
                     source: leftSidePng,

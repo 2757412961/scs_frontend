@@ -446,6 +446,16 @@
 </script>
 <style scoped>
 
+  .globalNumInputLabel {
+    font-weight: initial;
+    font-size: 16px;
+  }
+
+  .globalNumInput {
+    width: 35%;
+    margin-bottom: 2%;
+  }
+
   .selTitleBody {
     width: 75%;
     float:left;
@@ -502,16 +512,6 @@
 <style>
   #gloNum_forecastRatePanel .el-checkbox__label {
     margin-left: -10%;
-  }
-
-  .globalNumInputLabel {
-    font-weight: initial;
-    font-size: 16px;
-  }
-
-  .globalNumInput {
-    width: 35%;
-    margin-bottom: 2%;
   }
 
   .globalNumPanelBody_div {

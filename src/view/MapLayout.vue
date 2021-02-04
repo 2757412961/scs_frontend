@@ -433,11 +433,16 @@
                     let id_feature = feature.get('feature_id');
                     // 调用seaArea方法，传递id
                     globalBus.$emit('updateSeaAreaDataIndex', id_feature);
-                } else if (feature.get('name').search(/lawAreaPolygonFeature/) != -1) {
+                } else if (feature.get('name').search(/lawAreaPointFeature/) != -1) {
                     // 如果点击了lawArea的feature
                     let areaName = feature.get('areaName');
                     globalBus.$emit('changeLawAreaName', areaName);
                 }
+                // else if (feature.get('name').search(/lawAreaPolygonFeature/) != -1) {
+                //     // 如果点击了lawArea的feature
+                //     let areaName = feature.get('areaName');
+                //     globalBus.$emit('changeLawAreaName', areaName);
+                // }
 
                 // 清除选中要素
                 this.selectClick.getFeatures().clear();
@@ -484,29 +489,11 @@
                             this.typhForecastPointPopup(feature);
                         }
                     } else if (feature.get('name').search(/seaArea/) != -1) {
-                        /*//如果移动到新的feature，修改feature样式
-                        if (this.lastPointerFeature !== feature) { //鼠标移动到了新的feature
-                          let featureStyle = feature.getStyle();  //记录本次feature的样式
-                          if (this.lastPointerFeature != null) {  //如果上次feature不为空，将值设置为上一feature的样式
-                            this.lastPointerFeature.setStyle(featureStyle);
-                          }
-                          let highlightStyle = new Style({  //鼠标覆盖，创建新的feature样式
-                            stroke: new Stroke({
-                              color: '#3681AA',
-                              width: 2
-                            }),
-                            fill: new Fill({
-                              color: 'rgba(54, 129, 170,1)'
-                            }),
-                          });
-                          feature.setStyle(highlightStyle);
-                          this.seaAreaForecastPopup(feature, pixel); //显示弹框
-                          this.lastPointerFeature = feature; //记录本次feature
-                        }*/
                         this.seaAreaForecastPopup(feature, pixel);
-                    } else if (feature.get('name').search(/lawAreaPolygonFeature/) != -1) {
-                        this.lawAreaPolygonPopup(feature, pixel);
                     }
+                    // else if (feature.get('name').search(/lawAreaPolygonFeature/) != -1) {
+                    //     this.lawAreaPolygonPopup(feature, pixel);
+                    // }
                 } else {
                     if (this.lastPointerFeature != null) {
                         if (this.lastPointerFeature.get('name').search(/Point/) != -1) {
@@ -518,12 +505,13 @@
                                 stroke: new Stroke({color: '#429FCE', width: 2}),
                                 fill: new Fill({color: '#C2D1E0'}),
                             }));
-                        } else if (this.lastPointerFeature.get('name').search(/lawAreaPolygonFeature/) != -1) {
-                            let oldColor = this.lastPointerFeature.getStyle().getFill().getColor();
-                            oldColor[3] = 0.4;
-                            this.lastPointerFeature.getStyle().getFill().setColor(oldColor);
-                            this.law_area_layer.getSource().changed();
                         }
+                        // else if (this.lastPointerFeature.get('name').search(/lawAreaPolygonFeature/) != -1) {
+                        //     let oldColor = this.lastPointerFeature.getStyle().getFill().getColor();
+                        //     oldColor[3] = 0.4;
+                        //     this.lastPointerFeature.getStyle().getFill().setColor(oldColor);
+                        //     this.law_area_layer.getSource().changed();
+                        // }
                     }
                     this.overlay.setPosition(undefined);
                     this.lastPointerFeature = null;//记录本次feature
@@ -1367,52 +1355,100 @@
 
 
             //  ***************************** lawArea 执法海域预报   start ******************************************
-            createLawAreaPolygon(json) {
+            // // 绘制执法海域 Polygon
+            // createLawAreaPolygon(json) {
+            //     let areaName = json.area;
+            //     let color = json.color;
+            //     let labx = parseFloat(json.labx);
+            //     let laby = parseFloat(json.laby);
+            //     let points = [];
+            //     json.pt.forEach(function (xys) {
+            //         points.push([parseFloat(xys.x), parseFloat(xys.y)]);
+            //     });
+            //     points.push([parseFloat(json.pt[0].x), parseFloat(json.pt[0].y)])
+            //
+            //     let lawAreaFeature = new Feature({
+            //         geometry: new Polygon([points]),
+            //         name: 'lawAreaPolygonFeature',
+            //         areaName: areaName
+            //     });
+            //
+            //     // 设置样式
+            //     let rgba = asArray(color).slice();
+            //     rgba[3] = 0.4;
+            //     lawAreaFeature.setStyle(new Style({
+            //         fill: new Fill({
+            //             color: rgba,
+            //         }),
+            //         text: new Text({
+            //             text: areaName,
+            //             textAlign: "center",
+            //             textBaseline: "middle",
+            //             placement: "point", //point 则自动计算面的中心k点然后标注  line 则根据面要素的边进行标注
+            //             // overflow: true //超出面的部分不显示
+            //         }),
+            //     }));
+            //
+            //     this.law_area_layer.getSource().addFeature(lawAreaFeature);
+            // },
+            // lawAreaDrawPolygon() {
+            //     globalBus.$on('lawAreaDraw', (lawAreaJson) => {
+            //         this.moveViewTo(fromLonLat([120, 17])[0], fromLonLat([120, 17])[1], 5);
+            //
+            //         // 判断是否已经加入了执法海域要素，如果没有加入则继续执行
+            //         let lawAreaSourceFeatures = this.law_area_layer.getSource().getFeatures();
+            //         if (lawAreaSourceFeatures.length > 0) return;
+            //
+            //         for (let i = 0; i < lawAreaJson.length; i++) {
+            //             this.createLawAreaPolygon(lawAreaJson[i]);
+            //         }
+            //     });
+            // },
+            // 绘制执法海域 Point
+            createLawAreaPoint(json) {
                 let areaName = json.area;
                 let color = json.color;
                 let labx = parseFloat(json.labx);
                 let laby = parseFloat(json.laby);
-                let points = [];
-                json.pt.forEach(function (xys) {
-                    points.push([parseFloat(xys.x), parseFloat(xys.y)]);
-                });
-                points.push([parseFloat(json.pt[0].x), parseFloat(json.pt[0].y)])
 
                 let lawAreaFeature = new Feature({
-                    geometry: new Polygon([points]),
-                    name: 'lawAreaPolygonFeature',
+                    geometry: new Point([parseFloat(labx), parseFloat(laby)]),
+                    name: 'lawAreaPointFeature',
                     areaName: areaName
                 });
 
                 // 设置样式
-                let rgba = asArray(color).slice();
-                rgba[3] = 0.4;
                 lawAreaFeature.setStyle(new Style({
-                    fill: new Fill({
-                        color: rgba,
+                    image: new CircleStyle({
+                        radius: 5,
+                        fill: new Fill({
+                            color: color
+                        })
                     }),
                     text: new Text({
                         text: areaName,
+                        font: '15px Microsoft YaHei',
+                        fill: new Fill({color: '#000000'}),
+                        stroke: new Stroke({color: '#ffcc33', width: 12}),
+                        placement: 'point',
                         textAlign: "center",
-                        textBaseline: "middle",
-                        placement: "point", //point 则自动计算面的中心k点然后标注  line 则根据面要素的边进行标注
-                        // overflow: true //超出面的部分不显示
+                        offsetX: 0,
+                        offsetY: 30
                     }),
                 }));
 
                 this.law_area_layer.getSource().addFeature(lawAreaFeature);
             },
-            // 绘制执法海域 Polygon
-            lawAreaDrawPolygon() {
+            lawAreaDrawPoint() {
                 globalBus.$on('lawAreaDraw', (lawAreaJson) => {
-                    this.moveViewTo(fromLonLat([120, 17])[0], fromLonLat([120, 17])[1], 5);
+                    this.moveViewTo(fromLonLat([120, 16])[0], fromLonLat([120, 16])[1], 5);
 
                     // 判断是否已经加入了执法海域要素，如果没有加入则继续执行
                     let lawAreaSourceFeatures = this.law_area_layer.getSource().getFeatures();
                     if (lawAreaSourceFeatures.length > 0) return;
 
                     for (let i = 0; i < lawAreaJson.length; i++) {
-                        this.createLawAreaPolygon(lawAreaJson[i]);
+                        this.createLawAreaPoint(lawAreaJson[i]);
                     }
                 });
             },
@@ -1579,7 +1615,8 @@
 
             this.seaAreaDrawPolygon();
 
-            this.lawAreaDrawPolygon();
+            // this.lawAreaDrawPolygon();
+            this.lawAreaDrawPoint();
             this.clearMapLawAreaLayer();
 
             this.globalNumericalAddImage();

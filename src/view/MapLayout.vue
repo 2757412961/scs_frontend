@@ -1626,20 +1626,20 @@
 
   .ol-popup {
     position: absolute;
+    top: 50px;
+    left: -50px;
     background-color: rgba(255, 255, 255, 0.85);
     -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
     filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
     padding: 15px;
     border-radius: 10px;
     border: 1px solid #cccccc;
-    bottom: 12px;
-    left: -50px;
     min-width: 210px;
     /*opacity: 0.5; !*透明度 *!*/
   }
 
   .ol-popup:after, .ol-popup:before {
-    top: 100%;
+    bottom: 100%;
     border: solid transparent;
     content: " ";
     height: 0;
@@ -1649,16 +1649,16 @@
   }
 
   .ol-popup:after {
-    border-top-color: white;
+    left: 42px;
+    border-bottom-color: #ffffff;
     border-width: 10px;
-    left: 48px;
     margin-left: -10px;
   }
 
   .ol-popup:before {
-    border-top-color: #cccccc;
+    left: 42px;
+    border-bottom-color: #d9d9d9;
     border-width: 11px;
-    left: 48px;
     margin-left: -11px;
   }
 

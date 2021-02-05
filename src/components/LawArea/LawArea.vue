@@ -1,77 +1,63 @@
 <template>
   <div>
-    <div class="lawAreabtn_class" :style="this.lawRightIsHide?'margin-left:95%':'margin-left:74%'">
-      <el-row>
-        <el-button id="rightBtn" style="font-size: 25px;" :icon="this.btnIconData" circle
-                   @click="rightBarHide"></el-button>
-      </el-row>
-    </div>
+    <div style="width: 100%; width: 25%">
+      <el-collapse style="position: absolute; bottom: 0; width: 100%" @change="handleChange">
+        <el-collapse-item name="onlyOne">
+          <template slot="title">
+            <div style="width: 100%; background-color: #fffdfe;"><h2>执法海域</h2></div>
+          </template>
 
-    <el-collapse id="lawAreaForecast_panel" class="lawAreaPanel_class" v-model="activeNames" @change="rightBarHide">
-
-      <el-collapse-item id="rightBar" style="border: 3px solid rgba(28, 94, 133,0.5);border-radius: 9px;"
-                        name="rightSide"
-                        :class="[this.lawRightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']">
-        <div class="lawAreaBarTitle">
-          <div>执法海域</div>
-        </div>
-        <div class="lawAreaBarTitle">
-          <el-switch v-model="isShowLayer" active-text="显示执法海域"></el-switch>
-        </div>
-        <div class="lawAreaBarTitle" style="font-weight: initial;font-size: 16px; margin-bottom: 0">
-          海域预报：{{ this.lawAreaName }}
-        </div>
-
-        <div class="lawAreaTableDiv">
-          <div v-for="data in lawAreaForecastData">
-            <table border="1px" cellspacing="0" class="altrowstable">
-              <tr class="headrowcolor">
-                <th colspan="2">
-                  <div>
-                    {{ util.transDate2MMHHMM(new Date(data.qbsj + (data.ybtc-12) * 60 * 60 * 1000)) }}
-                    至
-                    {{ util.transDate2MMHHMM(new Date(data.qbsj + data.ybtc * 60 * 60 * 1000)) }}
-                  </div>
-                </th>
-              </tr>
-              <tr>
-                <td style="width: 45%; height: 20px" class="evenrowcolor">天气情况</td>
-                <td style="width: 55%; height: 20px">{{ data.tqqk }}</td>
-              </tr>
-              <tr>
-                <td style="width: 45%;" class="evenrowcolor">风向</td>
-                <td>{{ data.fx }}</td>
-              </tr>
-              <tr>
-                <td style="width: 45%;" class="evenrowcolor">风速（级）</td>
-                <td :style="setColorByfs(data.fs)">{{ data.fs }}</td>
-              </tr>
-              <tr>
-                <td style="width: 45%;" class="evenrowcolor">视程范围（公里）</td>
-                <td>{{ data.scfw }}</td>
-              </tr>
-              <tr>
-                <td style="width: 45%;" class="evenrowcolor">风浪（米）</td>
-                <td :style="setColorBylang(data.fl)">{{ data.fl }}</td>
-              </tr>
-              <tr>
-                <td style="width: 45%;" class="evenrowcolor">涌浪（米）</td>
-                <td :style="setColorBylang(data.yl)">{{ data.yl }}</td>
-              </tr>
-            </table>
+          <div class="lawAreaBarTitle">
+            <el-tag type="warning" size="medium" style="font-size: 18px;">
+              海域预报：{{ this.lawAreaName }}（
+              <el-switch v-model="isShowLayer" active-text="显示执法海域"></el-switch>
+              ）
+            </el-tag>
           </div>
-        </div>
-      </el-collapse-item>
 
-    </el-collapse>
+          <el-table :data="lawAreaForecastData" stripe border fit :height="tableHeight" style="margin: 0 10px 0 10px">
+            <el-table-column prop="hymc" label="海域名称" sortable></el-table-column>
+            <el-table-column prop="qbsj" label="日期" sortable width="200">
+              <template slot-scope="scope">
+                <div>
+                  {{ util.transDate2MMHHMM(new Date(scope.row.qbsj + (scope.row.ybtc - 12) * 60 * 60 * 1000)) }}
+                  至
+                  {{ util.transDate2MMHHMM(new Date(scope.row.qbsj + scope.row.ybtc * 60 * 60 * 1000)) }}
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="tqqk" label="天气情况" sortable></el-table-column>
+            <el-table-column prop="fx" label="风向" sortable></el-table-column>
+            <el-table-column prop="fs" label="风速（级）" sortable>
+              <template slot-scope="scope">
+                <div :style="setColorByfs(scope.row.fs)">{{scope.row.fs}}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="scfw" label="视程范围（公里）" sortable></el-table-column>
+            <el-table-column prop="fl" label="风浪（米）" sortable>
+              <template slot-scope="scope">
+                <div :style="setColorBylang(scope.row.fl)">{{scope.row.fl}}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="yl" label="涌浪（米）" sortable>
+              <template slot-scope="scope">
+                <div :style="setColorBylang(scope.row.yl)">{{scope.row.yl}}</div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-collapse-item>
+      </el-collapse>
+    </div>
   </div>
 </template>
 
 <script>
     import {globalBus} from "../globalBus";
+    import TestBottomSilder from "./TestBottomSilder";
 
     export default {
         name: "LawArea",
+        components: {TestBottomSilder},
         data() {
             return {
                 lawAreaJson: require('../../../static/resources/LawArea.json'),  // 执法海域json
@@ -88,9 +74,11 @@
                     "yl": "1.1"
                 }],
 
-                btnIconData: 'el-icon-d-arrow-right',  //按钮图标
+                btnIconData: 'el-icon-d-arrow-right',  // 按钮图标
                 activeNames: ['rightSide'],
                 lawRightIsHide: false,
+
+                tableHeight: 200, // 表格高度
 
                 isShowLayer: true,
             }
@@ -124,16 +112,10 @@
                 }
             },
 
-            //侧边栏动画
-            rightBarHide() {
-                this.lawRightIsHide = !this.lawRightIsHide;
-                if (this.lawRightIsHide) {
-                    this.btnIconData = 'el-icon-d-arrow-left';
-                    this.activeNames = ['no'];
-                } else {
-                    this.btnIconData = 'el-icon-d-arrow-right';
-                    this.activeNames = ['rightSide'];
-                }
+            // 处理第一次打开表格底部有留白的情况
+            handleChange(val) {
+                console.log(val);
+                this.tableHeight = 200;
             },
 
         },
@@ -196,179 +178,24 @@
 
 <style scoped>
 
-  .lawAreaTable {
-    width: 96%;
-    margin: 2%;
-    border: 2px solid black;
-    border-radius: 6px;
-  }
-
   .lawAreaBarTitle {
-    width: 96%;
     font-size: 20px;
     line-height: 1.7;
-    font-weight: bold;
+    font-weight: initial;
     border: 2px solid #3681aa;
-    margin: 2%;
     border-radius: 7px;
+    margin: 0px 10px 10px 10px;
+    /*margin-bottom: 0;*/
   }
 
-  .lawAreaTableDiv {
-    height: calc(64vh);
-    overflow-y: scroll;
-    width: 98%;
-    margin-left: 2%;
+  /* 表格格高间距缩短 */
+  /deep/ .el-table td, .el-table th {
+    padding: 6px 0;
   }
 
-  #rightBtn .el-button {
-    font-size: 30px;
-  }
-
-  .lawAreabtn_class {
-    margin-left: 74%;
-    margin-top: 15%;
-    position: fixed;
-  }
-
-  .lawAreaPanel_class {
-    margin-left: 78%;
-    margin-top: 1%;
-    width: 21%;
-    position: fixed;
-    border: 0;
-  }
-
-  #rightBar .el-collapse-item__header {
-    font-size: 0px;
-    /*width: 45px;*/
-    height: 0px;
-    /*border-radius: 30px;*/
-    /*margin-left: -19%;*/
-    border: 0;
-  }
-
-  #rightBar .el-collapse-item__content {
-    padding-bottom: 15px;
-  }
-
-  #rightBar .el-collapse-item__wrap {
-    border-radius: 4px;
-  }
-
-  .seaAreRightInner-container-right {
-    animation: RightBarMoveRight linear;
-    -webkit-animation: RightBarMoveRight linear;
-    animation-fill-mode: forwards;
-    animation-play-state: running;
-    animation-duration: 0.2s;
-  }
-
-  .seaAreRightInner-container-left {
-    animation: RightBarMoveLeft linear;
-    -webkit-animation: RightBarMoveLeft linear;
-    animation-fill-mode: forwards;
-    animation-play-state: running;
-    animation-duration: 0.3s;
-  }
-
-  /*右侧边栏向右移动*/
-  @keyframes RightBarMoveRight {
-    0% {
-      transform: translateX(0);
-      -webkit-transform: translateX(0);
-    }
-    100% {
-      transform: translateX(110%);
-      -webkit-transform: translateX(110%);
-    }
-  }
-
-  /*右侧边栏向左移动*/
-  @keyframes RightBarMoveLeft {
-    0% {
-      transform: translateX(120%);
-      -webkit-transform: translateX(120%);
-    }
-    100% {
-      transform: translateX(0);
-      -webkit-transform: translateX(0);
-    }
-  }
-
-  /*滚动条整体样式*/
-  .lawAreaTableDiv::-webkit-scrollbar {
-    width: 10px; /*高宽分别对应横竖滚动条的尺寸*/
-    height: 1px;
-  }
-
-  /*滚动条里面小方块*/
-  .lawAreaTableDiv::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background-color: #c2d1e0;
-    background-image: -webkit-linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.2) 25%,
-      transparent 25%,
-      transparent 50%,
-      rgba(255, 255, 255, 0.2) 50%,
-      rgba(255, 255, 255, 0.2) 75%,
-      transparent 75%,
-      transparent
-    );
-  }
-
-  /*滚动条里面轨道*/
-  .lawAreaTableDiv::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-    background: #ededed;
-    border-radius: 10px;
-    margin-top: 16px;
-  }
-
-  /* 表格样式 */
-  table.altrowstable {
-    font-family: verdana, arial, sans-serif;
-    font-size: 11px;
-    color: #333333;
-    border-width: 1px;
-    border-color: #a9c6c9;
-    border-collapse: separate;
-    margin-top: 16px;
-    border-radius: 5px;
-  }
-
-  table.altrowstable th {
-    border-width: 1px;
-    padding: 8px;
-    border-style: solid;
-    border-color: #a9c6c9;
-  }
-
-  table.altrowstable td {
-    border-width: 1px;
-    padding: 8px;
-    border-style: solid;
-    border-color: #a9c6c9;
-  }
-
-  .headrowcolor {
-    /*background-color: #6B8FB7;*/
-    /*opacity: 0.7;*/
-    font-size: 17px;
-    color: #7ad6ff;
-  }
-
-  .oddrowcolor {
-    /*background-color: #f2faff;*/
-  }
-
-  .evenrowcolor {
-    /*background-color: #6B8FB7;*/
-    opacity: 0.7;
-    color: black;
-    font-size: 12px;
-    font-weight: bolder;
-
+  /* 底部留白去除 */
+  /deep/ .el-collapse-item__content {
+    padding-bottom: 0px;
   }
 
 </style>

@@ -5,405 +5,213 @@ zzhe
 -->
 <template>
   <div>
-    <div class="seaAreabtn_class"  :style="this.rightIsHide?'margin-left:95%':'margin-left:74%'">
-      <el-row>
-        <el-button id="rightBtn" style="font-size: 25px;" :icon="this.btnIconData" circle @click="rightBarHide"></el-button>
-      </el-row>
-    </div>
 
-    <el-collapse id="seaAreaForecast_panel" class="seaAreaPanel_class"
-                 v-model="activeNames" @change="rightBarHide">
 
-      <el-collapse-item id="rightBar" style="border: 3px solid rgba(28, 94, 133,0.5);border-radius: 9px;"
-                        name="rightSide" :class="[this.rightIsHide?'seaAreRightInner-container-right':'seaAreRightInner-container-left']" >
-        <div class="seaAreaBarTitle">
-            近海预报
-        </div>
-        <div class="seaAreaBarTitle" style="font-weight: initial;font-size: 16px; margin-bottom: 0">
-          第{{this.tableDataIndex}}海区：{{this.forecastData[parseInt(this.tableDataIndex)-1].data[0].hqmc}}
-        </div>
-        <div id="forecastTableDiv" class="seaAreaTableDiv">
-          <div v-for="data in this.forecastData[parseInt(this.tableDataIndex)-1].data">
-            <table id="seaAreaTable_id" border="4px" cellspacing="0" class="altrowstable">
-              <tr class="headrowcolor">
-                <td colspan="2">
-                  <div>
-                    {{transferTime(data.qbsj + (data.ybtc-12)*60*60*1000)}} 至 {{transferTime(data.qbsj + data.ybtc*60*60*1000)}}
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 45%;" class="evenrowcolor">
-                  天气情况
-                </td>
-                <td>
-                  {{data.tqqk}}
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 45%;" class="evenrowcolor">
-                  风向
-                </td>
-                <td>
-                  {{data.fx}}
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 45%;" class="evenrowcolor">
-                  风速(级)
-                </td>
-                <td>
-                  <p :style="windSpeedJudge(data.fs)"> {{data.fs}}</p>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 45%;" class="evenrowcolor">
-                  视程范围(公里)
-                </td>
-                <td>
-                  {{data.scfw}}
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 45%;" class="evenrowcolor">
-                  风浪(米)
-                </td>
-                <td>
-                  {{data.fl}}
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 45%;" class="evenrowcolor">
-                  涌浪(米)
-                </td>
-                <td>
-                  {{data.yl}}
-                </td>
-              </tr>
-            </table>
+    <div style="width: 100%; width: 25%">
+      <el-collapse style="position: absolute; bottom: 0; width: 100%">
+        <el-collapse-item name="onlyOne">
+          <template slot="title">
+            <div style="width: 100%; background-color: #fffdfe;"><h2>近海预报</h2></div>
+          </template>
 
+          <div class="seaAreaBarTitle">
+            <el-tag type="warning" size="medium" style="font-size: 18px;">
+              第{{this.tableDataIndex}}海区：{{this.forecastData[parseInt(this.tableDataIndex)-1].data[0].hqmc}}
+            </el-tag>
           </div>
 
-        </div>
-
-      </el-collapse-item>
-
-    </el-collapse>
+          <el-table :data="forecastData[parseInt(this.tableDataIndex)-1].data" stripe border fit height="200"
+                    class="seaAreaTable">
+            <el-table-column prop="hqmc" label="海区名称" sortable></el-table-column>
+            <el-table-column prop="qbsj" label="日期" sortable width="200">
+              <template slot-scope="scope">
+                <div>
+                  {{ util.transDate2MMHHMM(new Date(scope.row.qbsj + (scope.row.ybtc - 12) * 60 * 60 * 1000)) }}
+                  至
+                  {{ util.transDate2MMHHMM(new Date(scope.row.qbsj + scope.row.ybtc * 60 * 60 * 1000)) }}
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="tqqk" label="天气情况" sortable></el-table-column>
+            <el-table-column prop="fx" label="风向" sortable></el-table-column>
+            <el-table-column prop="fs" label="风速（级）" sortable>
+              <template slot-scope="scope">
+                <div :style="windSpeedJudge(scope.row.fs)">{{scope.row.fs}}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="scfw" label="视程范围（公里）" sortable></el-table-column>
+            <el-table-column prop="fl" label="风浪" sortable></el-table-column>
+            <el-table-column prop="yl" label="涌浪" sortable></el-table-column>
+          </el-table>
+        </el-collapse-item>
+      </el-collapse>
+    </div>
   </div>
 </template>
 
 <script>
-  // 引入海区数据用于绘制
-  import seaAreaJson from '../../../static/resources/SeaArea.json'
-  import { globalBus } from '../globalBus';
+    // 引入海区数据用于绘制
+    import seaAreaJson from '../../../static/resources/SeaArea.json'
+    import {globalBus} from '../globalBus';
+
     export default {
         name: "SeaArea",
-      data(){
-          return{
-            btnIconData:'el-icon-d-arrow-right',//按钮图标
-            seaAreaList: [],
-            forecastData: [{
-              "data": [
-                {
-                  "ybtc": 12,
-                  "hqbh": 1,
-                  "qbsj": 1593950400000,
-                  "tqqk": "小雨",
-                  "fx": "南-东南",
-                  "fs": "4-5",
-                  "scfw": "5-10",
-                  "fl": "轻浪",
-                  "yl": "中涌",
-                  "hqmc": "渤海"
-                }]
-            }], //预报数据
-            tableDataIndex: 1, //用于展示表格的数据index，默认为0(第一个数据)
-            activeNames:['rightSide'],
-            rightIsHide: false,
-          }
-      },
-      created() {
-          this.seaAreaList = seaAreaJson.SeaAreaList;
-          this.getOffShoreForecast();
-      },
-      mounted() {
-          // this.getOffShoreForecast();
-        this.updateTableDataIndex();
-      },
-      watch: {
-        forecastData: function (val) {
-          this.drawSeaArea(this.seaAreaList.SeaArea,this.forecastData);
-        }
-      },
-      methods: {
-        //绘制海区 2020年9月24日19:04:50
-        drawSeaArea(areaList, areaForecastData) {
-          globalBus.$emit('drawSeaArea', areaList, areaForecastData);
-        },
-
-        // 获取近海区域预报信息
-        getOffShoreForecast() {
-          var api = `/api/SCSServices/getOffShoreArea.action`;
-          this.$axios.get(api).then((response) => {
-            this.forecastData = response.data;
-          })
-            .catch((response) => {
-              //失败回调
-              this.$confirm('服务器失联！', '提示', {
-                confirmButtonText: '确定',
-                type: 'warning'
-              });
-            })
-        },
-
-        //侧边栏动画
-        rightBarHide() {
-          this.rightIsHide = !this.rightIsHide;
-          if (this.rightIsHide){
-              this.btnIconData='el-icon-d-arrow-left'
-              this.activeNames = ['no']
-          } else {
-            this.btnIconData='el-icon-d-arrow-right'
-            this.activeNames = ['rightSide']
-          }
-        },
-
-        // 将json串的一串数字时间进行解析
-        // 这里传输时时间戳变成了数字串形式，需要转换回去
-        transferTime(cTime) {
-          var jsonDate = new Date(parseInt(cTime));
-          Date.prototype.format = function (format) {
-            var o = {
-              "y+": this.getFullYear(),
-              "M+": this.getMonth() + 1,
-              "d+": this.getDate(),
-              "h+": this.getHours(),
-              "m+": this.getMinutes(),
-              "s+": this.getSeconds()
-            };
-            if (/(y+)/.test(format)) {
-              format = format.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        data() {
+            return {
+                btnIconData: 'el-icon-d-arrow-right',//按钮图标
+                seaAreaList: [],
+                forecastData: [{
+                    "data": [
+                        {
+                            "ybtc": 12,
+                            "hqbh": 1,
+                            "qbsj": 1593950400000,
+                            "tqqk": "小雨",
+                            "fx": "南-东南",
+                            "fs": "4-5",
+                            "scfw": "5-10",
+                            "fl": "轻浪",
+                            "yl": "中涌",
+                            "hqmc": "渤海"
+                        }]
+                }], //预报数据
+                tableDataIndex: 1, //用于展示表格的数据index，默认为0(第一个数据)
+                activeNames: ['rightSide'],
+                rightIsHide: false,
             }
-            for (var k in o) {
-              if (new RegExp("(" + k + ")").test(format)) {
-                format = format.replace(RegExp.$1, o[k].toString().length == 2 ? o[k] : ("0" + o[k]).substr("" + o[k].length));
-              }
-            }
-            return format;
-          };
-          var newDate = jsonDate.format("MM-dd hh:mm");
-          return newDate;
         },
+        created() {
+            this.seaAreaList = seaAreaJson.SeaAreaList;
+            this.getOffShoreForecast();
+        },
+        mounted() {
+            // this.getOffShoreForecast();
+            this.updateTableDataIndex();
+        },
+        watch: {
+            forecastData: function (val) {
+                this.drawSeaArea(this.seaAreaList.SeaArea, this.forecastData);
+            }
+        },
+        methods: {
+            //绘制海区 2020年9月24日19:04:50
+            drawSeaArea(areaList, areaForecastData) {
+                globalBus.$emit('drawSeaArea', areaList, areaForecastData);
+            },
 
-        //判断风速是否大于5，大于5就变红色
-        windSpeedJudge(windSpeed){
-          if (windSpeed.indexOf('-') != -1){
-            let numArr = windSpeed.split('-');
-            for (let i=0; i<numArr.length; i++){
-              if(numArr[i] > 5){  //如果大于5，修改为红色
-                return {
-                  color: 'red'
+            // 获取近海区域预报信息
+            getOffShoreForecast() {
+                var api = `/api/SCSServices/getOffShoreArea.action`;
+                this.$axios.get(api).then((response) => {
+                    this.forecastData = response.data;
+                })
+                    .catch((response) => {
+                        //失败回调
+                        this.$confirm('服务器失联！', '提示', {
+                            confirmButtonText: '确定',
+                            type: 'warning'
+                        });
+                    })
+            },
+
+            //侧边栏动画
+            rightBarHide() {
+                this.rightIsHide = !this.rightIsHide;
+                if (this.rightIsHide) {
+                    this.btnIconData = 'el-icon-d-arrow-left'
+                    this.activeNames = ['no']
+                } else {
+                    this.btnIconData = 'el-icon-d-arrow-right'
+                    this.activeNames = ['rightSide']
+                }
+            },
+
+            // 将json串的一串数字时间进行解析
+            // 这里传输时时间戳变成了数字串形式，需要转换回去
+            transferTime(cTime) {
+                var jsonDate = new Date(parseInt(cTime));
+                Date.prototype.format = function (format) {
+                    var o = {
+                        "y+": this.getFullYear(),
+                        "M+": this.getMonth() + 1,
+                        "d+": this.getDate(),
+                        "h+": this.getHours(),
+                        "m+": this.getMinutes(),
+                        "s+": this.getSeconds()
+                    };
+                    if (/(y+)/.test(format)) {
+                        format = format.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+                    }
+                    for (var k in o) {
+                        if (new RegExp("(" + k + ")").test(format)) {
+                            format = format.replace(RegExp.$1, o[k].toString().length == 2 ? o[k] : ("0" + o[k]).substr("" + o[k].length));
+                        }
+                    }
+                    return format;
                 };
-              }
-            }
-          } else {
-            if (windSpeed > 5){
-              return {
-                color: 'red'
-              };
-            }
-          }
-          return {
-            color: ''
-          };
+                var newDate = jsonDate.format("MM-dd hh:mm");
+                return newDate;
+            },
 
-        },
+            //判断风速是否大于5，大于5就变红色
+            windSpeedJudge(windSpeed) {
+                if (windSpeed.indexOf('-') != -1) {
+                    let numArr = windSpeed.split('-');
+                    for (let i = 0; i < numArr.length; i++) {
+                        if (numArr[i] > 5) {  //如果大于5，修改为红色
+                            return {
+                                color: 'red'
+                            };
+                        }
+                    }
+                } else {
+                    if (windSpeed > 5) {
+                        return {
+                            color: 'red'
+                        };
+                    }
+                }
+                return {
+                    color: ''
+                };
 
-        //更新tableDataIndex的值
-        updateTableDataIndex(){
-          globalBus.$on('updateSeaAreaDataIndex',(newVal) => {
-            this.tableDataIndex = newVal;
-          })
-        },
+            },
 
-      }
+            //更新tableDataIndex的值
+            updateTableDataIndex() {
+                globalBus.$on('updateSeaAreaDataIndex', (newVal) => {
+                    this.tableDataIndex = newVal;
+                })
+            },
+
+        }
     }
 </script>
 
-<style>
-
-  .seaAreaTable{
-    width: 96%;
-    margin-left: 2%;
-    margin-right: 2%;
-    margin-top: 6%;
-    border: 2px solid black;
-    border-radius: 6px;
-  }
+<style scoped>
 
   .seaAreaBarTitle {
-    width: 96%;
     font-size: 20px;
     line-height: 1.7;
-    font-weight: bold;
+    font-weight: initial;
     border: 2px solid #3681aa;
-    margin: 2%;
     border-radius: 7px;
-  }
-  .seaAreaTableDiv {
-    height: calc(70vh);
-    overflow-y: scroll;
-    width: 98%;
-    margin-left: 2%;
+    margin: 0px 10px 0px 10px;
+    /*margin-bottom: 0;*/
   }
 
-  #rightBtn .el-button{
-    font-size: 25px;
-  }
-  .seaAreabtn_class{
-    margin-left: 74%;
-    margin-top: 15%;
-    position: fixed;
+  .seaAreaTable {
+    margin: 0 10px 0 10px;
   }
 
-  .seaAreaPanel_class{
-    margin-left: 78%;
-    margin-top: 1%;
-    width: 21%;
-    position: fixed;
-    border: 0;
+  /* 表格格高间距缩短 */
+  /deep/ .el-table td, .el-table th {
+    padding: 6px 0;
   }
 
-  #rightBar .el-collapse-item__header{
-    font-size: 0px;
-    /*width: 45px;*/
-    height: 0px;
-    /*border-radius: 30px;*/
-    /*margin-left: -19%;*/
-    border: 0;
+  /* 底部留白去除 */
+  /deep/ .el-collapse-item__content {
+    padding-bottom: 1px;
   }
-
-  #rightBar .el-collapse-item__content{
-    padding-bottom: 15px;
-  }
-
-  #rightBar .el-collapse-item__wrap {
-    border-radius: 4px;
-  }
-
-  .seaAreRightInner-container-right {
-    animation: RightBarMoveRight linear;
-    -webkit-animation: RightBarMoveRight linear;
-    animation-fill-mode: forwards;
-    animation-play-state: running;
-    animation-duration: 0.2s;
-  }
-
-  .seaAreRightInner-container-left {
-    animation: RightBarMoveLeft linear;
-    -webkit-animation: RightBarMoveLeft linear;
-    animation-fill-mode: forwards;
-    animation-play-state: running;
-    animation-duration: 0.3s;
-  }
-
-  /*右侧边栏向右移动*/
-  @keyframes RightBarMoveRight {
-    0% {
-      transform: translateX(0);
-      -webkit-transform: translateX(0);
-    }
-    100% {
-      transform: translateX(110%);
-      -webkit-transform: translateX(110%);
-    }
-  }
-
-  /*右侧边栏向左移动*/
-  @keyframes RightBarMoveLeft {
-    0% {
-      transform: translateX(120%);
-      -webkit-transform: translateX(120%);
-    }
-    100% {
-      transform: translateX(0);
-      -webkit-transform: translateX(0);
-    }
-  }
-
-  .seaAreaTableDiv::-webkit-scrollbar {
-    /*滚动条整体样式*/
-    width : 10px;  /*高宽分别对应横竖滚动条的尺寸*/
-    height: 1px;
-  }
-  .seaAreaTableDiv::-webkit-scrollbar-thumb {
-    /*滚动条里面小方块*/
-    border-radius   : 10px;
-    background-color: #c2d1e0;
-    background-image: -webkit-linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.2) 25%,
-      transparent 25%,
-      transparent 50%,
-      rgba(255, 255, 255, 0.2) 50%,
-      rgba(255, 255, 255, 0.2) 75%,
-      transparent 75%,
-      transparent
-    );
-  }
-  .seaAreaTableDiv::-webkit-scrollbar-track {
-    /*滚动条里面轨道*/
-    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
-    background   : #ededed;
-    border-radius: 10px;
-    margin-top: 16px;
-
-  }
-
-  /* 表格样式 */
-  table.altrowstable {
-    font-family: verdana, arial, sans-serif;
-    font-size: 11px;
-    color: #333333;
-    border-width: 1px;
-    border-color: #a9c6c9;
-    border-collapse: separate;
-    margin-top: 16px;
-    border-radius: 5px;
-  }
-
-  table.altrowstable th {
-    border-width: 1px;
-    padding: 8px;
-    border-style: solid;
-    border-color: #a9c6c9;
-  }
-
-  table.altrowstable td {
-    border-width: 1px;
-    padding: 8px;
-    border-style: solid;
-    /*border-color: #a9c6c9;*/
-  }
-
-  .headrowcolor {
-    /*background-color: #6B8FB7;*/
-    /*opacity: 0.7;*/
-    font-size: 17px;
-    color: #7ad6ff;
-  }
-
-  .oddrowcolor {
-    /*background-color: #f2faff;*/
-  }
-
-  .evenrowcolor {
-    /*background-color: #6B8FB7;*/
-    opacity: 0.7;
-    color: black;
-    font-size: 13px;
-    font-weight: bolder;
-  }
-
 
 </style>

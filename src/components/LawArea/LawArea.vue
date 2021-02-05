@@ -15,7 +15,7 @@
             </el-tag>
           </div>
 
-          <el-table :data="lawAreaForecastData" stripe border fit :height="tableHeight" style="margin: 0 10px 0 10px">
+          <el-table :data="lawAreaForecastData" stripe border fit :height="tableHeight" class="lawAreaTable">
             <el-table-column prop="hymc" label="海域名称" sortable></el-table-column>
             <el-table-column prop="qbsj" label="日期" sortable width="200">
               <template slot-scope="scope">
@@ -74,12 +74,7 @@
                     "yl": "1.1"
                 }],
 
-                btnIconData: 'el-icon-d-arrow-right',  // 按钮图标
-                activeNames: ['rightSide'],
-                lawRightIsHide: false,
-
                 tableHeight: 200, // 表格高度
-
                 isShowLayer: true,
             }
         },
@@ -184,8 +179,12 @@
     font-weight: initial;
     border: 2px solid #3681aa;
     border-radius: 7px;
-    margin: 0px 10px 10px 10px;
+    margin: 0px 10px 0px 10px;
     /*margin-bottom: 0;*/
+  }
+
+  .lawAreaTable {
+    margin: 0 10px 0 10px;
   }
 
   /* 表格格高间距缩短 */

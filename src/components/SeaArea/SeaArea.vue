@@ -11,7 +11,7 @@ zzhe
       <el-collapse style="position: absolute; bottom: 0; width: 100%">
         <el-collapse-item name="onlyOne">
           <template slot="title">
-            <div style="width: 100%; background-color: #fffdfe;"><h2>近海预报</h2></div>
+            <div style="width: 100%;"><h2 style="color: white">近海预报</h2></div>
           </template>
 
           <div class="seaAreaBarTitle">
@@ -194,10 +194,9 @@ zzhe
     font-size: 20px;
     line-height: 1.7;
     font-weight: initial;
-    border: 2px solid #3681aa;
-    border-radius: 7px;
-    margin: 0px 10px 0px 10px;
-    /*margin-bottom: 0;*/
+    /*border: 2px solid #3681aa;*/
+    /*border-radius: 7px;*/
+    margin: 5px 10px 5px 10px;
   }
 
   .seaAreaTable {
@@ -209,9 +208,25 @@ zzhe
     padding: 6px 0;
   }
 
-  /* 底部留白去除 */
+  /* 底部背景改为黑色 */
+  /deep/ .el-collapse-item__header {
+    background-color: #545C64;
+  }
+
+  /* 底部背景改为黑色 */
+  /deep/ .el-collapse-item__header.is-active {
+    border-bottom-color: transparent;
+    background-color: #545C64;
+  }
+
+  /* 表格底部留白去除不掉 */
   /deep/ .el-collapse-item__content {
-    padding-bottom: 1px;
+    padding-bottom: 0px;
+  }
+
+  /* 右边箭头 */
+  /deep/ .el-collapse-item__arrow {
+    color: white;
   }
 
 </style>

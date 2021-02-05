@@ -111,7 +111,6 @@
             // 处理第一次打开表格底部有留白的情况
             handleChange(val) {
                 console.log(val);
-                this.tableHeight = 200;
             },
 
         },
@@ -196,10 +195,16 @@
   /deep/ .el-collapse-item__header {
     background-color: #545C64;
   }
+
   /* 底部背景改为黑色 */
   /deep/ .el-collapse-item__header.is-active {
     border-bottom-color: transparent;
     background-color: #545C64;
+  }
+
+  /* 底部白色细线去掉 */
+  .el-collapse {
+    border-top: 0px solid #EBEEF5;
   }
 
   /* 表格底部留白去除不掉 */
@@ -208,7 +213,7 @@
   }
 
   /* 右边箭头 */
-  /deep/ .el-collapse-item__arrow{
+  /deep/ .el-collapse-item__arrow {
     color: white;
   }
 

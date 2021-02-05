@@ -219,6 +219,11 @@ zzhe
     background-color: #545C64;
   }
 
+  /* 底部白色细线去掉 */
+  .el-collapse {
+    border-top: 0px solid #EBEEF5;
+  }
+
   /* 表格底部留白去除不掉 */
   /deep/ .el-collapse-item__content {
     padding-bottom: 0px;

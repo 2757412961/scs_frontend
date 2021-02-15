@@ -62,7 +62,7 @@
                   <el-input
                     placeholder="上"
                     :disabled="inputDisabled"
-                    v-model="parseFloat(northInput).toFixed(2)" size="mini" class="globalNumInput"
+                    v-model="northInput" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
@@ -72,14 +72,14 @@
                   <el-input
                     placeholder="左"
                     :disabled="inputDisabled"
-                    v-model="parseFloat(westInput).toFixed(2)" size="mini" class="globalNumInput"
+                    v-model="westInput" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
                   <el-input
                     placeholder="右"
                     :disabled="inputDisabled"
-                    v-model="parseFloat(eastInput).toFixed(2)" size="mini" class="globalNumInput"
+                    v-model="eastInput" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
@@ -90,7 +90,7 @@
                   <el-input
                     placeholder="下"
                     :disabled="inputDisabled"
-                    v-model="parseFloat(southInput).toFixed(2)" size="mini" class="globalNumInput"
+                    v-model="southInput" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
@@ -220,10 +220,10 @@
         windTimeSelectedTime: '', //气象选中的值 yyyymmddhh
         windForecastStart: '加载中...',
         waveForecastStart: '加载中...',
-        northInput: '90.0',
-        southInput: '-90.0',
-        eastInput: '180.0',
-        westInput: '-180.0',
+        northInput: 90.0,
+        southInput: -90.0,
+        eastInput: 360.0,
+        westInput: 0.0,
         rightIsHide: false,
         btnIconData: 'el-icon-d-arrow-right',//按钮图标
         activeNames: ['rightSide'],
@@ -238,8 +238,8 @@
     methods: {
       // 输入框值改变事件
       globalNumInputChange(){
-        this.fullViewExtent = [this.westInput, this.southInput, this.eastInput,this.northInput];
-        this.addPngChangeHandler()
+        this.fullViewExtent = [parseFloat(this.westInput), parseFloat(this.southInput), parseFloat(this.eastInput),parseFloat(this.northInput)];
+        this.drawRectangle(true, true)
       },
       // 填充4个经纬度输入框的值
       fillLonlatInput(){
@@ -255,16 +255,20 @@
       },
 
       // 绘制矩形并拾取范围方法
-      drawRectangle(flag){
+      drawRectangle(flag, inputFlag){
         // 调用maplayout中的绘图方法
         if (!flag){  //如果点击了清除按钮，初始化拾取范围的值
-          this.westInput= -180.0;
+          this.westInput= 0.0;
           this.southInput = -90.0;
-          this.eastInput = 180.0;
+          this.eastInput = 360.0;
           this.northInput = 90.0;
           this.fullViewExtent = [this.westInput, this.southInput, this.eastInput,this.northInput];
         }
-        globalBus.$emit('drawRectangle', flag)
+        if (inputFlag){ //如果是根据输入值绘图
+          globalBus.$emit('drawRectangle', flag, true, this.fullViewExtent)
+        } else {
+          globalBus.$emit('drawRectangle', flag, false, null) //非输入经纬度绘图
+        }
       },
 
       // 贴图事件触发

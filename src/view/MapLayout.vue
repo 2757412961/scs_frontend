@@ -109,11 +109,16 @@
 
                 /* 格点预报 start*/
                 globalNum_left_imgLayer: null,
+                globalNum_middle_imgLayer: null,
                 globalNum_right_imgLayer: null,
                 globalNum_current_png: {type: '', pngUrl: ''},
                 globalNum_draw: null,
                 globalNum_draw_layer: null,
-                globalNum_visible_extent: [],
+                globalNum_visible_extent: [0, -90, 360, 90],
+                globalNum_image_extent: [0, -85, 360, 85], // 贴图范围，默认从-360开始到720结束，因为3张图合在一起
+                globalNum_scale_factor: 0,
+                globalNum_is_draw: false,
+                globalNum_draw_source: null,
                 /* 格点预报 end*/
 
                 //记录当前地图缩放层级
@@ -297,15 +302,27 @@
                 this.globalNum_left_imgLayer = new ImageLayer({
                     source: globalNum_imgLayer_source
                 });
+                this.globalNum_middle_imgLayer = new ImageLayer({
+                  source: globalNum_imgLayer_source
+                });
                 this.globalNum_right_imgLayer = new ImageLayer({
                     source: globalNum_imgLayer_source
                 });
-                var globalNum_drwa_source = new Vector()
+                this.globalNum_draw_source = new VectorSource()
                 this.globalNum_draw_layer = new VectorLayer({
-                    source: globalNum_drwa_source
+                    source: this.globalNum_draw_source,
+                    style: new Stystyle({
+                      fill: new Fill({               //填充样式
+                        color: 'rgba(255, 255, 255, 0.2'
+                      }),
+                      stroke: new Stroke({           //线样式
+                        color: '#409eff',
+                        width: 3
+                      })
+                    })
                 });
                 this.globalNum_draw = new Draw({
-                    source: globalNum_drwa_source,
+                    source: this.globalNum_draw_source,
                     type: 'Circle',
                     dragVertexDelay: 100,
                     stopClick: true,
@@ -545,6 +562,11 @@
              * @param e
              */
             zoomEvent(e) {
+                //判断是否在【格点预报-全球模式】
+                if((this.$route.path).indexOf('globalNumerical') != -1){
+                  this.recurrentAddImage(0)
+                }
+
                 //判断地图是否缩放,无缩放则返回
                 var zoom = this.map.getView().getZoom();  //获取当前地图的缩放级别
                 if (this.oldZoom == zoom)
@@ -583,6 +605,7 @@
                 // 格点预报
                 this.globalNum_draw_layer.getSource().clear();
                 this.map.removeLayer(this.globalNum_left_imgLayer);
+                this.map.removeLayer(this.globalNum_middle_imgLayer);
                 this.map.removeLayer(this.globalNum_right_imgLayer);
 
                 // 清除台风路线绘制和定时器
@@ -1458,82 +1481,158 @@
             //  *****************************GlobalNumerical 全球区域   start******************************************
 
             // 绘制矩形
+            /**
+           *  @param
+           *  flag 是否处于绘图状态，如果不是，则移除绘图图层
+           *  inputFlag 是否通过输入的点进行绘图
+           *  viewExtent 如果通过点绘图，则输入范围
+           * */
             drawRectangelGlobalNumerical() {
-                globalBus.$on('drawRectangle', (flag) => {
+                globalBus.$on('drawRectangle', (flag, inputFlag, viewExtent) => {
                     if (flag) {
-                        this.globalNum_draw_layer.getSource().clear()
-                        this.map.removeLayer(this.globalNum_draw_layer)
+                        this.globalNum_draw_source.clear()
                         this.map.removeInteraction(this.globalNum_draw)
-                        var globalNumThis = this
-                        this.globalNum_draw.on('drawend', function (e) {
+                        this.map.removeLayer(this.globalNum_draw_layer)
+                        //判断是否是根据输入经纬度绘图
+                        if (inputFlag){
+                          let leftBottom = fromLonLat([viewExtent[0], viewExtent[1]])
+                          let rightTop = fromLonLat([viewExtent[2], viewExtent[3]])
+                          let rectangleFeature = new Feature({
+                            geometry: new Polygon(
+                              [
+                                [
+                                  [leftBottom[0], leftBottom[1]],
+                                  [rightTop[0], leftBottom[1]],
+                                  [rightTop[0], rightTop[1]],
+                                  [leftBottom[0], rightTop[1]],
+                                  [leftBottom[0], leftBottom[1]]
+                                ]
+                              ]
+                            )
+                          });
+                          this.globalNum_draw_source.clear()
+                          this.globalNum_draw_source.addFeature(rectangleFeature)
+                          this.globalNum_visible_extent = [viewExtent[0],viewExtent[1],viewExtent[2],viewExtent[3]]
+                          this.addPngImageGlobalNumerical(this.globalNum_current_png.pngUrl, this.globalNum_visible_extent);
+                        } else {
+                          //通过鼠标绘图
+                          var globalNumThis = this
+                          this.globalNum_draw.on('drawend', function (e) {
                             const geometry = e.feature.getGeometry()
                             const corrdinates = geometry.getCoordinates()
                             // [0][0]是左下角 [0][1]右下 [0][2]右上 [0][3]左上
                             let leftBottom = transform(corrdinates[0][0], "EPSG:3857", "EPSG:4326")
                             let rightTop = transform(corrdinates[0][2], "EPSG:3857", "EPSG:4326")
-                            // this.globalNum_visible_extent = [leftBottom[0],leftBottom[1],rightTop[0],rightTop[1]]
-                            globalNumThis.globalNum_visible_extent = [corrdinates[0][0][0], corrdinates[0][0][1], corrdinates[0][2][0], corrdinates[0][2][1]];
+                            globalNumThis.globalNum_visible_extent = [leftBottom[0],leftBottom[1],rightTop[0],rightTop[1]]
+                            //globalNumThis.globalNum_visible_extent = [corrdinates[0][0][0], corrdinates[0][0][1], corrdinates[0][2][0], corrdinates[0][2][1]];
                             globalNumThis.addPngImageGlobalNumerical(globalNumThis.globalNum_current_png.pngUrl, globalNumThis.globalNum_visible_extent);
-
                             globalBus.$emit('fillGlobalNumLonlatInput', leftBottom, rightTop)
                             globalNumThis.map.removeInteraction(globalNumThis.globalNum_draw)
-                        })
+                          })
+                          this.map.addInteraction(this.globalNum_draw)
+                        }
                         this.map.addLayer(this.globalNum_draw_layer)
-                        this.map.addInteraction(this.globalNum_draw)
+                        this.globalNum_is_draw = true
                     } else {
-                        this.globalNum_draw_layer.getSource().clear()
-                        this.map.removeLayer(this.globalNum_draw_layer)
-                        this.map.removeInteraction(this.globalNum_draw)
+                      this.globalNum_draw_layer.getSource().clear()
+                      this.map.removeLayer(this.globalNum_draw_layer)
+                      this.map.removeInteraction(this.globalNum_draw)
+                      this.globalNum_is_draw = false
                     }
-
                 });
             },
+          /**
+           * @Param newCenter 地图移动后的新center点
+           * 判断当前视图中心是否是 this.globalNum_visible_extent，否则的话改变中心重新贴图
+           * */
+          recurrentAddImage(newCenter){
+            //获取当前视图范围的中心点
+            let nowViewCenter = this.map.getView().getCenter()
+            //上一次的中心点this.globalNum_view_center
+            let lonCoor_360 = (fromLonLat([360, 20]))[0] //360度经度的坐标值
+            let scaleFactor = Math.floor(nowViewCenter[0] / lonCoor_360)
+            //如果中心点产生变化，即地图移动距离大于360度
+            if(scaleFactor != this.globalNum_scale_factor){
+              this.globalNum_image_extent[0] = (scaleFactor)*360
+              this.globalNum_image_extent[2] = (scaleFactor+1)*360
+              this.addPngImageGlobalNumerical(this.globalNum_current_png.pngUrl, this.globalNum_visible_extent);
+              this.globalNum_scale_factor = scaleFactor
+            }
+          },
+          // Parameters (url, 经纬度)
             addPngImageGlobalNumerical(pngUrl, viewExtent) {
 
-                this.map.removeLayer(this.globalNum_left_imgLayer)
-                this.map.removeLayer(this.globalNum_right_imgLayer)
-                let mapExtent = this.map.getView().getProjection().getExtent()
-                var projection = new Projection({
-                    code: 'EPSG:3857',
-                    extent: mapExtent,
-                });
-                let rightSide1 = fromLonLat([0, -85]);
-                let rightSide2 = fromLonLat([360, 85]);
-                let rightSideExtent = [rightSide1[0], rightSide1[1], rightSide2[0], rightSide2[1]];
-                let rightSidePng = new ImageStaticSource({
-                    url: pngUrl,
-                    projection: projection,
-                    imageExtent: rightSideExtent,
-                    crossOrigin: 'anonymous',
-                });
-                let x1 = fromLonLat([-19.67, -17.91]);
-                let x2 = fromLonLat([29.02, 3.93]);  //左下角 右上角  成功
-                let layerExtent = [x1[0], x1[1], x2[0], x2[1]];
-                this.globalNum_right_imgLayer = new ImageLayer({
-                    source: rightSidePng,
-                    extent: viewExtent  //只渲染部分，成功！
-                });
-                this.globalNum_right_imgLayer.setOpacity(0.8)
-                this.map.addLayer(this.globalNum_right_imgLayer);
+              this.map.removeLayer(this.globalNum_left_imgLayer)
+              this.map.removeLayer(this.globalNum_middle_imgLayer);
+              this.map.removeLayer(this.globalNum_right_imgLayer)
 
+              // 正中间部分的贴图范围
+              let leftBottomImage = fromLonLat([this.globalNum_image_extent[0], this.globalNum_image_extent[1]])
+              let rightTopImage = fromLonLat([this.globalNum_image_extent[2], this.globalNum_image_extent[3]])
+              let imageMiddleExtent = [leftBottomImage[0], leftBottomImage[1], rightTopImage[0], rightTopImage[1]]
+              let middlePng = new ImageStaticSource({
+                url: pngUrl,
+                //projection: projection,
+                imageExtent: imageMiddleExtent,
+                crossOrigin: 'anonymous',
+              });
 
-                let leftSide1 = fromLonLat([-360, -85]); //
-                let leftSide2 = fromLonLat([0, 85]);
-                let leftSideExtent = [leftSide1[0], leftSide1[1], leftSide2[0], leftSide2[1]];
+              //右侧贴图范围
+              let leftBottomImageRight = fromLonLat([this.globalNum_image_extent[0]+360, this.globalNum_image_extent[1]])
+              let rightTopImageRight = fromLonLat([this.globalNum_image_extent[2]+360, this.globalNum_image_extent[3]])
+              let imageRightExtent = [leftBottomImageRight[0], leftBottomImageRight[1], rightTopImageRight[0], rightTopImageRight[1]]
+              let rightSidePng = new ImageStaticSource({
+                url: pngUrl,
+                //projection: projection,
+                imageExtent: imageRightExtent,
+                crossOrigin: 'anonymous',
+              });
 
-                let leftSidePng = new ImageStaticSource({
-                    url: pngUrl,
-                    projection: projection,
-                    imageExtent: leftSideExtent,
-                    crossOrigin: 'anonymous',
-                });
-                this.globalNum_left_imgLayer = new ImageLayer({
-                    source: leftSidePng,
-                    extent: viewExtent  //只渲染部分，成功！
+              // 左侧贴图范围
+              let leftBottomImageLeft = fromLonLat([this.globalNum_image_extent[0]-360, this.globalNum_image_extent[1]])
+              let rightTopImageLeft = fromLonLat([this.globalNum_image_extent[2]-360, this.globalNum_image_extent[3]])
+              let imageLeftExtent = [leftBottomImageLeft[0], leftBottomImageLeft[1], rightTopImageLeft[0], rightTopImageLeft[1]]
+              let leftSidePng= new ImageStaticSource({
+                url: pngUrl,
+                //projection: projection,
+                imageExtent: imageLeftExtent,
+                crossOrigin: 'anonymous',
+              });
+              /**
+               *  判断可视化范围，处于画图状态，则都可视化矩形的范围
+               * */
+              let leftViewExtent = imageLeftExtent
+              let middleViewExtent = imageMiddleExtent
+              let rightViewExtent = imageRightExtent
+              if (this.globalNum_is_draw){ //如果在画图，全部采用矩形框的坐标
+                let leftBottom = fromLonLat([viewExtent[0], viewExtent[1]])
+                let rightTop = fromLonLat([viewExtent[2], viewExtent[3]])
+                leftViewExtent = [leftBottom[0],leftBottom[1], rightTop[0],rightTop[1]]
+                middleViewExtent = leftViewExtent
+                rightViewExtent = leftViewExtent
+              }
 
-                });
-                this.globalNum_left_imgLayer.setOpacity(0.8)
-                this.map.addLayer(this.globalNum_left_imgLayer);
+              this.globalNum_right_imgLayer = new ImageLayer({
+                source: rightSidePng,
+                extent: rightViewExtent
+              });
+
+              this.globalNum_middle_imgLayer = new ImageLayer({
+                source: middlePng,
+                extent: middleViewExtent
+              });
+              this.globalNum_left_imgLayer = new ImageLayer({
+                source: leftSidePng,
+                extent: leftViewExtent
+
+              });
+
+              this.globalNum_right_imgLayer.setOpacity(0.8)
+              this.map.addLayer(this.globalNum_right_imgLayer);
+              this.globalNum_middle_imgLayer.setOpacity(0.8)
+              this.map.addLayer(this.globalNum_middle_imgLayer);
+              this.globalNum_left_imgLayer.setOpacity(0.8)
+              this.map.addLayer(this.globalNum_left_imgLayer);
             },
             globalNumericalZoomChange(viewExtent) {
                 let currentZoom = parseInt(this.map.getView().getZoom())
@@ -1574,9 +1673,8 @@
                      *   3 === 气象格点图    分为 D5（Zoom 2-4） 和 D0( zoom 5-8 ) 两种
                      *   4 === 风浪格点图    分为 D6（Zoom 2-3） 和 D5( zoom 4-5 ) 和 D0( zoom 6-8 ) 三种
                      * */
-                    let leftBottom = transform([viewExtent[0], viewExtent[1]], "EPSG:4326", "EPSG:3857")
-                    let rightTop = transform([viewExtent[2], viewExtent[3]], "EPSG:4326", "EPSG:3857")
-                    this.globalNum_visible_extent = [leftBottom[0], leftBottom[1], rightTop[0], rightTop[1]]
+                    this.recurrentAddImage(0)
+                    this.globalNum_visible_extent = [viewExtent[0],viewExtent[1],viewExtent[2],viewExtent[3]]
                     switch (globalNumType) {
                         case '1':  //风浪-10米风场
                             this.globalNum_current_png.type = '1'

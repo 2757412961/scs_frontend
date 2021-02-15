@@ -53,7 +53,7 @@
               </div>
               <div style="margin-bottom: 5%"  class="selTitleBody">
                   <el-radio style="margin: 0;" v-model="drawExtentRatio" border label="1" @change="inputDisabled=false">&nbsp;&nbsp;自定义&nbsp;&nbsp;</el-radio>
-                  <el-radio v-model="drawExtentRatio" border label="2" @change="inputDisabled=true; drawRectangle(false)">全局</el-radio>
+                  <el-radio v-model="drawExtentRatio" border label="2" @change="inputDisabled=true; drawRectangle(false, false)">全局</el-radio>
               </div>
 
               <div>
@@ -62,7 +62,7 @@
                   <el-input
                     placeholder="上"
                     :disabled="inputDisabled"
-                    v-model="parseFloat(northInput).toFixed(2)" size="mini" class="globalNumInput"
+                    v-model="northInput" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
@@ -72,14 +72,14 @@
                   <el-input
                     placeholder="左"
                     :disabled="inputDisabled"
-                    v-model="parseFloat(westInput).toFixed(2)" size="mini" class="globalNumInput"
+                    v-model="westInput" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
                   <el-input
                     placeholder="右"
                     :disabled="inputDisabled"
-                    v-model="parseFloat(eastInput).toFixed(2)" size="mini" class="globalNumInput"
+                    v-model="eastInput" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
@@ -90,7 +90,7 @@
                   <el-input
                     placeholder="下"
                     :disabled="inputDisabled"
-                    v-model="parseFloat(southInput).toFixed(2)" size="mini" class="globalNumInput"
+                    v-model="southInput" size="mini" class="globalNumInput"
                     @input="globalNumInputChange"
                     clearable>
                   </el-input>
@@ -98,10 +98,10 @@
                 <div style="margin-top: 2%">
                   <el-button type="text" :disabled="inputDisabled"
                              style="float:left; width: 26%; font-size: 16px;margin-left: 12%;"
-                       @click="drawRectangle(true)">拾取范围</el-button>
+                       @click="drawRectangle(true, false)">拾取范围</el-button>
                   <el-button type="text" :disabled="inputDisabled"
                              style="float:right; width: 26%;font-size: 16px; margin-right: 12%;"
-                       @click="drawRectangle(false)">清除范围</el-button>
+                       @click="drawRectangle(false, false)">清除范围</el-button>
                 </div>
 
               </div>
@@ -206,7 +206,7 @@
         wave_legend: wave_legend,
         showForecastRate: true, //预报时次显示
         showLegend: true, // legend显示
-        fullViewExtent: [-180, -90, 180,90], //整个页面显示贴图
+        fullViewExtent: [0, -90, 360,90], //整个页面显示贴图
         globalNumRadio: '1', // 类型 + 产品 单选框综合的值(贴图的值)
         globalProductRadio: '1',  //产品 单选框
         globalTypeRadio: '1',  //类型 单选框
@@ -220,10 +220,10 @@
         windTimeSelectedTime: '', //气象选中的值 yyyymmddhh
         windForecastStart: '加载中...',
         waveForecastStart: '加载中...',
-        northInput: '90.0',
-        southInput: '-90.0',
-        eastInput: '180.0',
-        westInput: '-180.0',
+        northInput: 90.0,
+        southInput: -90.0,
+        eastInput: 360.0,
+        westInput: 0.0,
         rightIsHide: false,
         btnIconData: 'el-icon-d-arrow-right',//按钮图标
         activeNames: ['rightSide'],
@@ -238,8 +238,8 @@
     methods: {
       // 输入框值改变事件
       globalNumInputChange(){
-        this.fullViewExtent = [this.westInput, this.southInput, this.eastInput,this.northInput];
-        this.addPngChangeHandler()
+        this.fullViewExtent = [parseFloat(this.westInput), parseFloat(this.southInput), parseFloat(this.eastInput),parseFloat(this.northInput)];
+        this.drawRectangle(true, true)
       },
       // 填充4个经纬度输入框的值
       fillLonlatInput(){
@@ -255,7 +255,7 @@
       },
 
       // 绘制矩形并拾取范围方法
-      drawRectangle(flag){
+      drawRectangle(flag, inputFlag){
         // 调用maplayout中的绘图方法
         if (!flag){  //如果点击了清除按钮，初始化拾取范围的值
           this.westInput= -180.0;
@@ -264,7 +264,11 @@
           this.northInput = 90.0;
           this.fullViewExtent = [this.westInput, this.southInput, this.eastInput,this.northInput];
         }
-        globalBus.$emit('drawRectangle', flag)
+        if (inputFlag){ //如果是根据输入值绘图
+          globalBus.$emit('drawRectangle', flag, true, this.fullViewExtent)
+        } else {
+          globalBus.$emit('drawRectangle', flag, false, null) //非输入经纬度绘图
+        }
       },
 
       // 贴图事件触发

@@ -209,7 +209,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="日" style="margin-left: 10px;">
-          <el-select v-model="nextTenDaysSelectedDay" style="width:60px" @change="lawAreaDayChange">
+          <el-select v-model="nextTenDaysSelectedDay" style="width:60px">
             <el-option
               v-for="(item,index)  in nextTenDaysDay"
               :key="index"
@@ -223,7 +223,7 @@
         </el-form-item>
       </el-form>
 
-      <el-divider content-position="left" >
+      <!--<el-divider content-position="left" >
         <span style="font-size: 16px; line-height: 1.6; font-weight: bold;">海冰预报单</span>
       </el-divider>
       <el-form :inline="true" class="prediction-form-inline" size="mini">
@@ -260,8 +260,163 @@
         <el-form-item style="margin-left: 10px;">
           <el-button type="primary" @click="seaIceLoadFile">查询</el-button>
         </el-form-item>
+      </el-form>-->
+
+      <el-divider content-position="left" >
+        <span style="font-size: 16px; line-height: 1.6; font-weight: bold;">未来四周预报单</span>
+      </el-divider>
+      <el-form :inline="true" class="prediction-form-inline" size="mini">
+        <el-form-item label="年">
+          <el-select v-model="next4WeeksSelectedYear" style="width:80px" @change="next4WeeksYearChange">
+            <el-option
+              v-for="(item,index) in next4WeeksYear"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="月" style="margin-left: 10px;">
+          <el-select v-model="next4WeeksSelectedMonth" style="width:60px"  @change="next4WeeksMonthChange">
+            <el-option
+              v-for="(item,index)  in next4WeeksMonth"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="日" style="margin-left: 10px;">
+          <el-select v-model="next4WeeksSelectedDay" style="width:60px" >
+            <el-option
+              v-for="(item,index)  in next4WeeksDay"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item style="margin-left: 10px;">
+          <el-button type="primary" @click="next4WeeksLoadFile">查询</el-button>
+        </el-form-item>
       </el-form>
 
+      <el-divider content-position="left" >
+        <span style="font-size: 16px; line-height: 1.6; font-weight: bold;">海浪警报单</span>
+      </el-divider>
+      <el-form :inline="true" class="prediction-form-inline" size="mini">
+        <el-form-item label="年">
+          <el-select v-model="nextTenDaysSelectedYear" style="width:80px" @change="nextTenDaysYearChange">
+            <el-option
+              v-for="(item,index) in nextTenDaysYear"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="月" style="margin-left: 10px;">
+          <el-select v-model="nextTenDaysSelectedMonth" style="width:60px"  @change="nextTenDaysMonthChange">
+            <el-option
+              v-for="(item,index)  in nextTenDaysMonth"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="日" style="margin-left: 10px;">
+          <el-select v-model="nextTenDaysSelectedDay" style="width:60px" @change="lawAreaDayChange">
+            <el-option
+              v-for="(item,index)  in nextTenDaysDay"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item style="margin-left: 10px;">
+          <el-button type="primary" @click="nextTenDaysLoadFile">查询</el-button>
+        </el-form-item>
+      </el-form>
+
+      <el-divider content-position="left" >
+        <span style="font-size: 16px; line-height: 1.6; font-weight: bold;">风暴潮警报单</span>
+      </el-divider>
+      <el-form :inline="true" class="prediction-form-inline" size="mini">
+        <el-form-item label="年">
+          <el-select v-model="nextTenDaysSelectedYear" style="width:80px" @change="nextTenDaysYearChange">
+            <el-option
+              v-for="(item,index) in nextTenDaysYear"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="月" style="margin-left: 10px;">
+          <el-select v-model="nextTenDaysSelectedMonth" style="width:60px"  @change="nextTenDaysMonthChange">
+            <el-option
+              v-for="(item,index)  in nextTenDaysMonth"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="日" style="margin-left: 10px;">
+          <el-select v-model="nextTenDaysSelectedDay" style="width:60px" @change="lawAreaDayChange">
+            <el-option
+              v-for="(item,index)  in nextTenDaysDay"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item style="margin-left: 10px;">
+          <el-button type="primary" @click="nextTenDaysLoadFile">查询</el-button>
+        </el-form-item>
+      </el-form>
+
+      <el-divider content-position="left" >
+        <span style="font-size: 16px; line-height: 1.6; font-weight: bold;">台风决策服务信息</span>
+      </el-divider>
+      <el-form :inline="true" class="prediction-form-inline" size="mini">
+        <el-form-item label="年">
+          <el-select v-model="nextTenDaysSelectedYear" style="width:80px" @change="nextTenDaysYearChange">
+            <el-option
+              v-for="(item,index) in nextTenDaysYear"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="月" style="margin-left: 10px;">
+          <el-select v-model="nextTenDaysSelectedMonth" style="width:60px"  @change="nextTenDaysMonthChange">
+            <el-option
+              v-for="(item,index)  in nextTenDaysMonth"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="日" style="margin-left: 10px;">
+          <el-select v-model="nextTenDaysSelectedDay" style="width:60px" @change="lawAreaDayChange">
+            <el-option
+              v-for="(item,index)  in nextTenDaysDay"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item style="margin-left: 10px;">
+          <el-button type="primary" @click="nextTenDaysLoadFile">查询</el-button>
+        </el-form-item>
+      </el-form>
 
     </div>
   </modal>
@@ -322,14 +477,23 @@
         nextTenDaysSelectedDay: '',
         nextTenDaysPaperFileName: {}, //预报单名称
 
+        // 未来四周预报单下拉栏
+        next4WeeksYear: {},
+        next4WeeksMonth: {},
+        next4WeeksDay: {},
+        next4WeeksSelectedYear: '',
+        next4WeeksSelectedMonth: '',
+        next4WeeksSelectedDay: '',
+        next4WeeksPaperFileName: {}, //预报单名称
+
         // 海冰预报单下拉栏
-        seaIceYear: {},
+        /*seaIceYear: {},
         seaIceNum: {},
         seaIceCycle: {},
         seaIceSelectedYear: '',
         seaIceSelectedNum: '',
         seaIceSelectedCycle: '',
-        seaIcePaperFileName: {}, //预报单名称
+        seaIcePaperFileName: {}, //预报单名称*/
       }
 
     },
@@ -357,6 +521,11 @@
         window.open("http://" + this.$store.state.serverIP + "/wlstybd/" + val.fileName,'_blank');
       },
 
+      // 未来四周预报pdf
+      next4WeeksPaperFileName(val){
+        window.open("http://" + this.$store.state.serverIP + "/zcqyb/" + val.fileName,'_blank');
+      },
+
       // 海冰预报pdf
       seaIcePaperFileName(val){
         window.open("http://" + this.$store.state.serverIP + "/hbybd/" + val.fileName,'_blank');
@@ -372,11 +541,12 @@
         this.getTyphoonForecastConditon("","","")
         this.getTropicsForecastConditon("","","")
         this.getNextTenDaysForecastConditon("","","");
-        this.getSeaIceForecastConditon("","","");
+        this.getnext4WeeksForecastConditon("","","",)
+        // this.getSeaIceForecastConditon("","","");
       },
 
       /**  海冰预报单  **/
-      seaIceCycleName(val){
+      /*seaIceCycleName(val){
         if (val === 'x')
           return '旬预报'
         if (val === 'm')
@@ -420,10 +590,51 @@
               type: 'warning'
             });
           })
-      },
+      },*/
 
       /**  海冰预报单  **/
 
+      /**  未来四周预报单  **/
+
+      next4WeeksLoadFile(){
+        this.getnext4WeeksForecastConditon(this.next4WeeksSelectedYear,this.next4WeeksSelectedMonth,this.next4WeeksSelectedDay);
+      },
+      next4WeeksYearChange(val){
+        this.getnext4WeeksForecastConditon(val,"","");
+      },
+      next4WeeksMonthChange(val){
+        this.getnext4WeeksForecastConditon(this.next4WeeksSelectedYear,val,"");
+      },
+      getnext4WeeksForecastConditon(year,month,day){
+        var api = `/api/SCSServices/getNext4WeeksPrediction.action?year=${year}&month=${month}&day=${day}`;
+        this.$axios.get(api).then((response) => {
+          let next4WeeksSelectData = response.data
+          if (next4WeeksSelectData.hasOwnProperty("year")){
+            this.next4WeeksYear = next4WeeksSelectData.year;
+            this.next4WeeksSelectedYear = this.next4WeeksYear[this.next4WeeksYear.length-1];
+          }
+          if (next4WeeksSelectData.hasOwnProperty("month")){
+            this.next4WeeksMonth = next4WeeksSelectData.month;
+            this.next4WeeksSelectedMonth = this.next4WeeksMonth[this.next4WeeksMonth.length-1];
+          }
+          if (next4WeeksSelectData.hasOwnProperty("day")){
+            this.next4WeeksDay = next4WeeksSelectData.day;
+            this.next4WeeksSelectedDay = this.next4WeeksDay[this.next4WeeksDay.length-1];
+          }
+          if (next4WeeksSelectData.hasOwnProperty("fileName")){
+            this.next4WeeksPaperFileName = {'fileName': next4WeeksSelectData.fileName[0],'id': new Date() };
+          }
+        })
+          .catch((response) => {
+            //失败回调
+            this.$confirm('服务器失联！', '提示', {
+              confirmButtonText: '确定',
+              type: 'warning'
+            });
+          })
+      },
+
+      /**  未来四周预报单  **/
 
       /**  未来十天预报单  **/
       nextTenDaysLoadFile(){

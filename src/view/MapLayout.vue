@@ -109,7 +109,6 @@
 
                 /* 格点预报 start*/
                 globalNum_left_imgLayer: null,
-                globalNum_middle_imgLayer: null,
                 globalNum_right_imgLayer: null,
                 globalNum_current_png: {type: '', pngUrl: ''},
                 globalNum_draw: null,
@@ -300,13 +299,13 @@
                     url: ''
                 });
                 this.globalNum_left_imgLayer = new ImageLayer({
-                    source: globalNum_imgLayer_source
+                  source: globalNum_imgLayer_source
                 });
                 this.globalNum_middle_imgLayer = new ImageLayer({
                   source: globalNum_imgLayer_source
                 });
                 this.globalNum_right_imgLayer = new ImageLayer({
-                    source: globalNum_imgLayer_source
+                  source: globalNum_imgLayer_source
                 });
                 this.globalNum_draw_source = new VectorSource()
                 this.globalNum_draw_layer = new VectorLayer({
@@ -450,16 +449,11 @@
                     let id_feature = feature.get('feature_id');
                     // 调用seaArea方法，传递id
                     globalBus.$emit('updateSeaAreaDataIndex', id_feature);
-                } else if (feature.get('name').search(/lawAreaPointFeature/) != -1) {
+                } else if (feature.get('name').search(/lawAreaPolygonFeature/) != -1) {
                     // 如果点击了lawArea的feature
                     let areaName = feature.get('areaName');
                     globalBus.$emit('changeLawAreaName', areaName);
                 }
-                // else if (feature.get('name').search(/lawAreaPolygonFeature/) != -1) {
-                //     // 如果点击了lawArea的feature
-                //     let areaName = feature.get('areaName');
-                //     globalBus.$emit('changeLawAreaName', areaName);
-                // }
 
                 // 清除选中要素
                 this.selectClick.getFeatures().clear();
@@ -506,11 +500,29 @@
                             this.typhForecastPointPopup(feature);
                         }
                     } else if (feature.get('name').search(/seaArea/) != -1) {
+                        /*//如果移动到新的feature，修改feature样式
+                        if (this.lastPointerFeature !== feature) { //鼠标移动到了新的feature
+                          let featureStyle = feature.getStyle();  //记录本次feature的样式
+                          if (this.lastPointerFeature != null) {  //如果上次feature不为空，将值设置为上一feature的样式
+                            this.lastPointerFeature.setStyle(featureStyle);
+                          }
+                          let highlightStyle = new Style({  //鼠标覆盖，创建新的feature样式
+                            stroke: new Stroke({
+                              color: '#3681AA',
+                              width: 2
+                            }),
+                            fill: new Fill({
+                              color: 'rgba(54, 129, 170,1)'
+                            }),
+                          });
+                          feature.setStyle(highlightStyle);
+                          this.seaAreaForecastPopup(feature, pixel); //显示弹框
+                          this.lastPointerFeature = feature; //记录本次feature
+                        }*/
                         this.seaAreaForecastPopup(feature, pixel);
+                    } else if (feature.get('name').search(/lawAreaPolygonFeature/) != -1) {
+                        this.lawAreaPolygonPopup(feature, pixel);
                     }
-                    // else if (feature.get('name').search(/lawAreaPolygonFeature/) != -1) {
-                    //     this.lawAreaPolygonPopup(feature, pixel);
-                    // }
                 } else {
                     if (this.lastPointerFeature != null) {
                         if (this.lastPointerFeature.get('name').search(/Point/) != -1) {
@@ -522,13 +534,12 @@
                                 stroke: new Stroke({color: '#429FCE', width: 2}),
                                 fill: new Fill({color: '#C2D1E0'}),
                             }));
+                        } else if (this.lastPointerFeature.get('name').search(/lawAreaPolygonFeature/) != -1) {
+                            let oldColor = this.lastPointerFeature.getStyle().getFill().getColor();
+                            oldColor[3] = 0.4;
+                            this.lastPointerFeature.getStyle().getFill().setColor(oldColor);
+                            this.law_area_layer.getSource().changed();
                         }
-                        // else if (this.lastPointerFeature.get('name').search(/lawAreaPolygonFeature/) != -1) {
-                        //     let oldColor = this.lastPointerFeature.getStyle().getFill().getColor();
-                        //     oldColor[3] = 0.4;
-                        //     this.lastPointerFeature.getStyle().getFill().setColor(oldColor);
-                        //     this.law_area_layer.getSource().changed();
-                        // }
                     }
                     this.overlay.setPosition(undefined);
                     this.lastPointerFeature = null;//记录本次feature
@@ -605,8 +616,8 @@
                 // 格点预报
                 this.globalNum_draw_layer.getSource().clear();
                 this.map.removeLayer(this.globalNum_left_imgLayer);
-                this.map.removeLayer(this.globalNum_middle_imgLayer);
                 this.map.removeLayer(this.globalNum_right_imgLayer);
+                this.map.removeLayer(this.globalNum_middle_imgLayer);
 
                 // 清除台风路线绘制和定时器
                 clearInterval(this.typh_move_setTime);
@@ -1378,100 +1389,52 @@
 
 
             //  ***************************** lawArea 执法海域预报   start ******************************************
-            // // 绘制执法海域 Polygon
-            // createLawAreaPolygon(json) {
-            //     let areaName = json.area;
-            //     let color = json.color;
-            //     let labx = parseFloat(json.labx);
-            //     let laby = parseFloat(json.laby);
-            //     let points = [];
-            //     json.pt.forEach(function (xys) {
-            //         points.push([parseFloat(xys.x), parseFloat(xys.y)]);
-            //     });
-            //     points.push([parseFloat(json.pt[0].x), parseFloat(json.pt[0].y)])
-            //
-            //     let lawAreaFeature = new Feature({
-            //         geometry: new Polygon([points]),
-            //         name: 'lawAreaPolygonFeature',
-            //         areaName: areaName
-            //     });
-            //
-            //     // 设置样式
-            //     let rgba = asArray(color).slice();
-            //     rgba[3] = 0.4;
-            //     lawAreaFeature.setStyle(new Style({
-            //         fill: new Fill({
-            //             color: rgba,
-            //         }),
-            //         text: new Text({
-            //             text: areaName,
-            //             textAlign: "center",
-            //             textBaseline: "middle",
-            //             placement: "point", //point 则自动计算面的中心k点然后标注  line 则根据面要素的边进行标注
-            //             // overflow: true //超出面的部分不显示
-            //         }),
-            //     }));
-            //
-            //     this.law_area_layer.getSource().addFeature(lawAreaFeature);
-            // },
-            // lawAreaDrawPolygon() {
-            //     globalBus.$on('lawAreaDraw', (lawAreaJson) => {
-            //         this.moveViewTo(fromLonLat([120, 17])[0], fromLonLat([120, 17])[1], 5);
-            //
-            //         // 判断是否已经加入了执法海域要素，如果没有加入则继续执行
-            //         let lawAreaSourceFeatures = this.law_area_layer.getSource().getFeatures();
-            //         if (lawAreaSourceFeatures.length > 0) return;
-            //
-            //         for (let i = 0; i < lawAreaJson.length; i++) {
-            //             this.createLawAreaPolygon(lawAreaJson[i]);
-            //         }
-            //     });
-            // },
-            // 绘制执法海域 Point
-            createLawAreaPoint(json) {
+            createLawAreaPolygon(json) {
                 let areaName = json.area;
                 let color = json.color;
                 let labx = parseFloat(json.labx);
                 let laby = parseFloat(json.laby);
+                let points = [];
+                json.pt.forEach(function (xys) {
+                    points.push([parseFloat(xys.x), parseFloat(xys.y)]);
+                });
+                points.push([parseFloat(json.pt[0].x), parseFloat(json.pt[0].y)])
 
                 let lawAreaFeature = new Feature({
-                    geometry: new Point([parseFloat(labx), parseFloat(laby)]),
-                    name: 'lawAreaPointFeature',
+                    geometry: new Polygon([points]),
+                    name: 'lawAreaPolygonFeature',
                     areaName: areaName
                 });
 
                 // 设置样式
+                let rgba = asArray(color).slice();
+                rgba[3] = 0.4;
                 lawAreaFeature.setStyle(new Style({
-                    image: new CircleStyle({
-                        radius: 5,
-                        fill: new Fill({
-                            color: color
-                        })
+                    fill: new Fill({
+                        color: rgba,
                     }),
                     text: new Text({
                         text: areaName,
-                        font: '15px Microsoft YaHei',
-                        fill: new Fill({color: '#000000'}),
-                        stroke: new Stroke({color: '#ffcc33', width: 12}),
-                        placement: 'point',
                         textAlign: "center",
-                        offsetX: 0,
-                        offsetY: 30
+                        textBaseline: "middle",
+                        placement: "point", //point 则自动计算面的中心k点然后标注  line 则根据面要素的边进行标注
+                        // overflow: true //超出面的部分不显示
                     }),
                 }));
 
                 this.law_area_layer.getSource().addFeature(lawAreaFeature);
             },
-            lawAreaDrawPoint() {
+            // 绘制执法海域 Polygon
+            lawAreaDrawPolygon() {
                 globalBus.$on('lawAreaDraw', (lawAreaJson) => {
-                    this.moveViewTo(fromLonLat([120, 16])[0], fromLonLat([120, 16])[1], 5);
+                    this.moveViewTo(fromLonLat([120, 17])[0], fromLonLat([120, 17])[1], 5);
 
                     // 判断是否已经加入了执法海域要素，如果没有加入则继续执行
                     let lawAreaSourceFeatures = this.law_area_layer.getSource().getFeatures();
                     if (lawAreaSourceFeatures.length > 0) return;
 
                     for (let i = 0; i < lawAreaJson.length; i++) {
-                        this.createLawAreaPoint(lawAreaJson[i]);
+                        this.createLawAreaPolygon(lawAreaJson[i]);
                     }
                 });
             },
@@ -1482,21 +1445,21 @@
 
             // 绘制矩形
             /**
-           *  @param
-           *  flag 是否处于绘图状态，如果不是，则移除绘图图层
-           *  inputFlag 是否通过输入的点进行绘图
-           *  viewExtent 如果通过点绘图，则输入范围
-           * */
+             *  @param
+             *  flag 是否处于绘图状态，如果不是，则移除绘图图层
+             *  inputFlag 是否通过输入的点进行绘图
+             *  viewExtent 如果通过点绘图，则输入范围
+             * */
             drawRectangelGlobalNumerical() {
                 globalBus.$on('drawRectangle', (flag, inputFlag, viewExtent) => {
                     if (flag) {
                         this.globalNum_draw_source.clear()
                         this.map.removeInteraction(this.globalNum_draw)
                         this.map.removeLayer(this.globalNum_draw_layer)
-                        //判断是否是根据输入经纬度绘图
-                        if (inputFlag){
-                          let leftBottom = fromLonLat([viewExtent[0], viewExtent[1]])
-                          let rightTop = fromLonLat([viewExtent[2], viewExtent[3]])
+                      //判断是否是根据输入经纬度绘图
+                      if (inputFlag){
+                        let leftBottom = fromLonLat([viewExtent[0], viewExtent[1]])
+                        let rightTop = fromLonLat([viewExtent[2], viewExtent[3]])
                           let rectangleFeature = new Feature({
                             geometry: new Polygon(
                               [
@@ -1515,7 +1478,7 @@
                           this.globalNum_visible_extent = [viewExtent[0],viewExtent[1],viewExtent[2],viewExtent[3]]
                           this.addPngImageGlobalNumerical(this.globalNum_current_png.pngUrl, this.globalNum_visible_extent);
                         } else {
-                          //通过鼠标绘图
+                         //通过鼠标绘图
                           var globalNumThis = this
                           this.globalNum_draw.on('drawend', function (e) {
                             const geometry = e.feature.getGeometry()
@@ -1526,6 +1489,7 @@
                             globalNumThis.globalNum_visible_extent = [leftBottom[0],leftBottom[1],rightTop[0],rightTop[1]]
                             //globalNumThis.globalNum_visible_extent = [corrdinates[0][0][0], corrdinates[0][0][1], corrdinates[0][2][0], corrdinates[0][2][1]];
                             globalNumThis.addPngImageGlobalNumerical(globalNumThis.globalNum_current_png.pngUrl, globalNumThis.globalNum_visible_extent);
+
                             globalBus.$emit('fillGlobalNumLonlatInput', leftBottom, rightTop)
                             globalNumThis.map.removeInteraction(globalNumThis.globalNum_draw)
                           })
@@ -1534,32 +1498,33 @@
                         this.map.addLayer(this.globalNum_draw_layer)
                         this.globalNum_is_draw = true
                     } else {
-                      this.globalNum_draw_layer.getSource().clear()
-                      this.map.removeLayer(this.globalNum_draw_layer)
-                      this.map.removeInteraction(this.globalNum_draw)
-                      this.globalNum_is_draw = false
+                        this.globalNum_draw_layer.getSource().clear()
+                        this.map.removeLayer(this.globalNum_draw_layer)
+                        this.map.removeInteraction(this.globalNum_draw)
+                        this.globalNum_is_draw = false
                     }
+
                 });
             },
-          /**
-           * @Param newCenter 地图移动后的新center点
-           * 判断当前视图中心是否是 this.globalNum_visible_extent，否则的话改变中心重新贴图
-           * */
-          recurrentAddImage(newCenter){
-            //获取当前视图范围的中心点
-            let nowViewCenter = this.map.getView().getCenter()
-            //上一次的中心点this.globalNum_view_center
-            let lonCoor_360 = (fromLonLat([360, 20]))[0] //360度经度的坐标值
-            let scaleFactor = Math.floor(nowViewCenter[0] / lonCoor_360)
-            //如果中心点产生变化，即地图移动距离大于360度
-            if(scaleFactor != this.globalNum_scale_factor){
-              this.globalNum_image_extent[0] = (scaleFactor)*360
-              this.globalNum_image_extent[2] = (scaleFactor+1)*360
-              this.addPngImageGlobalNumerical(this.globalNum_current_png.pngUrl, this.globalNum_visible_extent);
-              this.globalNum_scale_factor = scaleFactor
-            }
-          },
-          // Parameters (url, 经纬度)
+            /**
+             * @Param newCenter 地图移动后的新center点
+             * 判断当前视图中心是否是 this.globalNum_visible_extent，否则的话改变中心重新贴图
+             * */
+            recurrentAddImage(newCenter){
+              //获取当前视图范围的中心点
+              let nowViewCenter = this.map.getView().getCenter()
+              //上一次的中心点this.globalNum_view_center
+              let lonCoor_360 = (fromLonLat([360, 20]))[0] //360度经度的坐标值
+              let scaleFactor = Math.floor(nowViewCenter[0] / lonCoor_360)
+              //如果中心点产生变化，即地图移动距离大于360度
+              if(scaleFactor != this.globalNum_scale_factor){
+                this.globalNum_image_extent[0] = (scaleFactor)*360
+                this.globalNum_image_extent[2] = (scaleFactor+1)*360
+                this.addPngImageGlobalNumerical(this.globalNum_current_png.pngUrl, this.globalNum_visible_extent);
+                this.globalNum_scale_factor = scaleFactor
+              }
+            },
+            // Parameters (url, 经纬度)
             addPngImageGlobalNumerical(pngUrl, viewExtent) {
 
               this.map.removeLayer(this.globalNum_left_imgLayer)
@@ -1612,6 +1577,8 @@
                 rightViewExtent = leftViewExtent
               }
 
+              let testLeftBottom = fromLonLat([viewExtent[0], viewExtent[1]])
+              let testRightTop = fromLonLat([viewExtent[2], viewExtent[3]])
               this.globalNum_right_imgLayer = new ImageLayer({
                 source: rightSidePng,
                 extent: rightViewExtent
@@ -1713,8 +1680,7 @@
 
             this.seaAreaDrawPolygon();
 
-            // this.lawAreaDrawPolygon();
-            this.lawAreaDrawPoint();
+            this.lawAreaDrawPolygon();
             this.clearMapLawAreaLayer();
 
             this.globalNumericalAddImage();

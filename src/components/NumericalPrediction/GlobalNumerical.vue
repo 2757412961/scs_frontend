@@ -53,7 +53,7 @@
               </div>
               <div style="margin-bottom: 5%"  class="selTitleBody">
                   <el-radio style="margin: 0;" v-model="drawExtentRatio" border label="1" @change="inputDisabled=false">&nbsp;&nbsp;自定义&nbsp;&nbsp;</el-radio>
-                  <el-radio v-model="drawExtentRatio" border label="2" @change="inputDisabled=true; drawRectangle(false)">全局</el-radio>
+                  <el-radio v-model="drawExtentRatio" border label="2" @change="inputDisabled=true; drawRectangle(false, false)">全局</el-radio>
               </div>
 
               <div>
@@ -98,10 +98,10 @@
                 <div style="margin-top: 2%">
                   <el-button type="text" :disabled="inputDisabled"
                              style="float:left; width: 26%; font-size: 16px;margin-left: 12%;"
-                       @click="drawRectangle(true)">拾取范围</el-button>
+                       @click="drawRectangle(true, false)">拾取范围</el-button>
                   <el-button type="text" :disabled="inputDisabled"
                              style="float:right; width: 26%;font-size: 16px; margin-right: 12%;"
-                       @click="drawRectangle(false)">清除范围</el-button>
+                       @click="drawRectangle(false, false)">清除范围</el-button>
                 </div>
 
               </div>
@@ -206,7 +206,7 @@
         wave_legend: wave_legend,
         showForecastRate: true, //预报时次显示
         showLegend: true, // legend显示
-        fullViewExtent: [-180, -90, 180,90], //整个页面显示贴图
+        fullViewExtent: [0, -90, 360,90], //整个页面显示贴图
         globalNumRadio: '1', // 类型 + 产品 单选框综合的值(贴图的值)
         globalProductRadio: '1',  //产品 单选框
         globalTypeRadio: '1',  //类型 单选框

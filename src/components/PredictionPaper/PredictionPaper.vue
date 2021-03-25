@@ -384,9 +384,9 @@
       </el-divider>
       <el-form :inline="true" class="prediction-form-inline" size="mini">
         <el-form-item label="年">
-          <el-select v-model="nextTenDaysSelectedYear" style="width:80px" @change="nextTenDaysYearChange">
+          <el-select v-model="jcfwxxSelectedYear" style="width:80px" @change="jcfwxxYearChange">
             <el-option
-              v-for="(item,index) in nextTenDaysYear"
+              v-for="(item,index) in jcfwxxYear"
               :key="index"
               :label="item"
               :value="item">
@@ -394,9 +394,9 @@
           </el-select>
         </el-form-item>
         <el-form-item label="月" style="margin-left: 10px;">
-          <el-select v-model="nextTenDaysSelectedMonth" style="width:60px"  @change="nextTenDaysMonthChange">
+          <el-select v-model="jcfwxxSelectedMonth" style="width:60px"  @change="jcfwxxMonthChange">
             <el-option
-              v-for="(item,index)  in nextTenDaysMonth"
+              v-for="(item,index)  in jcfwxxMonth"
               :key="index"
               :label="item"
               :value="item">
@@ -404,9 +404,9 @@
           </el-select>
         </el-form-item>
         <el-form-item label="日" style="margin-left: 10px;">
-          <el-select v-model="nextTenDaysSelectedDay" style="width:60px" @change="lawAreaDayChange">
+          <el-select v-model="jcfwxxSelectedDay" style="width:60px">
             <el-option
-              v-for="(item,index)  in nextTenDaysDay"
+              v-for="(item,index)  in jcfwxxDay"
               :key="index"
               :label="item"
               :value="item">
@@ -414,7 +414,7 @@
           </el-select>
         </el-form-item>
         <el-form-item style="margin-left: 10px;">
-          <el-button type="primary" @click="nextTenDaysLoadFile">查询</el-button>
+          <el-button type="primary" @click="jcfwxxLoadFile">查询</el-button>
         </el-form-item>
       </el-form>
 
@@ -486,6 +486,15 @@
         next4WeeksSelectedDay: '',
         next4WeeksPaperFileName: {}, //预报单名称
 
+        // 未来四周预报单下拉栏
+        jcfwxxYear: {},
+        jcfwxxMonth: {},
+        jcfwxxDay: {},
+        jcfwxxSelectedYear: '',
+        jcfwxxSelectedMonth: '',
+        jcfwxxSelectedDay: '',
+        jcfwxxPaperFileName: {}, //预报单名称
+
         // 海冰预报单下拉栏
         /*seaIceYear: {},
         seaIceNum: {},
@@ -526,6 +535,12 @@
         window.open("http://" + this.$store.state.serverIP + "/zcqyb/" + val.fileName,'_blank');
       },
 
+      // 决策服务信息预报pdf
+      jcfwxxPaperFileName(val){
+        window.open("http://" + this.$store.state.serverIP + "/jcfwxx/" + val.fileName,'_blank');
+      },
+
+
       // 海冰预报pdf
       seaIcePaperFileName(val){
         window.open("http://" + this.$store.state.serverIP + "/hbybd/" + val.fileName,'_blank');
@@ -542,6 +557,8 @@
         this.getTropicsForecastConditon("","","")
         this.getNextTenDaysForecastConditon("","","");
         this.getnext4WeeksForecastConditon("","","",)
+        this.getjcfwxxForecastConditon("","","",)
+
         // this.getSeaIceForecastConditon("","","");
       },
 
@@ -593,6 +610,48 @@
       },*/
 
       /**  海冰预报单  **/
+
+      /**  决策服务信息预报单  **/
+
+      jcfwxxLoadFile(){
+        this.getjcfwxxForecastConditon(this.jcfwxxSelectedYear,this.jcfwxxSelectedMonth,this.jcfwxxSelectedDay);
+      },
+      jcfwxxYearChange(val){
+        this.getjcfwxxForecastConditon(val,"","");
+      },
+      jcfwxxMonthChange(val){
+        this.getjcfwxxForecastConditon(this.jcfwxxSelectedYear,val,"");
+      },
+      getjcfwxxForecastConditon(year,month,day){
+        var api = `/api/SCSServices/getJCFWXXPrediction.action?year=${year}&month=${month}&day=${day}`;
+        this.$axios.get(api).then((response) => {
+          let jcfwxxSelectData = response.data
+          if (jcfwxxSelectData.hasOwnProperty("year")){
+            this.jcfwxxYear = jcfwxxSelectData.year;
+            this.jcfwxxSelectedYear = this.jcfwxxYear[this.jcfwxxYear.length-1];
+          }
+          if (jcfwxxSelectData.hasOwnProperty("month")){
+            this.jcfwxxMonth = jcfwxxSelectData.month;
+            this.jcfwxxSelectedMonth = this.jcfwxxMonth[this.jcfwxxMonth.length-1];
+          }
+          if (jcfwxxSelectData.hasOwnProperty("day")){
+            this.jcfwxxDay = jcfwxxSelectData.day;
+            this.jcfwxxSelectedDay = this.jcfwxxDay[this.jcfwxxDay.length-1];
+          }
+          if (jcfwxxSelectData.hasOwnProperty("fileName")){
+            this.jcfwxxPaperFileName = {'fileName': jcfwxxSelectData.fileName[0],'id': new Date() };
+          }
+        })
+          .catch((response) => {
+            //失败回调
+            this.$confirm('服务器失联！', '提示', {
+              confirmButtonText: '确定',
+              type: 'warning'
+            });
+          })
+      },
+
+      /**  决策服务信息预报单  **/
 
       /**  未来四周预报单  **/
 

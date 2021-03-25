@@ -2,12 +2,12 @@
 
   <el-container style="height:60px;background-color: #545c64;">
     <el-aside width="400px">
-      <a href="#">
+      <!--<a href="#">
         <img
           id="img_logo"
           src="~assets/nmefc_new.png"
         >
-      </a>
+      </a>-->
       <h1 id="h_title">
         {{this.$store.state.title}}
       </h1>
@@ -214,7 +214,7 @@
 
   #h_title {
     position: absolute;
-    left: 100px;
+    left: 20px;
     margin-top: 0px;
     color: white;
   }

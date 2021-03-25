@@ -258,9 +258,9 @@
       drawRectangle(flag, inputFlag){
         // 调用maplayout中的绘图方法
         if (!flag){  //如果点击了清除按钮，初始化拾取范围的值
-          this.westInput= -180.0;
+          this.westInput= 0.0;
           this.southInput = -90.0;
-          this.eastInput = 180.0;
+          this.eastInput = 360.0;
           this.northInput = 90.0;
           this.fullViewExtent = [this.westInput, this.southInput, this.eastInput,this.northInput];
         }
